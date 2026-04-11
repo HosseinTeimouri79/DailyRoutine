@@ -1,8 +1,16 @@
 # DailyRoutine
 
-شروع اولیه پروژه مطابق `Document.md` پیاده‌سازی شده است.
+اپلیکیشن مدیریت روتین روزانه با بک‌اند Flask و فرانت‌اند React (Vite).
 
-## Backend
+## پیش‌نیازها
+
+- Python 3.12+
+- Node.js 20+
+- Docker + Docker Compose (اختیاری)
+
+## اجرای لوکال
+
+### 1) Backend
 
 ```bash
 cd backend
@@ -13,9 +21,10 @@ cp .env.example .env
 python3 app.py
 ```
 
-API روی `http://localhost:4000` در دسترس است.
+- API: `http://localhost:4000`
+- Health check: `http://localhost:4000/api/health`
 
-## Frontend
+### 2) Frontend
 
 ```bash
 cd frontend
@@ -23,19 +32,35 @@ npm install
 npm run dev
 ```
 
-فرانت روی `http://localhost:3000` در دسترس است.
+- Frontend dev server: `http://localhost:3000`
 
-## Docker (اجرای یک‌دست)
+## اجرای Docker
+
+از ریشه پروژه:
 
 ```bash
 docker compose up --build
 ```
 
-- فرانت‌اند: `http://localhost:3000`
-- بک‌اند: `http://localhost:4000`
+برای Pull اولیه ایمیج‌ها (اختیاری ولی پیشنهادی):
+
+```bash
+sudo docker pull python:3.12-slim
+sudo docker pull node:20-alpine
+sudo docker pull nginx:1.27-alpine
+```
+
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:4000`
 
 برای تغییر API در build فرانت (اختیاری):
 
 ```bash
 VITE_API_BASE_URL=http://localhost:4000/api docker compose up --build
+```
+
+برای توقف سرویس‌ها:
+
+```bash
+docker compose down
 ```
