@@ -71,4 +71,15 @@ export const api = {
   getMonthlyReport: (month) =>
     request(`/reports/monthly?month=${month}`, { auth: true }),
   getWeeklyReport: () => request("/reports/weekly", { auth: true }),
+  getDailyTasks: (date) => request(`/daily-tasks?date=${date}`, { auth: true }),
+  createDailyTask: (payload) =>
+    request("/daily-tasks", { method: "POST", body: payload, auth: true }),
+  updateDailyTask: (id, payload) =>
+    request(`/daily-tasks/${id}`, {
+      method: "PUT",
+      body: payload,
+      auth: true,
+    }),
+  deleteDailyTask: (id) =>
+    request(`/daily-tasks/${id}`, { method: "DELETE", auth: true }),
 };

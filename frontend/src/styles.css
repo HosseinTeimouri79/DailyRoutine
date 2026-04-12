@@ -218,9 +218,24 @@ a {
 
 :root[data-theme="dark"] .monthly-calendar-shell,
 :root[data-theme="dark"] .stats-grid div,
-:root[data-theme="dark"] .routine-item {
+:root[data-theme="dark"] .routine-item,
+:root[data-theme="dark"] .daily-task-item {
   background: #121a2f;
   border-color: #2f3f6b;
+}
+
+:root[data-theme="dark"] .daily-task-text {
+  color: #dbe5ff;
+}
+
+:root[data-theme="dark"] .daily-task-text.done {
+  color: #95a4cb;
+}
+
+:root[data-theme="dark"] .daily-task-check {
+  background: #1b2646;
+  border-color: #3a4c7f;
+  color: #d7e2ff;
 }
 
 :root[data-theme="dark"] .report-chart-wrap {
@@ -234,15 +249,15 @@ a {
   color: #d3defe;
 }
 
-:root[data-theme="dark"] .chart-type-switch .btn.active {
-  background: #2d4277;
-  border-color: #6280cf;
-}
-
 :root[data-theme="dark"] .monthly-day {
   background: #18213b;
   color: #dee7ff;
   border-color: #364a7e;
+}
+
+:root[data-theme="dark"] .monthly-day.selected {
+  border-color: #6d87db;
+  box-shadow: inset 0 0 0 1px #6d87db;
 }
 
 :root[data-theme="dark"] .monthly-day.placeholder {
@@ -596,6 +611,68 @@ a {
   padding: 14px;
 }
 
+.daily-tasks-toolbar {
+  display: grid;
+  gap: 10px;
+}
+
+.daily-tasks-calendar {
+  margin-bottom: 12px;
+}
+
+.tasks-selected-date {
+  margin: 0;
+}
+
+.daily-tasks-form {
+  display: flex;
+  gap: 8px;
+}
+
+.daily-tasks-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: grid;
+  gap: 8px;
+}
+
+.daily-task-item {
+  border: 1px solid #dce4ff;
+  border-radius: 12px;
+  padding: 10px;
+  background: #f8faff;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.daily-task-check {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid #c9d6ff;
+  background: #eef3ff;
+  color: #2f448f;
+  cursor: pointer;
+}
+
+.daily-task-check.done {
+  background: #c9efda;
+  border-color: #67c48d;
+  color: #0f5132;
+}
+
+.daily-task-text {
+  color: #243568;
+}
+
+.daily-task-text.done {
+  text-decoration: line-through;
+  color: #8a96b7;
+}
+
 .report-chart-legend {
   display: flex;
   flex-wrap: wrap;
@@ -629,17 +706,6 @@ a {
   background: #b9c8ff;
 }
 
-.chart-type-switch {
-  margin-top: 10px;
-  display: flex;
-  gap: 8px;
-}
-
-.chart-type-switch .btn.active {
-  background: #dfe8ff;
-  border: 1px solid #9fb6ff;
-}
-
 .routine-report-chart {
   margin-top: 14px;
   min-height: 290px;
@@ -658,20 +724,6 @@ a {
   gap: 4px;
 }
 
-.stacked-bar {
-  width: 62px;
-  min-height: 10px;
-  border-radius: 10px 10px 6px 6px;
-  overflow: hidden;
-  border: 1px solid #dce5ff;
-  display: flex;
-  flex-direction: column-reverse;
-}
-
-.bar-segment {
-  width: 100%;
-}
-
 .clustered-bars {
   width: 72px;
   height: 100%;
@@ -687,19 +739,16 @@ a {
   border: 1px solid transparent;
 }
 
-.bar-segment.done,
 .cluster-bar.done {
   background: #c9efda;
   border-color: #67c48d;
 }
 
-.bar-segment.missed,
 .cluster-bar.missed {
   background: #ffd7db;
   border-color: #f08a96;
 }
 
-.bar-segment.remaining,
 .cluster-bar.remaining {
   background: #dce4ff;
   border-color: #b9c8ff;
@@ -742,12 +791,14 @@ a {
 .monthly-calendar-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 8px;
 }
 
 .monthly-calendar-title {
   margin: 0;
+  flex: 1;
+  text-align: center;
   color: #2d3e70;
   font-weight: 700;
 }
@@ -781,6 +832,11 @@ a {
   color: #27345f;
   font-weight: 600;
   cursor: pointer;
+}
+
+.monthly-day.selected {
+  border-color: #375dfb;
+  box-shadow: inset 0 0 0 1px #375dfb;
 }
 
 .monthly-day.other-month {
@@ -941,21 +997,40 @@ a {
 
 .snackbar {
   position: fixed;
-  left: 50%;
-  bottom: 18px;
-  transform: translateX(-50%);
+  top: 18px;
+  right: 18px;
   min-width: 220px;
-  max-width: min(92vw, 520px);
+  max-width: min(92vw, 420px);
   border-radius: 10px;
   padding: 10px 14px;
   color: #fff;
   font-size: 0.9rem;
   box-shadow: 0 18px 32px -20px #1f3b9f;
   z-index: 1200;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.snackbar-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.snackbar.info {
+  background: #1f4fbf;
 }
 
 .snackbar.success {
   background: #197a43;
+}
+
+.snackbar.warn {
+  background: #a16207;
 }
 
 .snackbar.error {

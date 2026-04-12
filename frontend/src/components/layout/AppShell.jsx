@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, clearSession, getUser, setSession } from "../../lib/api";
+import Header from "./Header";
 import Button from "../ui/Button";
+import Modal from "../ui/Modal";
 
 export default function AppShell({ title, children }) {
   const initialUser = getUser();
@@ -203,213 +205,178 @@ export default function AppShell({ title, children }) {
 
   return (
     <div className="app-shell" dir="rtl">
-      <header className="topbar">
-        <div>
-          <h1>{title}</h1>
-          <p>
-            {user ? `سلام ${user.name} عزیر - ` : ""}
-            <span style={{ fontWeight: "bold", color: "#4CAF50" }}>
-              امروز بهترین فرصت برای ساختن فردای توست! 🌟
-            </span>
-          </p>
-        </div>
-        <div className="topbar-actions">
-          <button
-            className="profile-toggle-btn"
-            onClick={openProfile}
-            title="پروفایل"
-            aria-label="پروفایل"
-          >
-            👤
-          </button>
-          <button
-            className="theme-toggle-btn"
-            onClick={() =>
-              setTheme((prev) => (prev === "dark" ? "light" : "dark"))
-            }
-            title="تغییر تم"
-            aria-label="تغییر تم"
-          >
-            {theme === "dark" ? "☀️" : "🌙"}
-          </button>
-          <Button variant="secondary" onClick={logout}>
-            خروج
-          </Button>
-        </div>
-      </header>
+      <Header
+        title={title}
+        user={user}
+        theme={theme}
+        onOpenProfile={openProfile}
+        onToggleTheme={() =>
+          setTheme((prev) => (prev === "dark" ? "light" : "dark"))
+        }
+        onLogout={logout}
+      />
 
       <main className="content-grid">{children}</main>
 
-      {isProfileOpen ? (
-        <div className="modal-backdrop" onClick={closeProfile}>
-          <div
-            className="modal-card profile-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="modal-title">پروفایل کاربری</h3>
-
-            <div className="profile-identity">
-              <div className="profile-avatar-wrap">
-                <button
-                  className="profile-avatar-btn"
-                  onClick={onAvatarClick}
-                  title="تغییر تصویر پروفایل"
-                >
-                  {user?.profile_image ? (
-                    <img
-                      src={user.profile_image}
-                      alt="تصویر پروفایل"
-                      className="profile-avatar"
-                    />
-                  ) : (
-                    <div className="profile-avatar profile-avatar-fallback">
-                      {(user?.name || "کاربر").slice(0, 1)}
-                    </div>
-                  )}
-                </button>
-                <input
-                  ref={profileFileInputRef}
-                  id="profileImage"
-                  type="file"
-                  accept="image/*"
-                  className="hidden-file-input"
-                  onChange={onSelectProfileImage}
+      <Modal
+        isOpen={isProfileOpen}
+        onClose={closeProfile}
+        title="پروفایل کاربری"
+        className="profile-modal"
+      >
+        <div className="profile-identity">
+          <div className="profile-avatar-wrap">
+            <button
+              className="profile-avatar-btn"
+              onClick={onAvatarClick}
+              title="تغییر تصویر پروفایل"
+            >
+              {user?.profile_image ? (
+                <img
+                  src={user.profile_image}
+                  alt="تصویر پروفایل"
+                  className="profile-avatar"
                 />
-              </div>
-              <form className="profile-meta" onSubmit={submitProfile}>
-                <div className="field">
-                  <label htmlFor="profileName">نام کاربری</label>
-                  <input
-                    id="profileName"
-                    className="input"
-                    value={profileName}
-                    onChange={(event) => setProfileName(event.target.value)}
-                  />
+              ) : (
+                <div className="profile-avatar profile-avatar-fallback">
+                  {(user?.name || "کاربر").slice(0, 1)}
                 </div>
-                <div className="field">
-                  <label htmlFor="profilePhone">شماره تلفن</label>
-                  <input
-                    id="profilePhone"
-                    className="input"
-                    value={user?.phone || ""}
-                    disabled
-                    readOnly
-                  />
-                </div>
-                <div className="modal-actions">
-                  <Button type="submit" disabled={profileLoading}>
-                    {profileLoading ? "در حال ذخیره..." : "ذخیره نام کاربری"}
-                  </Button>
-                </div>
-              </form>
+              )}
+            </button>
+            <input
+              ref={profileFileInputRef}
+              id="profileImage"
+              type="file"
+              accept="image/*"
+              className="hidden-file-input"
+              onChange={onSelectProfileImage}
+            />
+          </div>
+          <form className="profile-meta" onSubmit={submitProfile}>
+            <div className="field">
+              <label htmlFor="profileName">نام کاربری</label>
+              <input
+                id="profileName"
+                className="input"
+                value={profileName}
+                onChange={(event) => setProfileName(event.target.value)}
+              />
             </div>
-
-            {profileMessage.text ? (
-              <p
-                className={
-                  profileMessage.type === "error"
-                    ? "error-text"
-                    : "success-text"
-                }
-              >
-                {profileMessage.text}
-              </p>
-            ) : null}
-
+            <div className="field">
+              <label htmlFor="profilePhone">شماره تلفن</label>
+              <input
+                id="profilePhone"
+                className="input"
+                value={user?.phone || ""}
+                disabled
+                readOnly
+              />
+            </div>
             <div className="modal-actions">
-              <Button type="button" onClick={openPasswordModal}>
-                تغییر رمز عبور
-              </Button>
-              <Button type="button" variant="secondary" onClick={closeProfile}>
-                بستن
+              <Button type="submit" disabled={profileLoading}>
+                {profileLoading ? "در حال ذخیره..." : "ذخیره نام کاربری"}
               </Button>
             </div>
-            {profileLoading ? (
-              <p className="muted">در حال بروزرسانی...</p>
-            ) : null}
-          </div>
+          </form>
         </div>
-      ) : null}
 
-      {isPasswordModalOpen ? (
-        <div className="modal-backdrop" onClick={closePasswordModal}>
-          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-            <h3 className="modal-title">تغییر رمز عبور</h3>
-            <form className="stack" onSubmit={submitPasswordChange}>
-              <div className="field">
-                <label htmlFor="currentPassword">رمز فعلی</label>
-                <input
-                  id="currentPassword"
-                  type="password"
-                  className="input"
-                  value={passwordForm.current}
-                  onChange={(event) =>
-                    setPasswordForm((prev) => ({
-                      ...prev,
-                      current: event.target.value,
-                    }))
-                  }
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="nextPassword">رمز جدید</label>
-                <input
-                  id="nextPassword"
-                  type="password"
-                  className="input"
-                  value={passwordForm.next}
-                  onChange={(event) =>
-                    setPasswordForm((prev) => ({
-                      ...prev,
-                      next: event.target.value,
-                    }))
-                  }
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="confirmPassword">تکرار رمز جدید</label>
-                <input
-                  id="confirmPassword"
-                  type="password"
-                  className="input"
-                  value={passwordForm.confirm}
-                  onChange={(event) =>
-                    setPasswordForm((prev) => ({
-                      ...prev,
-                      confirm: event.target.value,
-                    }))
-                  }
-                />
-              </div>
+        {profileMessage.text ? (
+          <p
+            className={
+              profileMessage.type === "error" ? "error-text" : "success-text"
+            }
+          >
+            {profileMessage.text}
+          </p>
+        ) : null}
 
-              {passwordMessage.text ? (
-                <p
-                  className={
-                    passwordMessage.type === "error"
-                      ? "error-text"
-                      : "success-text"
-                  }
-                >
-                  {passwordMessage.text}
-                </p>
-              ) : null}
-
-              <div className="modal-actions">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={closePasswordModal}
-                >
-                  انصراف
-                </Button>
-                <Button type="submit" disabled={passwordLoading}>
-                  {passwordLoading ? "در حال ثبت..." : "ذخیره تغییر رمز"}
-                </Button>
-              </div>
-            </form>
-          </div>
+        <div className="modal-actions">
+          <Button type="button" onClick={openPasswordModal}>
+            تغییر رمز عبور
+          </Button>
+          <Button type="button" variant="secondary" onClick={closeProfile}>
+            بستن
+          </Button>
         </div>
-      ) : null}
+        {profileLoading ? <p className="muted">در حال بروزرسانی...</p> : null}
+      </Modal>
+
+      <Modal
+        isOpen={isPasswordModalOpen}
+        onClose={closePasswordModal}
+        title="تغییر رمز عبور"
+      >
+        <form className="stack" onSubmit={submitPasswordChange}>
+          <div className="field">
+            <label htmlFor="currentPassword">رمز فعلی</label>
+            <input
+              id="currentPassword"
+              type="password"
+              className="input"
+              value={passwordForm.current}
+              onChange={(event) =>
+                setPasswordForm((prev) => ({
+                  ...prev,
+                  current: event.target.value,
+                }))
+              }
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="nextPassword">رمز جدید</label>
+            <input
+              id="nextPassword"
+              type="password"
+              className="input"
+              value={passwordForm.next}
+              onChange={(event) =>
+                setPasswordForm((prev) => ({
+                  ...prev,
+                  next: event.target.value,
+                }))
+              }
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="confirmPassword">تکرار رمز جدید</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              className="input"
+              value={passwordForm.confirm}
+              onChange={(event) =>
+                setPasswordForm((prev) => ({
+                  ...prev,
+                  confirm: event.target.value,
+                }))
+              }
+            />
+          </div>
+
+          {passwordMessage.text ? (
+            <p
+              className={
+                passwordMessage.type === "error" ? "error-text" : "success-text"
+              }
+            >
+              {passwordMessage.text}
+            </p>
+          ) : null}
+
+          <div className="modal-actions">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={closePasswordModal}
+            >
+              انصراف
+            </Button>
+            <Button type="submit" disabled={passwordLoading}>
+              {passwordLoading ? "در حال ثبت..." : "ذخیره تغییر رمز"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
