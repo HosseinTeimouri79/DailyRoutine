@@ -70,7 +70,12 @@ export default function DailyTasks({
                   : "علامت‌گذاری به‌عنوان انجام‌شده"
               }
             >
-              {task.is_done ? "✓" : "○"}
+              <i
+                className={
+                  task.is_done ? "fa-solid fa-check" : "fa-regular fa-circle"
+                }
+                aria-hidden="true"
+              />
             </button>
             <span
               className={`daily-task-text ${task.is_done ? "done" : ""}`.trim()}
@@ -82,7 +87,7 @@ export default function DailyTasks({
               onClick={() => onRequestTaskDelete(task)}
               title="حذف کار"
             >
-              🗑
+              <i className="fa-solid fa-trash" aria-hidden="true" />
             </button>
           </li>
         ))}

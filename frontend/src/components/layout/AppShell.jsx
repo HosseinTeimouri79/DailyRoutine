@@ -18,6 +18,11 @@ export default function AppShell({ title, children }) {
     next: "",
     confirm: "",
   });
+  const [passwordVisibility, setPasswordVisibility] = useState({
+    current: false,
+    next: false,
+    confirm: false,
+  });
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [profileMessage, setProfileMessage] = useState({ type: "", text: "" });
   const [passwordMessage, setPasswordMessage] = useState({
@@ -53,6 +58,7 @@ export default function AppShell({ title, children }) {
   function openPasswordModal() {
     setPasswordMessage({ type: "", text: "" });
     setPasswordForm({ current: "", next: "", confirm: "" });
+    setPasswordVisibility({ current: false, next: false, confirm: false });
     setIsPasswordModalOpen(true);
   }
 
@@ -60,6 +66,11 @@ export default function AppShell({ title, children }) {
     setIsPasswordModalOpen(false);
     setPasswordMessage({ type: "", text: "" });
     setPasswordForm({ current: "", next: "", confirm: "" });
+    setPasswordVisibility({ current: false, next: false, confirm: false });
+  }
+
+  function togglePasswordVisibility(field) {
+    setPasswordVisibility((prev) => ({ ...prev, [field]: !prev[field] }));
   }
 
   async function syncProfile() {
@@ -309,48 +320,112 @@ export default function AppShell({ title, children }) {
         <form className="stack" onSubmit={submitPasswordChange}>
           <div className="field">
             <label htmlFor="currentPassword">رمز فعلی</label>
-            <input
-              id="currentPassword"
-              type="password"
-              className="input"
-              value={passwordForm.current}
-              onChange={(event) =>
-                setPasswordForm((prev) => ({
-                  ...prev,
-                  current: event.target.value,
-                }))
-              }
-            />
+            <div className="password-input-wrap">
+              <input
+                id="currentPassword"
+                type={passwordVisibility.current ? "text" : "password"}
+                className="input password-input"
+                value={passwordForm.current}
+                onChange={(event) =>
+                  setPasswordForm((prev) => ({
+                    ...prev,
+                    current: event.target.value,
+                  }))
+                }
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => togglePasswordVisibility("current")}
+                title={
+                  passwordVisibility.current ? "مخفی کردن رمز" : "نمایش رمز"
+                }
+                aria-label={
+                  passwordVisibility.current ? "مخفی کردن رمز" : "نمایش رمز"
+                }
+              >
+                <i
+                  className={
+                    passwordVisibility.current
+                      ? "fa-solid fa-eye-slash"
+                      : "fa-solid fa-eye"
+                  }
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
           </div>
           <div className="field">
             <label htmlFor="nextPassword">رمز جدید</label>
-            <input
-              id="nextPassword"
-              type="password"
-              className="input"
-              value={passwordForm.next}
-              onChange={(event) =>
-                setPasswordForm((prev) => ({
-                  ...prev,
-                  next: event.target.value,
-                }))
-              }
-            />
+            <div className="password-input-wrap">
+              <input
+                id="nextPassword"
+                type={passwordVisibility.next ? "text" : "password"}
+                className="input password-input"
+                value={passwordForm.next}
+                onChange={(event) =>
+                  setPasswordForm((prev) => ({
+                    ...prev,
+                    next: event.target.value,
+                  }))
+                }
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => togglePasswordVisibility("next")}
+                title={passwordVisibility.next ? "مخفی کردن رمز" : "نمایش رمز"}
+                aria-label={
+                  passwordVisibility.next ? "مخفی کردن رمز" : "نمایش رمز"
+                }
+              >
+                <i
+                  className={
+                    passwordVisibility.next
+                      ? "fa-solid fa-eye-slash"
+                      : "fa-solid fa-eye"
+                  }
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
           </div>
           <div className="field">
             <label htmlFor="confirmPassword">تکرار رمز جدید</label>
-            <input
-              id="confirmPassword"
-              type="password"
-              className="input"
-              value={passwordForm.confirm}
-              onChange={(event) =>
-                setPasswordForm((prev) => ({
-                  ...prev,
-                  confirm: event.target.value,
-                }))
-              }
-            />
+            <div className="password-input-wrap">
+              <input
+                id="confirmPassword"
+                type={passwordVisibility.confirm ? "text" : "password"}
+                className="input password-input"
+                value={passwordForm.confirm}
+                onChange={(event) =>
+                  setPasswordForm((prev) => ({
+                    ...prev,
+                    confirm: event.target.value,
+                  }))
+                }
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => togglePasswordVisibility("confirm")}
+                title={
+                  passwordVisibility.confirm ? "مخفی کردن رمز" : "نمایش رمز"
+                }
+                aria-label={
+                  passwordVisibility.confirm ? "مخفی کردن رمز" : "نمایش رمز"
+                }
+              >
+                <i
+                  className={
+                    passwordVisibility.confirm
+                      ? "fa-solid fa-eye-slash"
+                      : "fa-solid fa-eye"
+                  }
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
           </div>
 
           {passwordMessage.text ? (

@@ -36,21 +36,37 @@ export function getWeekDaysGregorian(weekStartISO) {
 
 export function formatPersianDateParts(isoDate) {
   const date = new Date(`${isoDate}T00:00:00`);
-  const day = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+
+  const optionsBase = {
+    calendar: "persian",
+    numberingSystem: "latn",
+  };
+
+  const day = new Intl.DateTimeFormat("fa-IR", {
+    ...optionsBase,
     day: "numeric",
   }).format(date);
-  const weekdayShort = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+
+  const weekdayShort = new Intl.DateTimeFormat("fa-IR", {
+    ...optionsBase,
     weekday: "short",
   }).format(date);
-  const weekdayLong = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+
+  const weekdayLong = new Intl.DateTimeFormat("fa-IR", {
+    ...optionsBase,
     weekday: "long",
   }).format(date);
-  const month = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+
+  const month = new Intl.DateTimeFormat("fa-IR", {
+    ...optionsBase,
     month: "long",
   }).format(date);
-  const year = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+
+  const year = new Intl.DateTimeFormat("fa-IR", {
+    ...optionsBase,
     year: "numeric",
   }).format(date);
+
   return { day, weekdayShort, weekdayLong, month, year };
 }
 

@@ -1,7 +1,43 @@
+@font-face {
+  font-family: "Vazir";
+  src:
+    url("../assets/font/Vazir-v16.1.0/Persian-Digits/Normal/Vazir.woff2")
+      format("woff2"),
+    url("../assets/font/Vazir-v16.1.0/Persian-Digits/Normal/Vazir.woff")
+      format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazir";
+  src:
+    url("../assets/font/Vazir-v16.1.0/Persian-Digits/Medium/Vazir-Medium.woff2")
+      format("woff2"),
+    url("../assets/font/Vazir-v16.1.0/Persian-Digits/Medium/Vazir-Medium.woff")
+      format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazir";
+  src:
+    url("../assets/font/Vazir-v16.1.0/Persian-Digits/Bold/Vazir-Bold.woff2")
+      format("woff2"),
+    url("../assets/font/Vazir-v16.1.0/Persian-Digits/Bold/Vazir-Bold.woff")
+      format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light;
   font-family:
-    Vazirmatn,
+    Vazir,
     system-ui,
     -apple-system,
     Segoe UI,
@@ -74,6 +110,11 @@ a {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.app-inline-icon {
+  margin-right: 4px;
+  font-size: 0.9em;
 }
 
 .theme-toggle-btn {
@@ -190,7 +231,6 @@ a {
 :root[data-theme="dark"] .btn-secondary,
 :root[data-theme="dark"] .theme-toggle-btn,
 :root[data-theme="dark"] .profile-toggle-btn,
-:root[data-theme="dark"] .add-routine-icon-btn,
 :root[data-theme="dark"] .routine-icon-btn {
   background: #1b2646;
   color: #d7e2ff;
@@ -380,6 +420,7 @@ a {
   padding: 10px 12px;
   background: #fff;
   color: #1f2a4d;
+  font-family: inherit;
 }
 
 .input:focus,
@@ -395,10 +436,42 @@ a {
   cursor: not-allowed;
 }
 
+.password-input-wrap {
+  position: relative;
+}
+
+.password-input {
+  padding-left: 42px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid #d5deff;
+  background: #eef2ff;
+  color: #2f448f;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
 :root[data-theme="dark"] .input:disabled {
   background: #1a233d;
   color: #a7b4d8;
   border-color: #3a4b78;
+}
+
+:root[data-theme="dark"] .password-toggle-btn {
+  background: #1b2646;
+  border-color: #3a4c7f;
+  color: #d7e2ff;
 }
 
 .btn {
@@ -407,6 +480,7 @@ a {
   padding: 10px 14px;
   cursor: pointer;
   font-weight: 600;
+  font-family: inherit;
 }
 
 .btn:disabled {
@@ -453,18 +527,6 @@ a {
   border: 1px solid #cdd9ff;
   display: inline-block;
   flex: 0 0 12px;
-}
-
-.add-routine-icon-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  border: 1px solid #c7d5ff;
-  background: #edf2ff;
-  color: #2f448f;
-  font-size: 1.3rem;
-  line-height: 1;
-  cursor: pointer;
 }
 
 .modal-backdrop {
@@ -831,6 +893,7 @@ a {
   background: #fff;
   color: #27345f;
   font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
 }
 
@@ -924,6 +987,17 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.routine-icon-btn i,
+.status-btn i,
+.daily-task-check i,
+.snackbar-icon i,
+.password-toggle-btn i,
+.profile-toggle-btn i,
+.theme-toggle-btn i {
+  line-height: 1;
+  pointer-events: none;
 }
 
 .routine-icon-btn.delete {

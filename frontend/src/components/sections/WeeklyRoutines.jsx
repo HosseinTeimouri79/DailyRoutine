@@ -38,12 +38,12 @@ export default function WeeklyRoutines({
       subtitle="وضعیت هر روتین روی روزهای هفته"
       actions={
         <button
-          className="add-routine-icon-btn"
+          className="btn btn-primary"
           onClick={openAddModal}
           title="افزودن روتین"
           aria-label="افزودن روتین"
         >
-          +
+          افزودن
         </button>
       }
     >
@@ -103,14 +103,14 @@ export default function WeeklyRoutines({
                         title="ویرایش"
                         onClick={() => openEditModal(routine)}
                       >
-                        ✎
+                        <i className="fa-solid fa-pen" aria-hidden="true" />
                       </button>
                       <button
                         className="routine-icon-btn delete"
                         title="حذف"
                         onClick={() => onRequestRoutineDelete(routine)}
                       >
-                        🗑
+                        <i className="fa-solid fa-trash" aria-hidden="true" />
                       </button>
                       <span
                         className="routine-color-dot"
@@ -144,11 +144,16 @@ export default function WeeklyRoutines({
                           }
                           onClick={() => toggleStatus(routine.id, day)}
                         >
-                          {status === "done"
-                            ? "✓"
-                            : status === "missed"
-                              ? "✕"
-                              : "-"}
+                          <i
+                            className={
+                              status === "done"
+                                ? "fa-solid fa-check"
+                                : status === "missed"
+                                  ? "fa-solid fa-xmark"
+                                  : "fa-solid fa-minus"
+                            }
+                            aria-hidden="true"
+                          />
                         </button>
                       </td>
                     );

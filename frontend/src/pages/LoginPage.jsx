@@ -19,6 +19,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState("login");
   const [form, setForm] = useState({ name: "", phone: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -90,16 +91,35 @@ export default function LoginPage() {
             required
           />
 
-          <Input
-            id="password"
-            type="password"
-            label="رمز عبور"
-            value={form.password}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, password: e.target.value }))
-            }
-            required
-          />
+          <div className="field">
+            <label htmlFor="password">رمز عبور</label>
+            <div className="password-input-wrap">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                className="input password-input"
+                value={form.password}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, password: e.target.value }))
+                }
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowPassword((prev) => !prev)}
+                title={showPassword ? "مخفی کردن رمز" : "نمایش رمز"}
+                aria-label={showPassword ? "مخفی کردن رمز" : "نمایش رمز"}
+              >
+                <i
+                  className={
+                    showPassword ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"
+                  }
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
+          </div>
 
           {error ? <p className="error-text">{error}</p> : null}
 
