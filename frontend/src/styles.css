@@ -124,6 +124,15 @@ a {
   background: #eaf0ff;
 }
 
+.tab-btn {
+  cursor: pointer;
+  font: inherit;
+}
+
+.page-tabs {
+  margin-bottom: 2px;
+}
+
 .content-grid {
   display: grid;
   gap: 16px;
@@ -142,6 +151,18 @@ a {
   background: #171f36;
   border-color: #2a355a;
   box-shadow: 0 16px 30px -22px #000;
+}
+
+:root[data-theme="dark"] .tab {
+  background: #1a2442;
+  border-color: #354a7a;
+  color: #c6d3f7;
+}
+
+:root[data-theme="dark"] .tab.active {
+  background: #263a6f;
+  border-color: #6582d0;
+  color: #eef3ff;
 }
 
 :root[data-theme="dark"] .topbar p,

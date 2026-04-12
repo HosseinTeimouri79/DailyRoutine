@@ -287,6 +287,7 @@ export default function CalendarPage() {
   const [routineToDelete, setRoutineToDelete] = useState(null);
   const [reportModal, setReportModal] = useState(null);
   const [chartType, setChartType] = useState("stacked");
+  const [activeTab, setActiveTab] = useState("weekly");
   const [editingRoutineId, setEditingRoutineId] = useState(null);
   const [newRoutineTitle, setNewRoutineTitle] = useState("");
   const [newRoutineColor, setNewRoutineColor] = useState("#375dfb");
@@ -499,252 +500,293 @@ export default function CalendarPage() {
     setChartType("stacked");
   }
 
+  function changeTab(nextTab) {
+    setActiveTab(nextTab);
+    setReportModal(null);
+  }
+
   return (
     <AppShell title="روتین‌های من">
-      <Card
-        title="نمایش هفتگی روتین‌ها"
-        subtitle="وضعیت هر روتین روی روزهای هفته"
-        actions={
-          <button
-            className="add-routine-icon-btn"
-            onClick={openAddModal}
-            title="افزودن روتین"
-            aria-label="افزودن روتین"
-          >
-            +
-          </button>
-        }
-      >
-        {error ? <p className="error-text">{error}</p> : null}
-        <div className="week-nav">
-          <button className="btn btn-secondary" onClick={goToPreviousWeek}>
-            هفته قبل
-          </button>
-          <p className="muted week-range-label">
-            از {formatPersianDateParts(weekDays[0]).day}{" "}
-            {formatPersianMonthYear(weekDays[0])}
-            {" تا "}
-            {formatPersianDateParts(weekDays[6]).day}{" "}
-            {formatPersianMonthYear(weekDays[6])}
-          </p>
-          <button
-            className="btn btn-secondary"
-            onClick={goToNextWeek}
-            disabled={!canGoNextWeek}
-          >
-            هفته بعد
-          </button>
-        </div>
+      <div className="nav-tabs page-tabs">
+        <button
+          type="button"
+          className={`tab tab-btn ${activeTab === "weekly" ? "active" : ""}`.trim()}
+          onClick={() => changeTab("weekly")}
+        >
+          روتین های هفتگی
+        </button>
+        <button
+          type="button"
+          className={`tab tab-btn ${activeTab === "monthly" ? "active" : ""}`.trim()}
+          onClick={() => changeTab("monthly")}
+        >
+          تقویم ماهانه
+        </button>
+        <button
+          type="button"
+          className={`tab tab-btn ${activeTab === "notes" ? "active" : ""}`.trim()}
+          onClick={() => changeTab("notes")}
+        >
+          یاداشت روزانه
+        </button>
+      </div>
 
-        <div className="calendar-wrap">
-          <table className="calendar-table week-table">
-            <thead>
-              <tr>
-                <th>روتین</th>
-                {weekDays.map((date) => {
-                  const p = formatPersianDateParts(date);
-                  return (
-                    <th key={date} title={p.weekdayLong}>
-                      {p.weekdayShort}
-                      <br />
-                      {p.day}
-                    </th>
-                  );
-                })}
-              </tr>
-            </thead>
-            <tbody>
-              {!routines.length ? (
-                <tr>
-                  <td colSpan={weekDays.length + 1}>روتینی یافت نشد.</td>
-                </tr>
-              ) : (
-                routines.map((routine) => (
-                  <tr key={routine.id}>
-                    <td
-                      className="routine-title-cell"
-                      style={{ textAlign: "justify" }}
-                    >
-                      <div className="routine-title-wrap">
-                        <button
-                          className="routine-icon-btn"
-                          title="ویرایش"
-                          onClick={() => openEditModal(routine)}
-                        >
-                          ✎
-                        </button>
-                        <button
-                          className="routine-icon-btn delete"
-                          title="حذف"
-                          onClick={() => setRoutineToDelete(routine)}
-                        >
-                          🗑
-                        </button>
-                        <span
-                          className="routine-color-dot"
-                          style={{
-                            backgroundColor: routine.color || "#9fb6ff",
-                          }}
-                        />
-                        <span>{routine.title}</span>
-                      </div>
-                    </td>
-                    {weekDays.map((day) => {
-                      const key = `${routine.id}-${day}`;
-                      const status = logsMap.get(key);
-                      const isFutureDay = day > todayISO;
-                      const cls =
-                        status === "done"
-                          ? "status-btn done"
-                          : status === "missed"
-                            ? "status-btn missed"
-                            : "status-btn";
-
-                      return (
-                        <td key={key}>
-                          <button
-                            className={`${cls} ${isFutureDay ? "disabled" : ""}`.trim()}
-                            disabled={isFutureDay}
-                            title={
-                              isFutureDay
-                                ? "ثبت وضعیت برای تاریخ آینده مجاز نیست"
-                                : ""
-                            }
-                            onClick={() => toggleStatus(routine.id, day)}
-                          >
-                            {status === "done"
-                              ? "✓"
-                              : status === "missed"
-                                ? "✕"
-                                : "-"}
-                          </button>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <StatGrid
-          data={weeklyReport}
-          action={
-            <Button
-              variant="secondary"
-              onClick={() => openReportChart("weekly")}
+      {activeTab === "weekly" ? (
+        <Card
+          title="روتین های هفتگی"
+          subtitle="وضعیت هر روتین روی روزهای هفته"
+          actions={
+            <button
+              className="add-routine-icon-btn"
+              onClick={openAddModal}
+              title="افزودن روتین"
+              aria-label="افزودن روتین"
             >
-              چارت گزارش هفتگی
-            </Button>
+              +
+            </button>
           }
-        />
-      </Card>
-
-      <Card
-        title="تقویم ماهانه"
-        subtitle={`وضعیت روتین انتخاب‌شده روی روزهای ${formatPersianMonthYear(monthDays[0] || todayISO)}`}
-      >
-        <div className="routine-badges">
-          {!routines.length ? (
-            <p className="muted">ابتدا یک روتین تعریف کنید.</p>
-          ) : (
-            routines.map((routine) => (
-              <button
-                key={routine.id}
-                className={`routine-badge ${selectedRoutineId === routine.id ? "active" : ""}`.trim()}
-                onClick={() => setSelectedRoutineId(routine.id)}
-                style={
-                  selectedRoutineId === routine.id
-                    ? {
-                        "--routine-accent": routine.color || "#375dfb",
-                      }
-                    : undefined
-                }
-              >
-                <span
-                  className="routine-color-dot"
-                  style={{
-                    backgroundColor:
-                      selectedRoutineId === routine.id
-                        ? routine.color || "#9fb6ff"
-                        : "#c8cfde",
-                  }}
-                />
-                {routine.title}
-              </button>
-            ))
-          )}
-        </div>
-
-        <div className="monthly-calendar-shell">
-          <div className="monthly-calendar-header">
-            <button className="btn btn-secondary" onClick={goToPreviousMonth}>
-              ماه قبل
+        >
+          {error ? <p className="error-text">{error}</p> : null}
+          <div className="week-nav">
+            <button className="btn btn-secondary" onClick={goToPreviousWeek}>
+              هفته قبل
             </button>
-            <p className="monthly-calendar-title">
-              {formatPersianMonthYear(monthDays[0] || todayISO)}
+            <p className="muted week-range-label">
+              از {formatPersianDateParts(weekDays[0]).day}{" "}
+              {formatPersianMonthYear(weekDays[0])}
+              {" تا "}
+              {formatPersianDateParts(weekDays[6]).day}{" "}
+              {formatPersianMonthYear(weekDays[6])}
             </p>
-            <button className="btn btn-secondary" onClick={goToNextMonth}>
-              ماه بعد
+            <button
+              className="btn btn-secondary"
+              onClick={goToNextWeek}
+              disabled={!canGoNextWeek}
+            >
+              هفته بعد
             </button>
           </div>
 
-          <div className="monthly-weekdays">
-            {WEEKDAY_LABELS.map((label) => (
-              <span key={label}>{label}</span>
-            ))}
+          <div className="calendar-wrap">
+            <table className="calendar-table week-table">
+              <thead>
+                <tr>
+                  <th>روتین</th>
+                  {weekDays.map((date) => {
+                    const p = formatPersianDateParts(date);
+                    return (
+                      <th key={date} title={p.weekdayLong}>
+                        {p.weekdayShort}
+                        <br />
+                        {p.day}
+                      </th>
+                    );
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {!routines.length ? (
+                  <tr>
+                    <td colSpan={weekDays.length + 1}>روتینی یافت نشد.</td>
+                  </tr>
+                ) : (
+                  routines.map((routine) => (
+                    <tr key={routine.id}>
+                      <td
+                        className="routine-title-cell"
+                        style={{ textAlign: "justify" }}
+                      >
+                        <div className="routine-title-wrap">
+                          <button
+                            className="routine-icon-btn"
+                            title="ویرایش"
+                            onClick={() => openEditModal(routine)}
+                          >
+                            ✎
+                          </button>
+                          <button
+                            className="routine-icon-btn delete"
+                            title="حذف"
+                            onClick={() => setRoutineToDelete(routine)}
+                          >
+                            🗑
+                          </button>
+                          <span
+                            className="routine-color-dot"
+                            style={{
+                              backgroundColor: routine.color || "#9fb6ff",
+                            }}
+                          />
+                          <span>{routine.title}</span>
+                        </div>
+                      </td>
+                      {weekDays.map((day) => {
+                        const key = `${routine.id}-${day}`;
+                        const status = logsMap.get(key);
+                        const isFutureDay = day > todayISO;
+                        const cls =
+                          status === "done"
+                            ? "status-btn done"
+                            : status === "missed"
+                              ? "status-btn missed"
+                              : "status-btn";
+
+                        return (
+                          <td key={key}>
+                            <button
+                              className={`${cls} ${isFutureDay ? "disabled" : ""}`.trim()}
+                              disabled={isFutureDay}
+                              title={
+                                isFutureDay
+                                  ? "ثبت وضعیت برای تاریخ آینده مجاز نیست"
+                                  : ""
+                              }
+                              onClick={() => toggleStatus(routine.id, day)}
+                            >
+                              {status === "done"
+                                ? "✓"
+                                : status === "missed"
+                                  ? "✕"
+                                  : "-"}
+                            </button>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
 
-          <div className="monthly-grid">
-            {monthGrid.map((cell, index) => {
-              if (cell.isPlaceholder) {
-                return (
-                  <div
-                    key={`placeholder-${index}`}
-                    className="monthly-day placeholder"
-                  />
-                );
-              }
+          <StatGrid
+            data={weeklyReport}
+            action={
+              <Button
+                variant="secondary"
+                onClick={() => openReportChart("weekly")}
+              >
+                چارت گزارش هفتگی
+              </Button>
+            }
+          />
+        </Card>
+      ) : null}
 
-              const dayParts = formatPersianDateParts(cell.isoDate);
-              const status = getSelectedRoutineDayStatus(cell.isoDate);
-              const cellClass = [
-                "monthly-day",
-                !cell.inCurrentMonth ? "other-month" : "",
-                status === "done" ? "task-day-done" : "",
-                status === "missed" ? "task-day-missed" : "",
-              ]
-                .filter(Boolean)
-                .join(" ");
-
-              return (
+      {activeTab === "monthly" ? (
+        <Card
+          title="تقویم ماهانه"
+          subtitle={`وضعیت روتین انتخاب‌شده روی روزهای ${formatPersianMonthYear(monthDays[0] || todayISO)}`}
+        >
+          <div className="routine-badges">
+            {!routines.length ? (
+              <p className="muted">ابتدا یک روتین تعریف کنید.</p>
+            ) : (
+              routines.map((routine) => (
                 <button
-                  key={cell.isoDate}
-                  className={cellClass}
-                  onClick={() =>
-                    handleDayClick(cell.isoDate, cell.inCurrentMonth)
+                  key={routine.id}
+                  className={`routine-badge ${selectedRoutineId === routine.id ? "active" : ""}`.trim()}
+                  onClick={() => setSelectedRoutineId(routine.id)}
+                  style={
+                    selectedRoutineId === routine.id
+                      ? {
+                          "--routine-accent": routine.color || "#375dfb",
+                        }
+                      : undefined
                   }
                 >
-                  <span>{dayParts.day}</span>
+                  <span
+                    className="routine-color-dot"
+                    style={{
+                      backgroundColor:
+                        selectedRoutineId === routine.id
+                          ? routine.color || "#9fb6ff"
+                          : "#c8cfde",
+                    }}
+                  />
+                  {routine.title}
                 </button>
-              );
-            })}
+              ))
+            )}
           </div>
-        </div>
 
-        <StatGrid
-          data={monthlyReport}
-          action={
-            <Button
-              variant="secondary"
-              onClick={() => openReportChart("monthly")}
-            >
-              چارت گزارش ماهانه
-            </Button>
-          }
-        />
-      </Card>
+          <div className="monthly-calendar-shell">
+            <div className="monthly-calendar-header">
+              <button className="btn btn-secondary" onClick={goToPreviousMonth}>
+                ماه قبل
+              </button>
+              <p className="monthly-calendar-title">
+                {formatPersianMonthYear(monthDays[0] || todayISO)}
+              </p>
+              <button className="btn btn-secondary" onClick={goToNextMonth}>
+                ماه بعد
+              </button>
+            </div>
+
+            <div className="monthly-weekdays">
+              {WEEKDAY_LABELS.map((label) => (
+                <span key={label}>{label}</span>
+              ))}
+            </div>
+
+            <div className="monthly-grid">
+              {monthGrid.map((cell, index) => {
+                if (cell.isPlaceholder) {
+                  return (
+                    <div
+                      key={`placeholder-${index}`}
+                      className="monthly-day placeholder"
+                    />
+                  );
+                }
+
+                const dayParts = formatPersianDateParts(cell.isoDate);
+                const status = getSelectedRoutineDayStatus(cell.isoDate);
+                const cellClass = [
+                  "monthly-day",
+                  !cell.inCurrentMonth ? "other-month" : "",
+                  status === "done" ? "task-day-done" : "",
+                  status === "missed" ? "task-day-missed" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ");
+
+                return (
+                  <button
+                    key={cell.isoDate}
+                    className={cellClass}
+                    onClick={() =>
+                      handleDayClick(cell.isoDate, cell.inCurrentMonth)
+                    }
+                  >
+                    <span>{dayParts.day}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <StatGrid
+            data={monthlyReport}
+            action={
+              <Button
+                variant="secondary"
+                onClick={() => openReportChart("monthly")}
+              >
+                چارت گزارش ماهانه
+              </Button>
+            }
+          />
+        </Card>
+      ) : null}
+
+      {activeTab === "notes" ? (
+        <Card title="یاداشت روزانه" subtitle="این بخش فعلاً خالی است.">
+          <p className="muted">
+            به‌زودی امکان ثبت و مدیریت یاداشت روزانه اضافه می‌شود.
+          </p>
+        </Card>
+      ) : null}
 
       {reportModal ? (
         <div className="modal-backdrop" onClick={() => setReportModal(null)}>
