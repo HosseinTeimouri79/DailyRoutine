@@ -4,6 +4,11 @@ export function getCurrentMonthISO() {
   return `${now.getFullYear()}-${month}`;
 }
 
+export function getTodayISO() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
+
 export function getMonthDaysGregorian(monthISO) {
   const [year, month] = monthISO.split("-").map(Number);
   const daysInMonth = new Date(year, month, 0).getDate();
@@ -11,6 +16,22 @@ export function getMonthDaysGregorian(monthISO) {
     const day = idx + 1;
     return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
   });
+}
+
+export function shiftISODate(isoDate, dayOffset) {
+  const date = new Date(`${isoDate}T00:00:00`);
+  date.setDate(date.getDate() + dayOffset);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+export function getWeekStartISO(isoDate) {
+  const date = new Date(`${isoDate}T00:00:00`);
+  const saturdayBasedOffset = (date.getDay() + 1) % 7;
+  return shiftISODate(isoDate, -saturdayBasedOffset);
+}
+
+export function getWeekDaysGregorian(weekStartISO) {
+  return Array.from({ length: 7 }, (_, idx) => shiftISODate(weekStartISO, idx));
 }
 
 export function formatPersianDateParts(isoDate) {

@@ -49,6 +49,15 @@ export const api = {
   register: (payload) =>
     request("/auth/register", { method: "POST", body: payload }),
   login: (payload) => request("/auth/login", { method: "POST", body: payload }),
+  getProfile: () => request("/auth/me", { auth: true }),
+  updateProfile: (payload) =>
+    request("/auth/profile", { method: "PUT", body: payload, auth: true }),
+  changePassword: (payload) =>
+    request("/auth/change-password", {
+      method: "POST",
+      body: payload,
+      auth: true,
+    }),
   getRoutines: () => request("/routines", { auth: true }),
   createRoutine: (payload) =>
     request("/routines", { method: "POST", body: payload, auth: true }),

@@ -56,6 +56,10 @@ def ensure_schema():
         schema_path = BASE_DIR / "database" / "schema.sql"
         script = schema_path.read_text(encoding="utf-8")
         conn.executescript(script)
+        columns = conn.execute("PRAGMA table_info(users)").fetchall()
+        has_profile_image = any(column[1] == "profile_image" for column in columns)
+        if not has_profile_image:
+            conn.execute("ALTER TABLE users ADD COLUMN profile_image TEXT")
         conn.commit()
     finally:
         conn.close()

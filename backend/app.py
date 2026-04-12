@@ -17,7 +17,8 @@ load_dotenv()
 def create_app():
     app = Flask(__name__)
     cors_origin = os.getenv("CORS_ORIGIN", "*")
-    CORS(app, resources={r"/api/*": {"origins": cors_origin}})
+    allowed_origins = [origin.strip() for origin in cors_origin.split(",") if origin.strip()]
+    CORS(app, resources={r"/api/*": {"origins": allowed_origins or "*"}})
 
     ensure_schema()
 

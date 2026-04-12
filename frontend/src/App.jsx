@@ -1,8 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
-import DashboardPage from "./pages/DashboardPage";
 import CalendarPage from "./pages/CalendarPage";
-import ReportsPage from "./pages/ReportsPage";
 import { getToken } from "./lib/api";
 
 function ProtectedRoute({ children }) {
@@ -17,7 +15,7 @@ export default function App() {
         path="/"
         element={
           <ProtectedRoute>
-            <DashboardPage />
+            <CalendarPage />
           </ProtectedRoute>
         }
       />
@@ -25,7 +23,7 @@ export default function App() {
         path="/calendar"
         element={
           <ProtectedRoute>
-            <CalendarPage />
+            <Navigate to="/" replace />
           </ProtectedRoute>
         }
       />
@@ -33,7 +31,7 @@ export default function App() {
         path="/reports"
         element={
           <ProtectedRoute>
-            <ReportsPage />
+            <Navigate to="/" replace />
           </ProtectedRoute>
         }
       />
