@@ -184,13 +184,15 @@ a {
 }
 
 :root[data-theme="dark"] .routine-badge {
-  background: #141d35;
+  background: #27324f;
+  border-color: #3a4668;
+  color: #b8c3e2;
 }
 
 :root[data-theme="dark"] .routine-badge.active {
-  background: #22315d;
-  border-color: #4762ad;
-  color: #e7eeff;
+  background: color-mix(in srgb, var(--routine-accent, #4762ad) 22%, #15213f);
+  border-color: var(--routine-accent, #4762ad);
+  color: #eef3ff;
 }
 
 :root[data-theme="dark"] .monthly-calendar-shell,
@@ -198,6 +200,22 @@ a {
 :root[data-theme="dark"] .routine-item {
   background: #121a2f;
   border-color: #2f3f6b;
+}
+
+:root[data-theme="dark"] .report-chart-wrap {
+  background: #121a2f;
+  border-color: #2f3f6b;
+}
+
+:root[data-theme="dark"] .routine-report-name,
+:root[data-theme="dark"] .report-chart-value,
+:root[data-theme="dark"] .report-chart-label {
+  color: #d3defe;
+}
+
+:root[data-theme="dark"] .chart-type-switch .btn.active {
+  background: #2d4277;
+  border-color: #6280cf;
 }
 
 :root[data-theme="dark"] .monthly-day {
@@ -529,6 +547,157 @@ a {
   background: #f8faff;
 }
 
+.report-chart-action-row {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.chart-modal {
+  width: min(560px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.report-chart-wrap {
+  margin-top: 8px;
+  border: 1px solid #dce5ff;
+  border-radius: 12px;
+  background: #f8faff;
+  padding: 14px;
+}
+
+.report-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #4f5f8f;
+  font-size: 0.85rem;
+}
+
+.report-chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.legend-dot.done {
+  background: #67c48d;
+}
+
+.legend-dot.missed {
+  background: #f08a96;
+}
+
+.legend-dot.remaining {
+  background: #b9c8ff;
+}
+
+.chart-type-switch {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.chart-type-switch .btn.active {
+  background: #dfe8ff;
+  border: 1px solid #9fb6ff;
+}
+
+.routine-report-chart {
+  margin-top: 14px;
+  min-height: 290px;
+  display: flex;
+  gap: 14px;
+  align-items: end;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.routine-report-col {
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stacked-bar {
+  width: 62px;
+  min-height: 10px;
+  border-radius: 10px 10px 6px 6px;
+  overflow: hidden;
+  border: 1px solid #dce5ff;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.bar-segment {
+  width: 100%;
+}
+
+.clustered-bars {
+  width: 72px;
+  height: 100%;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 6px;
+}
+
+.cluster-bar {
+  width: 18px;
+  border-radius: 6px 6px 4px 4px;
+  border: 1px solid transparent;
+}
+
+.bar-segment.done,
+.cluster-bar.done {
+  background: #c9efda;
+  border-color: #67c48d;
+}
+
+.bar-segment.missed,
+.cluster-bar.missed {
+  background: #ffd7db;
+  border-color: #f08a96;
+}
+
+.bar-segment.remaining,
+.cluster-bar.remaining {
+  background: #dce4ff;
+  border-color: #b9c8ff;
+}
+
+.routine-report-meta {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.routine-report-total {
+  font-weight: 700;
+  color: #2a3a69;
+}
+
+.routine-report-name {
+  font-size: 0.86rem;
+  color: #4f5f8f;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .calendar-wrap {
   overflow-x: auto;
   margin-top: 12px;
@@ -713,9 +882,9 @@ a {
 }
 
 .routine-badge {
-  border: 1px solid #d5deff;
-  background: #f7f9ff;
-  color: #243568;
+  border: 1px solid #d7dce7;
+  background: #f1f3f7;
+  color: #7a8399;
   border-radius: 999px;
   padding: 6px 12px;
   font-size: 0.85rem;
@@ -726,9 +895,9 @@ a {
 }
 
 .routine-badge.active {
-  background: #eaf0ff;
-  border-color: #b9c8ff;
-  color: #1b2c63;
+  background: color-mix(in srgb, var(--routine-accent, #375dfb) 18%, #ffffff);
+  border-color: var(--routine-accent, #375dfb);
+  color: var(--routine-accent, #375dfb);
   font-weight: 600;
 }
 

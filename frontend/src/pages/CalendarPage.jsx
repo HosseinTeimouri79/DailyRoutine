@@ -27,6 +27,114 @@ function StatGrid({ data }) {
   );
 }
 
+function ReportChart({ routinesReport, chartType }) {
+  if (!routinesReport?.length) {
+    return <p className="muted">برای نمایش چارت، ابتدا روتین ثبت کنید.</p>;
+  }
+
+  const maxStack = Math.max(
+    ...routinesReport.map((item) => item.done + item.missed + item.remaining),
+    1,
+  );
+  const maxSingle = Math.max(
+    ...routinesReport.map((item) =>
+      Math.max(item.done, item.missed, item.remaining),
+    ),
+    1,
+  );
+
+  return (
+    <div className="report-chart-wrap">
+      <div className="report-chart-legend">
+        <span>
+          <i className="legend-dot done" />
+          انجام‌شده
+        </span>
+        <span>
+          <i className="legend-dot missed" />
+          انجام‌نشده
+        </span>
+        <span>
+          <i className="legend-dot remaining" />
+          ثبت‌نشده
+        </span>
+      </div>
+
+      <div className="routine-report-chart">
+        {routinesReport.map((routine) => {
+          const total = routine.done + routine.missed + routine.remaining;
+
+          return (
+            <div className="routine-report-col" key={routine.id}>
+              {chartType === "stacked" ? (
+                <div
+                  className="stacked-bar"
+                  style={{
+                    height: `${Math.max((total / maxStack) * 100, 8)}%`,
+                  }}
+                >
+                  {routine.remaining ? (
+                    <div
+                      className="bar-segment remaining"
+                      style={{ flex: routine.remaining }}
+                      title={`ثبت‌نشده: ${routine.remaining}`}
+                    />
+                  ) : null}
+                  {routine.missed ? (
+                    <div
+                      className="bar-segment missed"
+                      style={{ flex: routine.missed }}
+                      title={`انجام‌نشده: ${routine.missed}`}
+                    />
+                  ) : null}
+                  {routine.done ? (
+                    <div
+                      className="bar-segment done"
+                      style={{ flex: routine.done }}
+                      title={`انجام‌شده: ${routine.done}`}
+                    />
+                  ) : null}
+                </div>
+              ) : (
+                <div className="clustered-bars">
+                  <div
+                    className="cluster-bar done"
+                    style={{
+                      height: `${Math.max((routine.done / maxSingle) * 100, 8)}%`,
+                    }}
+                    title={`انجام‌شده: ${routine.done}`}
+                  />
+                  <div
+                    className="cluster-bar missed"
+                    style={{
+                      height: `${Math.max((routine.missed / maxSingle) * 100, 8)}%`,
+                    }}
+                    title={`انجام‌نشده: ${routine.missed}`}
+                  />
+                  <div
+                    className="cluster-bar remaining"
+                    style={{
+                      height: `${Math.max((routine.remaining / maxSingle) * 100, 8)}%`,
+                    }}
+                    title={`ثبت‌نشده: ${routine.remaining}`}
+                  />
+                </div>
+              )}
+
+              <div className="routine-report-meta">
+                <span className="routine-report-total">{total}</span>
+                <span className="routine-report-name" title={routine.title}>
+                  {routine.title}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function buildStatsForDays(days, routines, logsMap) {
   const total = days.length * routines.length;
   let done = 0;
@@ -46,6 +154,27 @@ function buildStatsForDays(days, routines, logsMap) {
     missed,
     remaining: Math.max(total - done - missed, 0),
   };
+}
+
+function buildRoutineStatsForDays(days, routines, logsMap) {
+  return routines.map((routine) => {
+    let done = 0;
+    let missed = 0;
+
+    days.forEach((day) => {
+      const status = logsMap.get(`${routine.id}-${day}`);
+      if (status === "done") done += 1;
+      if (status === "missed") missed += 1;
+    });
+
+    return {
+      id: routine.id,
+      title: routine.title,
+      done,
+      missed,
+      remaining: Math.max(days.length - done - missed, 0),
+    };
+  });
 }
 
 function getNextStatus(current) {
@@ -147,6 +276,8 @@ export default function CalendarPage() {
   const todayISO = useMemo(() => getTodayISO(), []);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [routineToDelete, setRoutineToDelete] = useState(null);
+  const [reportModal, setReportModal] = useState(null);
+  const [chartType, setChartType] = useState("stacked");
   const [editingRoutineId, setEditingRoutineId] = useState(null);
   const [newRoutineTitle, setNewRoutineTitle] = useState("");
   const [newRoutineColor, setNewRoutineColor] = useState("#375dfb");
@@ -190,6 +321,16 @@ export default function CalendarPage() {
 
   const monthlyReport = useMemo(
     () => buildStatsForDays(monthDays, routines, logsMap),
+    [monthDays, routines, logsMap],
+  );
+
+  const weeklyRoutineReport = useMemo(
+    () => buildRoutineStatsForDays(weekDays, routines, logsMap),
+    [weekDays, routines, logsMap],
+  );
+
+  const monthlyRoutineReport = useMemo(
+    () => buildRoutineStatsForDays(monthDays, routines, logsMap),
     [monthDays, routines, logsMap],
   );
 
@@ -340,6 +481,15 @@ export default function CalendarPage() {
     }
   }
 
+  function openReportChart(type) {
+    const isWeekly = type === "weekly";
+    setReportModal({
+      title: isWeekly ? "چارت گزارش هفتگی" : "چارت گزارش ماهانه",
+      routinesReport: isWeekly ? weeklyRoutineReport : monthlyRoutineReport,
+    });
+    setChartType("stacked");
+  }
+
   return (
     <AppShell title="روتین‌های من">
       <Card
@@ -467,6 +617,11 @@ export default function CalendarPage() {
         </div>
 
         <StatGrid data={weeklyReport} />
+        <div className="report-chart-action-row">
+          <Button variant="secondary" onClick={() => openReportChart("weekly")}>
+            نمایش چارت گزارش هفتگی
+          </Button>
+        </div>
       </Card>
 
       <Card
@@ -482,17 +637,22 @@ export default function CalendarPage() {
                 key={routine.id}
                 className={`routine-badge ${selectedRoutineId === routine.id ? "active" : ""}`.trim()}
                 onClick={() => setSelectedRoutineId(routine.id)}
-                style={{
-                  borderColor: routine.color || "#d5deff",
-                  color:
-                    selectedRoutineId === routine.id
-                      ? "#1b2c63"
-                      : routine.color || "#243568",
-                }}
+                style={
+                  selectedRoutineId === routine.id
+                    ? {
+                        "--routine-accent": routine.color || "#375dfb",
+                      }
+                    : undefined
+                }
               >
                 <span
                   className="routine-color-dot"
-                  style={{ backgroundColor: routine.color || "#9fb6ff" }}
+                  style={{
+                    backgroundColor:
+                      selectedRoutineId === routine.id
+                        ? routine.color || "#9fb6ff"
+                        : "#c8cfde",
+                  }}
                 />
                 {routine.title}
               </button>
@@ -557,7 +717,49 @@ export default function CalendarPage() {
         </div>
 
         <StatGrid data={monthlyReport} />
+        <div className="report-chart-action-row">
+          <Button
+            variant="secondary"
+            onClick={() => openReportChart("monthly")}
+          >
+            نمایش چارت گزارش ماهانه
+          </Button>
+        </div>
       </Card>
+
+      {reportModal ? (
+        <div className="modal-backdrop" onClick={() => setReportModal(null)}>
+          <div
+            className="modal-card chart-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="modal-title">{reportModal.title}</h3>
+            <div className="chart-type-switch">
+              <button
+                className={`btn btn-secondary ${chartType === "stacked" ? "active" : ""}`.trim()}
+                onClick={() => setChartType("stacked")}
+              >
+                Stacked Bar
+              </button>
+              <button
+                className={`btn btn-secondary ${chartType === "clustered" ? "active" : ""}`.trim()}
+                onClick={() => setChartType("clustered")}
+              >
+                Clustered Bar
+              </button>
+            </div>
+            <ReportChart
+              routinesReport={reportModal.routinesReport}
+              chartType={chartType}
+            />
+            <div className="modal-actions">
+              <Button variant="secondary" onClick={() => setReportModal(null)}>
+                بستن
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {isAddModalOpen ? (
         <div
