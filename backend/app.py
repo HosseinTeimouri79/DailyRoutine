@@ -33,7 +33,7 @@ def create_app():
 
     @app.get("/api/health")
     def health():
-        return jsonify({"status": "ok", "service": "DailyRoutine API"})
+        return jsonify({"status": "ok", "service": "Hadafino API"})
 
     @app.errorhandler(404)
     def not_found(_error):

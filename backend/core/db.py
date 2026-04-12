@@ -6,7 +6,7 @@ from flask import g
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DEFAULT_DB_PATH = BASE_DIR / "database" / "dailyroutine.db"
+DEFAULT_DB_PATH = BASE_DIR / "database" / "hadafino.db"
 
 
 def resolve_db_path() -> str:

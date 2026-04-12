@@ -6,10 +6,10 @@ services:
       PORT: 4000
       JWT_SECRET: super-secret-change-me
       JWT_EXPIRES_DAYS: 7
-      DATABASE_PATH: /data/dailyroutine.db
+      DATABASE_PATH: /data/hadafino.db
       CORS_ORIGIN: http://localhost:3000,http://127.0.0.1:3000
     volumes:
-      - dailyroutine_data:/data
+      - hadafino_data:/data
     ports:
       - "4000:4000"
 
@@ -24,4 +24,4 @@ services:
       - "3000:80"
 
 volumes:
-  dailyroutine_data:
+  hadafino_data:

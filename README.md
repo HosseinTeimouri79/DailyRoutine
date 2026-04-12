@@ -1,4 +1,4 @@
-# DailyRoutine
+# Hadafino
 
 اپلیکیشن مدیریت روتین روزانه با بک‌اند Flask و فرانت‌اند React (Vite).
 
