@@ -10,6 +10,7 @@ export default function AppShell({ title, children }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [profileName, setProfileName] = useState(initialUser?.name || "");
   const [passwordForm, setPasswordForm] = useState({
     current: "",
     next: "",
@@ -37,6 +38,7 @@ export default function AppShell({ title, children }) {
 
   function openProfile() {
     setProfileMessage({ type: "", text: "" });
+    setProfileName(user?.name || "");
     setIsProfileOpen(true);
     syncProfile();
   }
@@ -67,6 +69,7 @@ export default function AppShell({ title, children }) {
         ...profile,
       };
       setUser(merged);
+      setProfileName(merged?.name || "");
       const token = localStorage.getItem("dr_token");
       if (token) setSession(token, merged);
     } catch {
@@ -107,6 +110,39 @@ export default function AppShell({ title, children }) {
       }
     };
     reader.readAsDataURL(file);
+  }
+
+  async function submitProfile(event) {
+    event.preventDefault();
+    const nextName = profileName.trim();
+
+    if (!nextName) {
+      setProfileMessage({
+        type: "error",
+        text: "نام کاربری نمی‌تواند خالی باشد.",
+      });
+      return;
+    }
+
+    try {
+      setProfileLoading(true);
+      const updatedUser = await api.updateProfile({ name: nextName });
+      setUser(updatedUser);
+      setProfileName(updatedUser?.name || nextName);
+      const token = localStorage.getItem("dr_token");
+      if (token) setSession(token, updatedUser);
+      setProfileMessage({
+        type: "success",
+        text: "نام کاربری با موفقیت ذخیره شد.",
+      });
+    } catch (error) {
+      setProfileMessage({
+        type: "error",
+        text: error.message || "ذخیره نام کاربری ناموفق بود.",
+      });
+    } finally {
+      setProfileLoading(false);
+    }
   }
 
   async function submitPasswordChange(event) {
@@ -240,10 +276,32 @@ export default function AppShell({ title, children }) {
                   onChange={onSelectProfileImage}
                 />
               </div>
-              <div className="profile-meta">
-                <p>نام:{user?.name || "-"}</p>
-                <p>ایمیل:{user?.email || "-"}</p>
-              </div>
+              <form className="profile-meta" onSubmit={submitProfile}>
+                <div className="field">
+                  <label htmlFor="profileName">نام کاربری</label>
+                  <input
+                    id="profileName"
+                    className="input"
+                    value={profileName}
+                    onChange={(event) => setProfileName(event.target.value)}
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor="profilePhone">شماره تلفن</label>
+                  <input
+                    id="profilePhone"
+                    className="input"
+                    value={user?.phone || ""}
+                    disabled
+                    readOnly
+                  />
+                </div>
+                <div className="modal-actions">
+                  <Button type="submit" disabled={profileLoading}>
+                    {profileLoading ? "در حال ذخیره..." : "ذخیره نام کاربری"}
+                  </Button>
+                </div>
+              </form>
             </div>
 
             {profileMessage.text ? (

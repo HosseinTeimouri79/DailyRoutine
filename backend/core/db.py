@@ -57,9 +57,63 @@ def ensure_schema():
         script = schema_path.read_text(encoding="utf-8")
         conn.executescript(script)
         columns = conn.execute("PRAGMA table_info(users)").fetchall()
+        column_names = {column[1] for column in columns}
+        expected_columns = {
+            "id",
+            "name",
+            "phone",
+            "password_hash",
+            "profile_image",
+            "created_at",
+        }
         has_profile_image = any(column[1] == "profile_image" for column in columns)
+        has_phone = any(column[1] == "phone" for column in columns)
+        has_legacy_columns = bool(column_names - expected_columns)
         if not has_profile_image:
             conn.execute("ALTER TABLE users ADD COLUMN profile_image TEXT")
+        if not has_phone:
+            conn.execute("ALTER TABLE users ADD COLUMN phone TEXT")
+        conn.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_phone_unique ON users(phone) WHERE phone IS NOT NULL"
+        )
+
+        if has_legacy_columns:
+            conn.execute("PRAGMA foreign_keys = OFF")
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS users_new (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  name TEXT NOT NULL,
+                  phone TEXT NOT NULL UNIQUE,
+                  password_hash TEXT NOT NULL,
+                  profile_image TEXT,
+                  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+                )
+                """
+            )
+            conn.execute(
+                """
+                INSERT INTO users_new(id, name, phone, password_hash, profile_image, created_at)
+                SELECT
+                  id,
+                  name,
+                  CASE
+                    WHEN phone IS NULL OR TRIM(phone) = '' THEN ('090000' || printf('%05d', id))
+                    ELSE phone
+                  END,
+                  password_hash,
+                  profile_image,
+                  created_at
+                FROM users
+                """
+            )
+            conn.execute("DROP TABLE users")
+            conn.execute("ALTER TABLE users_new RENAME TO users")
+            conn.execute("PRAGMA foreign_keys = ON")
+            conn.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_phone_unique ON users(phone) WHERE phone IS NOT NULL"
+            )
+
         conn.commit()
     finally:
         conn.close()

@@ -353,6 +353,18 @@ a {
   border-color: #9fb6ff;
 }
 
+.input:disabled {
+  background: #f2f4f8;
+  color: #7b859d;
+  cursor: not-allowed;
+}
+
+:root[data-theme="dark"] .input:disabled {
+  background: #1a233d;
+  color: #a7b4d8;
+  border-color: #3a4b78;
+}
+
 .btn {
   border: none;
   border-radius: 10px;
@@ -485,6 +497,7 @@ a {
 .profile-meta {
   display: flex;
   flex-direction: column;
+  width: 75%;
   gap: 8px;
 }
 .profile-meta p {
@@ -545,12 +558,6 @@ a {
   border-radius: 12px;
   padding: 12px;
   background: #f8faff;
-}
-
-.report-chart-action-row {
-  margin-top: 10px;
-  display: flex;
-  justify-content: flex-end;
 }
 
 .chart-modal {

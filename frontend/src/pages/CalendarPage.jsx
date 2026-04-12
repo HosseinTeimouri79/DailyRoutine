@@ -12,9 +12,17 @@ import {
   shiftISODate,
 } from "../lib/date";
 
-const WEEKDAY_LABELS = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
+const WEEKDAY_LABELS = [
+  "شنبه",
+  "یکشنبه",
+  "دوشنبه",
+  "سه‌شنبه",
+  "چهارشنبه",
+  "پنجشنبه",
+  "جمعه",
+];
 
-function StatGrid({ data }) {
+function StatGrid({ data, action }) {
   if (!data) return <p className="muted">در حال بارگذاری...</p>;
 
   return (
@@ -23,13 +31,14 @@ function StatGrid({ data }) {
       <div>انجام‌شده: {data.done}</div>
       <div>انجام‌نشده: {data.missed}</div>
       <div>ثبت‌نشده: {data.remaining}</div>
+      {action ? action : null}
     </div>
   );
 }
 
 function ReportChart({ routinesReport, chartType }) {
   if (!routinesReport?.length) {
-    return <p className="muted">برای نمایش چارت، ابتدا روتین ثبت کنید.</p>;
+    return <p className="muted">برای چارت، ابتدا روتین ثبت کنید.</p>;
   }
 
   const maxStack = Math.max(
@@ -552,15 +561,11 @@ export default function CalendarPage() {
               ) : (
                 routines.map((routine) => (
                   <tr key={routine.id}>
-                    <td className="routine-title-cell">
+                    <td
+                      className="routine-title-cell"
+                      style={{ textAlign: "justify" }}
+                    >
                       <div className="routine-title-wrap">
-                        <span
-                          className="routine-color-dot"
-                          style={{
-                            backgroundColor: routine.color || "#9fb6ff",
-                          }}
-                        />
-                        <span>{routine.title}</span>
                         <button
                           className="routine-icon-btn"
                           title="ویرایش"
@@ -575,6 +580,13 @@ export default function CalendarPage() {
                         >
                           🗑
                         </button>
+                        <span
+                          className="routine-color-dot"
+                          style={{
+                            backgroundColor: routine.color || "#9fb6ff",
+                          }}
+                        />
+                        <span>{routine.title}</span>
                       </div>
                     </td>
                     {weekDays.map((day) => {
@@ -616,12 +628,17 @@ export default function CalendarPage() {
           </table>
         </div>
 
-        <StatGrid data={weeklyReport} />
-        <div className="report-chart-action-row">
-          <Button variant="secondary" onClick={() => openReportChart("weekly")}>
-            نمایش چارت گزارش هفتگی
-          </Button>
-        </div>
+        <StatGrid
+          data={weeklyReport}
+          action={
+            <Button
+              variant="secondary"
+              onClick={() => openReportChart("weekly")}
+            >
+              چارت گزارش هفتگی
+            </Button>
+          }
+        />
       </Card>
 
       <Card
@@ -716,15 +733,17 @@ export default function CalendarPage() {
           </div>
         </div>
 
-        <StatGrid data={monthlyReport} />
-        <div className="report-chart-action-row">
-          <Button
-            variant="secondary"
-            onClick={() => openReportChart("monthly")}
-          >
-            نمایش چارت گزارش ماهانه
-          </Button>
-        </div>
+        <StatGrid
+          data={monthlyReport}
+          action={
+            <Button
+              variant="secondary"
+              onClick={() => openReportChart("monthly")}
+            >
+              چارت گزارش ماهانه
+            </Button>
+          }
+        />
       </Card>
 
       {reportModal ? (

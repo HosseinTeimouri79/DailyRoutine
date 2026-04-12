@@ -5,10 +5,20 @@ import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import { api, setSession, getToken } from "../lib/api";
 
+const IRAN_PHONE_REGEX = /^(?:\+98|0)?9\d{9}$/;
+
+function normalizeIranPhone(rawPhone) {
+  let phone = (rawPhone || "").trim().replace(/\s+/g, "");
+  if (phone.startsWith("+98")) phone = `0${phone.slice(3)}`;
+  else if (phone.startsWith("98")) phone = `0${phone.slice(2)}`;
+  else if (phone.startsWith("9")) phone = `0${phone}`;
+  return phone;
+}
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState("login");
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", phone: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -22,14 +32,19 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      const normalizedPhone = normalizeIranPhone(form.phone);
+      if (!IRAN_PHONE_REGEX.test(normalizedPhone)) {
+        throw new Error("شماره تلفن معتبر ایران وارد کنید.");
+      }
+
       const payload =
         mode === "register"
           ? {
               name: form.name.trim(),
-              email: form.email.trim(),
+              phone: normalizedPhone,
               password: form.password,
             }
-          : { email: form.email.trim(), password: form.password };
+          : { phone: normalizedPhone, password: form.password };
 
       const result =
         mode === "register"
@@ -64,12 +79,13 @@ export default function LoginPage() {
           ) : null}
 
           <Input
-            id="email"
-            type="email"
-            label="ایمیل"
-            value={form.email}
+            id="phone"
+            type="tel"
+            label="شماره تلفن"
+            placeholder="مثال: 09123456789"
+            value={form.phone}
             onChange={(e) =>
-              setForm((prev) => ({ ...prev, email: e.target.value }))
+              setForm((prev) => ({ ...prev, phone: e.target.value }))
             }
             required
           />
