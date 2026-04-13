@@ -1,3 +1,5 @@
+import "./Snackbar.css";
+
 export default function Snackbar({ open, type = "success", message }) {
   if (!open || !message) return null;
 

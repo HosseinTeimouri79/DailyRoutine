@@ -4,6 +4,7 @@ import { api, clearSession, getUser, setSession } from "../../lib/api";
 import Header from "./Header";
 import Button from "../ui/Button";
 import Modal from "../ui/Modal";
+import "./AppShell.css";
 
 export default function AppShell({ title, children }) {
   const initialUser = getUser();

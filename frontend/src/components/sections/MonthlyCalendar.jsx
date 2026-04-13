@@ -1,6 +1,7 @@
 import Card from "../ui/Card";
 import Button from "../ui/Button";
 import PersianMonthCalendar from "../calendar/PersianMonthCalendar";
+import "./MonthlyCalendar.css";
 
 function StatGrid({ data, action }) {
   if (!data) return <p className="muted">در حال بارگذاری...</p>;
@@ -49,7 +50,8 @@ export default function MonthlyCalendar({
               style={
                 selectedRoutineId === routine.id
                   ? {
-                      "--routine-accent": routine.color || "#375dfb",
+                      "--routine-accent":
+                        routine.color || "var(--color-primary)",
                     }
                   : undefined
               }
@@ -59,8 +61,8 @@ export default function MonthlyCalendar({
                 style={{
                   backgroundColor:
                     selectedRoutineId === routine.id
-                      ? routine.color || "#9fb6ff"
-                      : "#c8cfde",
+                      ? routine.color || "var(--color-primary)"
+                      : "var(--color-text-muted)",
                 }}
               />
               {routine.title}

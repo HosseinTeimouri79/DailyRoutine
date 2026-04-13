@@ -1,0 +1,37 @@
+.input,
+.inline-input,
+.month-input {
+  width: 100%;
+  border: var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  font-family: inherit;
+}
+
+.input:focus,
+.inline-input:focus,
+.month-input:focus {
+  outline: 2px solid color-mix(in srgb, var(--color-primary) 34%, transparent);
+  border-color: var(--color-primary);
+}
+
+.input:disabled {
+  background: color-mix(
+    in srgb,
+    var(--color-bg-surface-soft) 82%,
+    var(--color-bg-page)
+  );
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.input-error {
+  border-color: var(--color-danger-border);
+}
+
+.field-error {
+  color: var(--color-danger);
+  font-size: 0.8rem;
+}

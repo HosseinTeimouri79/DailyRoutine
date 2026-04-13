@@ -6,6 +6,7 @@ import {
   getMonthGridGregorian,
   getTodayISO,
 } from "../../lib/date";
+import "./PersianMonthCalendar.css";
 
 const WEEKDAY_LABELS = [
   "شنبه",
@@ -40,17 +41,19 @@ export default function PersianMonthCalendar({
   return (
     <div className={`monthly-calendar-shell ${className}`.trim()}>
       <div className="monthly-calendar-header">
-        <button className="btn btn-secondary" onClick={onPrevMonth}>
-          ماه قبل
-        </button>
-        {onGoToday ? (
-          <button className="btn btn-secondary" onClick={onGoToday}>
-            برو به امروز
+        <div className="monthly-calendar-navigation">
+          <button className="btn btn-secondary" onClick={onPrevMonth}>
+            ماه قبل
           </button>
-        ) : null}
-        <button className="btn btn-secondary" onClick={onNextMonth}>
-          ماه بعد
-        </button>
+          {onGoToday ? (
+            <button className="btn btn-secondary" onClick={onGoToday}>
+              برو به امروز
+            </button>
+          ) : null}
+          <button className="btn btn-secondary" onClick={onNextMonth}>
+            ماه بعد
+          </button>
+        </div>
         <p className="monthly-calendar-title">{monthLabel}</p>
       </div>
 

@@ -1,3 +1,5 @@
+import "./Input.css";
+
 export default function Input({ label, id, error, ...props }) {
   return (
     <div className="field">

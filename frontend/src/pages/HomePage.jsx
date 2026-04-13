@@ -18,6 +18,7 @@ import {
   shiftPersianMonth,
   shiftISODate,
 } from "../lib/date";
+import "./HomePage.css";
 
 function ReportChart({ routinesReport }) {
   if (!routinesReport?.length) {
@@ -140,6 +141,13 @@ function getNextStatus(current) {
   return "done";
 }
 
+function getDefaultRoutineColor() {
+  if (typeof window === "undefined") return "";
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue("--color-primary")
+    .trim();
+}
+
 export default function HomePage() {
   const [month, setMonth] = useState(() =>
     getPersianMonthFromISO(getTodayISO()),
@@ -155,7 +163,9 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState("weekly");
   const [editingRoutineId, setEditingRoutineId] = useState(null);
   const [newRoutineTitle, setNewRoutineTitle] = useState("");
-  const [newRoutineColor, setNewRoutineColor] = useState("#375dfb");
+  const [newRoutineColor, setNewRoutineColor] = useState(() =>
+    getDefaultRoutineColor(),
+  );
   const [selectedMonthlyDate, setSelectedMonthlyDate] = useState(getTodayISO());
   const [tasksDate, setTasksDate] = useState(getTodayISO());
   const [taskToDelete, setTaskToDelete] = useState(null);
@@ -290,7 +300,7 @@ export default function HomePage() {
         });
       }
       setNewRoutineTitle("");
-      setNewRoutineColor("#375dfb");
+      setNewRoutineColor(getDefaultRoutineColor());
       setEditingRoutineId(null);
       setIsAddModalOpen(false);
       notify(
@@ -320,14 +330,14 @@ export default function HomePage() {
   function openAddModal() {
     setEditingRoutineId(null);
     setNewRoutineTitle("");
-    setNewRoutineColor("#375dfb");
+    setNewRoutineColor(getDefaultRoutineColor());
     setIsAddModalOpen(true);
   }
 
   function openEditModal(routine) {
     setEditingRoutineId(routine.id);
     setNewRoutineTitle(routine.title || "");
-    setNewRoutineColor(routine.color || "#375dfb");
+    setNewRoutineColor(routine.color || getDefaultRoutineColor());
     setIsAddModalOpen(true);
   }
 

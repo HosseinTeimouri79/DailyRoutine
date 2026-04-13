@@ -4,6 +4,7 @@ import Card from "../components/ui/Card";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import { api, setSession, getToken } from "../lib/api";
+import "./LoginPage.css";
 
 const IRAN_PHONE_REGEX = /^(?:\+98|0)?9\d{9}$/;
 
@@ -123,7 +124,7 @@ export default function LoginPage() {
 
           {error ? <p className="error-text">{error}</p> : null}
 
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div className="login-actions">
             <Button type="submit" disabled={loading}>
               {loading
                 ? "در حال ارسال..."

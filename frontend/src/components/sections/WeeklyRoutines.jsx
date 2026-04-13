@@ -1,5 +1,6 @@
 import Card from "../ui/Card";
 import { formatPersianDateParts, formatPersianMonthYear } from "../../lib/date";
+import "./WeeklyRoutines.css";
 
 export default function WeeklyRoutines({
   error,
@@ -81,8 +82,7 @@ export default function WeeklyRoutines({
           {formatPersianMonthYear(weekDays[0])}
           {/* {"تا "}  fa-arrows-left-right-to-line */}
           <i
-            className="fa-solid fa-arrows-left-right-to-line app-inline-icon"
-            style={{ margin: "0 8px" }}
+            className="fa-solid fa-arrows-left-right-to-line app-inline-icon week-range-icon"
             aria-hidden="true"
           />
           {formatPersianDateParts(weekDays[6]).day}{" "}
@@ -115,10 +115,7 @@ export default function WeeklyRoutines({
             ) : (
               routines.map((routine) => (
                 <tr key={routine.id}>
-                  <td
-                    className="routine-title-cell"
-                    style={{ textAlign: "justify" }}
-                  >
+                  <td className="routine-title-cell routine-title-cell-justify">
                     <div className="routine-title-wrap">
                       <button
                         className="routine-icon-btn"
@@ -137,7 +134,8 @@ export default function WeeklyRoutines({
                       <span
                         className="routine-color-dot"
                         style={{
-                          backgroundColor: routine.color || "#9fb6ff",
+                          backgroundColor:
+                            routine.color || "var(--color-primary)",
                         }}
                       />
                       <span>{routine.title}</span>
@@ -168,7 +166,7 @@ export default function WeeklyRoutines({
                   <span
                     className="routine-color-dot"
                     style={{
-                      backgroundColor: routine.color || "#9fb6ff",
+                      backgroundColor: routine.color || "var(--color-primary)",
                     }}
                   />
                   <span className="routine-title-cell">{routine.title}</span>
@@ -194,13 +192,20 @@ export default function WeeklyRoutines({
               <div className="weekly-mobile-weekdays">
                 {weekDays.map((date) => {
                   const p = formatPersianDateParts(date);
-                  return <span key={`weekday-${routine.id}-${date}`}>{p.weekdayShort}</span>;
+                  return (
+                    <span key={`weekday-${routine.id}-${date}`}>
+                      {p.weekdayShort}
+                    </span>
+                  );
                 })}
               </div>
 
               <div className="week-mobile-status-row">
                 {weekDays.map((day) => (
-                  <div key={`mobile-status-${routine.id}-${day}`} className="week-mobile-status-cell">
+                  <div
+                    key={`mobile-status-${routine.id}-${day}`}
+                    className="week-mobile-status-cell"
+                  >
                     {renderStatusButton(routine.id, day, true)}
                   </div>
                 ))}

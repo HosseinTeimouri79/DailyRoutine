@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import { getToken } from "./lib/api";
+import "./App.css";
 
 function ProtectedRoute({ children }) {
   return getToken() ? children : <Navigate to="/login" replace />;

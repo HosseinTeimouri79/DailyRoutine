@@ -1,0 +1,27 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--color-overlay);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 1100;
+  overflow-y: auto;
+}
+
+.modal-card {
+  width: min(420px, 100%);
+  background: var(--color-bg-surface);
+  border: var(--border-default);
+  border-radius: 14px;
+  box-shadow: var(--shadow-modal);
+  padding: 16px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}
+
+.modal-title {
+  margin: 0 0 12px;
+  font-size: 1.02rem;
+  color: var(--color-text-primary);
+}

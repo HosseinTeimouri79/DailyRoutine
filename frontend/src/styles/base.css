@@ -1,0 +1,271 @@
+@font-face {
+  font-family: "Vazir";
+  src:
+    url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Normal/Vazir.woff2")
+      format("woff2"),
+    url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Normal/Vazir.woff")
+      format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazir";
+  src:
+    url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Medium/Vazir-Medium.woff2")
+      format("woff2"),
+    url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Medium/Vazir-Medium.woff")
+      format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Vazir";
+  src:
+    url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Bold/Vazir-Bold.woff2")
+      format("woff2"),
+    url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Bold/Vazir-Bold.woff")
+      format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+  --page-max-width: 1200px;
+  --font-family-base: Vazir, system-ui, -apple-system, Segoe UI, sans-serif;
+  --font-size-body: 1rem;
+  --font-size-title: 1.35rem;
+
+  --color-primary: #375dfb;
+  --color-primary-strong: #2346ca;
+  --color-primary-soft: #eef2ff;
+  --color-secondary: #2f448f;
+
+  --color-success: #157347;
+  --color-success-soft: #c9efda;
+  --color-success-border: #67c48d;
+  --color-danger: #b42318;
+  --color-danger-soft: #ffeff0;
+  --color-danger-border: #ffced1;
+  --color-warn: #a16207;
+
+  --color-bg-page: #f4f7ff;
+  --color-bg-page-gradient: radial-gradient(
+    circle at top,
+    #e8eeff,
+    #f7f9ff 42%,
+    #f4f7ff 100%
+  );
+  --color-bg-surface: #ffffff;
+  --color-bg-surface-soft: #f8faff;
+  --color-bg-control: #eef2ff;
+  --color-overlay: rgba(24, 33, 62, 0.35);
+
+  --color-text-primary: #1a2340;
+  --color-text-secondary: #64719a;
+  --color-text-muted: #667395;
+  --color-text-on-accent: #ffffff;
+  --color-snackbar-info: #1f4fbf;
+  --color-snackbar-success: #197a43;
+  --color-snackbar-warn: #a16207;
+  --color-snackbar-error: #b42318;
+
+  --border-strong: 1px solid #d5deff;
+  --border-default: 1px solid #dce5ff;
+  --border-soft: 1px solid #e4eaff;
+  --border-accent: 1px solid #b9c8ff;
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+
+  --shadow-card: 0 14px 30px -24px #1f3b9f;
+  --shadow-modal: 0 20px 34px -20px #1f3b9f;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-primary: #6d87db;
+  --color-primary-strong: #4e6bd3;
+  --color-primary-soft: #1b2646;
+  --color-secondary: #d7e2ff;
+
+  --color-success: #68d391;
+  --color-success-soft: #1f5637;
+  --color-success-border: #3da56a;
+  --color-danger: #ffd7de;
+  --color-danger-soft: #3b1d2a;
+  --color-danger-border: #8d465f;
+  --color-warn: #d7b46b;
+
+  --color-bg-page: #0f1424;
+  --color-bg-page-gradient: radial-gradient(
+    circle at top,
+    #17203a,
+    #11172b 45%,
+    #0f1424 100%
+  );
+  --color-bg-surface: #171f36;
+  --color-bg-surface-soft: #121a2f;
+  --color-bg-control: #1b2646;
+  --color-overlay: rgba(8, 12, 24, 0.6);
+
+  --color-text-primary: #e9efff;
+  --color-text-secondary: #c0ccef;
+  --color-text-muted: #aebbe3;
+  --color-text-on-accent: #eef3ff;
+  --color-snackbar-info: #385fb9;
+  --color-snackbar-success: #2f9b63;
+  --color-snackbar-warn: #b78730;
+  --color-snackbar-error: #c55a6f;
+
+  --border-strong: 1px solid #3a4c7f;
+  --border-default: 1px solid #2f3f6b;
+  --border-soft: 1px solid #32416d;
+  --border-accent: 1px solid #6582d0;
+
+  --shadow-card: 0 16px 30px -22px #000;
+  --shadow-modal: 0 20px 34px -20px #000;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+:root,
+body {
+  font-family: var(--font-family-base);
+  color: var(--color-text-primary);
+  background: var(--color-bg-page);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-bg-page-gradient);
+  font-size: var(--font-size-body);
+}
+
+a {
+  color: inherit;
+}
+
+.stack {
+  display: grid;
+  gap: 10px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: end;
+}
+
+.row.compact {
+  align-items: center;
+}
+
+.row-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+}
+
+.field label {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.error-text {
+  margin: 6px 0;
+  color: var(--color-danger);
+  font-size: 0.9rem;
+}
+
+.success-text {
+  margin: 6px 0;
+  color: var(--color-success);
+  font-size: 0.9rem;
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+.app-inline-icon {
+  margin-right: 4px;
+  font-size: 0.9em;
+}
+
+.routine-color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: var(--border-strong);
+  display: inline-block;
+  flex: 0 0 12px;
+}
+
+.routine-icon-btn {
+  width: 24px;
+  height: 24px;
+  border: var(--border-strong);
+  border-radius: 7px;
+  background: var(--color-bg-control);
+  color: var(--color-secondary);
+  cursor: pointer;
+  font-size: 0.8rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.routine-icon-btn.delete {
+  background: var(--color-danger-soft);
+  border: 1px solid var(--color-danger-border);
+  color: var(--color-danger);
+}
+
+.routine-icon-btn i,
+.status-btn i,
+.daily-task-check i,
+.snackbar-icon i,
+.password-toggle-btn i,
+.profile-toggle-btn i,
+.theme-toggle-btn i,
+.logout-toggle-btn i {
+  line-height: 1;
+  pointer-events: none;
+}
+
+@media (max-width: 720px) {
+  .row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .modal-actions {
+    flex-wrap: wrap;
+    justify-content: stretch;
+  }
+
+  .modal-actions .btn {
+    flex: 1;
+  }
+}

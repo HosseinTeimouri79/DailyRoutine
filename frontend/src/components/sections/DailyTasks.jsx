@@ -6,6 +6,7 @@ import {
   formatPersianMonthYear,
   shiftPersianMonth,
 } from "../../lib/date";
+import "./DailyTasks.css";
 
 export default function DailyTasks({
   tasksMonth,

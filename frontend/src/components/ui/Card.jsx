@@ -1,3 +1,5 @@
+import "./Card.css";
+
 export default function Card({ title, subtitle, actions, children }) {
   return (
     <section className="card">

@@ -1,4 +1,5 @@
 import { motivationalTexts } from "../../data/motivationalTexts";
+import "./Header.css";
 
 export default function Header({
   title,
