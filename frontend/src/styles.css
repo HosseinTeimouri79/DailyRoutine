@@ -36,6 +36,7 @@
 
 :root {
   color-scheme: light;
+  --page-max-width: 1200px;
   font-family:
     Vazir,
     system-ui,
@@ -88,11 +89,16 @@ a {
 }
 
 .app-shell {
-  max-width: 1200px;
+  width: min(100%, var(--page-max-width));
+  max-width: var(--page-max-width);
   margin: 0 auto;
   padding: 20px;
   display: grid;
   gap: 16px;
+}
+
+.app-shell > * {
+  min-width: 0;
 }
 
 .topbar {
@@ -135,6 +141,15 @@ a {
   cursor: pointer;
 }
 
+.logout-toggle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid #d5deff;
+  background: #eef2ff;
+  cursor: pointer;
+}
+
 .topbar h1 {
   margin: 0;
   font-size: 1.35rem;
@@ -145,8 +160,15 @@ a {
   color: #586488;
 }
 
+.topbar-motivation {
+  font-weight: 700;
+  color: #4caf50;
+  padding-inline-start: 1rem;
+}
+
 .nav-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -157,6 +179,9 @@ a {
   border: 1px solid #d7e0ff;
   background: #fff;
   color: #4b5b8a;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .tab.active {
@@ -175,8 +200,9 @@ a {
 }
 
 .content-grid {
-  display: grid;
   gap: 16px;
+  display: flex;
+  flex-direction: column;
 }
 
 .card {
@@ -231,6 +257,8 @@ a {
 :root[data-theme="dark"] .btn-secondary,
 :root[data-theme="dark"] .theme-toggle-btn,
 :root[data-theme="dark"] .profile-toggle-btn,
+:root[data-theme="dark"] .logout-toggle-btn,
+:root[data-theme="dark"] .weekly-mobile-row,
 :root[data-theme="dark"] .routine-icon-btn {
   background: #1b2646;
   color: #d7e2ff;
@@ -257,7 +285,7 @@ a {
 }
 
 :root[data-theme="dark"] .monthly-calendar-shell,
-:root[data-theme="dark"] .stats-grid div,
+:root[data-theme="dark"] .stats-flex div,
 :root[data-theme="dark"] .routine-item,
 :root[data-theme="dark"] .daily-task-item {
   background: #121a2f;
@@ -537,6 +565,7 @@ a {
   place-items: center;
   padding: 16px;
   z-index: 1100;
+  overflow-y: auto;
 }
 
 .modal-card {
@@ -546,6 +575,8 @@ a {
   border-radius: 14px;
   box-shadow: 0 20px 34px -20px #1f3b9f;
   padding: 16px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
 }
 
 .modal-title {
@@ -616,11 +647,15 @@ a {
 }
 
 .delete-confirm-modal {
-  width: min(400px, 100%);
+  width: min(420px, calc(100vw - 24px));
 }
 
 .delete-confirm-text {
   margin: 4px 0 14px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.7;
 }
 
 .routine-color-input {
@@ -644,18 +679,23 @@ a {
   color: #667395;
 }
 
-.stats-grid {
+.stats-flex {
   padding-top: 12px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 10px;
+  display: flex;
+  justify-content: space-between;
 }
 
-.stats-grid div {
-  border: 1px solid #dce4ff;
+.stats-flex div {
+  display: flex;
+  gap: 4px;
+  background: transparent !important;
+}
+
+.task-info {
+  padding: 6px 10px;
+  background: #f1f3f7;
+  border: 1px solid #d7dce7;
   border-radius: 12px;
-  padding: 12px;
-  background: #f8faff;
 }
 
 .chart-modal {
@@ -704,20 +744,24 @@ a {
   border-radius: 12px;
   padding: 10px;
   background: #f8faff;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
+  display: flex;
+  align-items: flex-start;
   gap: 8px;
 }
 
 .daily-task-check {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
   border: 1px solid #c9d6ff;
   background: #eef3ff;
   color: #2f448f;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
 }
 
 .daily-task-check.done {
@@ -728,6 +772,12 @@ a {
 
 .daily-task-text {
   color: #243568;
+  flex: 1;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.5;
 }
 
 .daily-task-text.done {
@@ -922,6 +972,11 @@ a {
   margin-top: 8px;
 }
 
+.week-nav-buttons {
+  display: flex;
+  gap: 6px;
+}
+
 .week-range-label {
   margin: 0;
   text-align: center;
@@ -941,12 +996,13 @@ a {
   text-align: center;
   padding: 8px;
   font-size: 0.84rem;
-  .week-table {
-    border-collapse: separate;
-    border-spacing: 0;
-    border-radius: 12px;
-    overflow: hidden;
-  }
+}
+
+.week-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .routine-title-cell {
@@ -995,7 +1051,8 @@ a {
 .snackbar-icon i,
 .password-toggle-btn i,
 .profile-toggle-btn i,
-.theme-toggle-btn i {
+.theme-toggle-btn i,
+.logout-toggle-btn i {
   line-height: 1;
   pointer-events: none;
 }
@@ -1032,11 +1089,89 @@ a {
   color: #8e1c25;
 }
 
+.weekly-mobile-list {
+  display: none;
+}
+
+.weekly-mobile-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.weekly-mobile-weekdays span {
+  text-align: center;
+  color: #596792;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.weekly-mobile-row {
+  border: 1px solid #dce4ff;
+  border-radius: 12px;
+  padding: 10px;
+  background: #f8faff;
+  display: grid;
+  gap: 10px;
+}
+
+.week-mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.week-mobile-status-row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.week-mobile-status-cell {
+  min-width: 0;
+}
+
+.status-btn-mobile {
+  width: 100%;
+  height: 30px;
+}
+
+.week-mobile-status-btn {
+  width: 100%;
+  min-height: 36px;
+  border-radius: 10px;
+  border: 1px solid #d8e0ff;
+  background: #f7f9ff;
+  color: #2f448f;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.week-mobile-status-btn.done {
+  background: #c9efda;
+  border-color: #67c48d;
+  color: #0f5132;
+}
+
+.week-mobile-status-btn.missed {
+  background: #ffd7db;
+  border-color: #f08a96;
+  color: #8e1c25;
+}
+
+.week-mobile-status-btn.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .routine-badges {
   margin-top: 12px;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  max-width: 100%;
 }
 
 .routine-badge {
@@ -1050,6 +1185,10 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .routine-badge.active {
@@ -1112,6 +1251,76 @@ a {
 }
 
 @media (max-width: 720px) {
+  .app-shell {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .topbar-info {
+    width: 100%;
+  }
+
+  .topbar h1 {
+    font-size: 1.1rem;
+  }
+
+  .topbar p {
+    margin-top: 4px;
+    line-height: 1.8;
+    word-break: break-word;
+  }
+
+  .topbar-motivation {
+    display: inline;
+    padding-inline-start: 0;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    justify-content: end;
+    gap: 6px;
+  }
+
+  .nav-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .tab {
+    text-align: center;
+    padding: 8px 6px;
+    font-size: 0.82rem;
+    line-height: 1.35;
+  }
+
+  .card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .modal-actions {
+    flex-wrap: wrap;
+    justify-content: stretch;
+  }
+
+  .modal-actions .btn {
+    flex: 1;
+  }
+
   .row {
     flex-direction: column;
     align-items: stretch;
@@ -1120,10 +1329,94 @@ a {
   .week-nav {
     flex-direction: column;
     align-items: stretch;
+    gap: 8px;
+  }
+
+  .week-nav-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .week-nav-buttons .btn {
+    width: 100%;
   }
 
   .week-range-label {
     order: -1;
+  }
+
+  .calendar-table {
+    min-width: 760px;
+  }
+
+  .calendar-wrap {
+    display: none;
+  }
+
+  .weekly-mobile-list {
+    margin-top: 12px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .calendar-table th,
+  .calendar-table td {
+    font-size: 0.78rem;
+    padding: 6px;
+  }
+
+  .routine-title-wrap {
+    gap: 4px;
+  }
+
+  .status-btn {
+    width: 30px;
+    height: 26px;
+  }
+
+  .stats-flex {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .stats-flex div {
+    justify-content: center;
+  }
+
+  .weekly-mobile-weekdays {
+    gap: 4px;
+  }
+
+  .week-mobile-status-row {
+    gap: 4px;
+  }
+
+  .monthly-calendar-header {
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .monthly-weekdays span {
+    font-size: 0.75rem;
+  }
+
+  .monthly-grid,
+  .monthly-weekdays {
+    gap: 4px;
+  }
+
+  .monthly-day {
+    min-height: 34px;
+    border-radius: 8px;
+  }
+
+  .snackbar {
+    top: auto;
+    bottom: 14px;
+    left: 12px;
+    right: 12px;
+    max-width: none;
   }
 
   .routine-item {

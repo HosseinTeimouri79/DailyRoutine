@@ -1,4 +1,3 @@
-import Button from "../ui/Button";
 import { motivationalTexts } from "../../data/motivationalTexts";
 
 export default function Header({
@@ -14,7 +13,7 @@ export default function Header({
 
   return (
     <header className="topbar">
-      <div>
+      <div className="topbar-info">
         <h1>{title}</h1>
         <p>
           {user ? `سلام ${user.name} عزیر ` : ""}
@@ -22,13 +21,7 @@ export default function Header({
             className="fa-solid fa-arrow-left app-inline-icon"
             aria-hidden="true"
           />
-          <span
-            style={{
-              fontWeight: "bold",
-              color: "#4CAF50",
-              paddingInlineStart: "1rem",
-            }}
-          >
+          <span className="topbar-motivation">
             {randomText}
             <i
               className="fa-solid fa-star app-inline-icon"
@@ -59,9 +52,14 @@ export default function Header({
             aria-hidden="true"
           />
         </button>
-        <Button variant="secondary" onClick={onLogout}>
-          خروج
-        </Button>
+        <button
+          className="logout-toggle-btn"
+          onClick={onLogout}
+          title="خروج"
+          aria-label="خروج"
+        >
+          <i className="fa-solid fa-right-from-bracket" aria-hidden="true" />
+        </button>
       </div>
     </header>
   );

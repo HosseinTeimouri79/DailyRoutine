@@ -6,12 +6,16 @@ function StatGrid({ data, action }) {
   if (!data) return <p className="muted">در حال بارگذاری...</p>;
 
   return (
-    <div className="stats-grid">
-      <div>روتین‌ها: {data.routines}</div>
-      <div>انجام‌شده: {data.done}</div>
-      <div>انجام‌نشده: {data.missed}</div>
-      <div>ثبت‌نشده: {data.remaining}</div>
-      {action ? action : null}
+    <div className="stats-flex">
+      <div>
+        <div className="task-info">انجام‌شده: {data.done}</div>
+        <div className="task-info">انجام‌نشده: {data.missed}</div>
+        <div className="task-info">ثبت‌نشده: {data.remaining}</div>
+      </div>
+      <div>
+        <div className="task-info">روتین‌ها: {data.routines}</div>
+        {action ? action : null}
+      </div>
     </div>
   );
 }

@@ -187,20 +187,28 @@ export default function HomePage() {
     return weekEnd > monthEnd ? weekEnd : monthEnd;
   }, [monthDays, weekDays, todayISO]);
 
-  const weeklyReport = useMemo(
-    () => buildStatsForDays(weekDays, routines, logsMap),
-    [weekDays, routines, logsMap],
-  );
+  const monthlyReport = useMemo(() => {
+    const allRoutinesStats = buildStatsForDays(monthDays, routines, logsMap);
 
-  const monthlyReport = useMemo(
-    () => buildStatsForDays(monthDays, routines, logsMap),
-    [monthDays, routines, logsMap],
-  );
+    if (!selectedRoutineId) return allRoutinesStats;
 
-  const weeklyRoutineReport = useMemo(
-    () => buildRoutineStatsForDays(weekDays, routines, logsMap),
-    [weekDays, routines, logsMap],
-  );
+    const selectedRoutine = routines.find(
+      (routine) => routine.id === selectedRoutineId,
+    );
+
+    if (!selectedRoutine) return allRoutinesStats;
+
+    const selectedRoutineStats = buildStatsForDays(
+      monthDays,
+      [selectedRoutine],
+      logsMap,
+    );
+
+    return {
+      ...selectedRoutineStats,
+      routines: routines.length,
+    };
+  }, [monthDays, routines, logsMap, selectedRoutineId]);
 
   const monthlyRoutineReport = useMemo(
     () => buildRoutineStatsForDays(monthDays, routines, logsMap),
@@ -355,11 +363,10 @@ export default function HomePage() {
     return logsMap.get(`${selectedRoutineId}-${isoDate}`) || null;
   }
 
-  function openReportChart(type) {
-    const isWeekly = type === "weekly";
+  function openMonthlyReportChart() {
     setReportModal({
-      title: isWeekly ? "چارت گزارش هفتگی" : "چارت گزارش ماهانه",
-      routinesReport: isWeekly ? weeklyRoutineReport : monthlyRoutineReport,
+      title: "چارت گزارش ماهانه",
+      routinesReport: monthlyRoutineReport,
     });
   }
 
@@ -417,14 +424,14 @@ export default function HomePage() {
   }
 
   return (
-    <AppShell title="روتین‌های من">
+    <AppShell title="هدفی‌نو">
       <div className="nav-tabs page-tabs">
         <button
           type="button"
           className={`tab tab-btn ${activeTab === "weekly" ? "active" : ""}`.trim()}
           onClick={() => changeTab("weekly")}
         >
-          روتین های هفتگی
+          روتین‌های من
         </button>
         <button
           type="button"
@@ -456,8 +463,6 @@ export default function HomePage() {
           openEditModal={openEditModal}
           onRequestRoutineDelete={setRoutineToDelete}
           toggleStatus={toggleStatus}
-          weeklyReport={weeklyReport}
-          onOpenWeeklyChart={() => openReportChart("weekly")}
         />
       ) : null}
 
@@ -475,7 +480,7 @@ export default function HomePage() {
           setSelectedMonthlyDate={setSelectedMonthlyDate}
           getSelectedRoutineDayStatus={getSelectedRoutineDayStatus}
           monthlyReport={monthlyReport}
-          onOpenMonthlyChart={() => openReportChart("monthly")}
+          onOpenMonthlyChart={openMonthlyReportChart}
         />
       ) : null}
 

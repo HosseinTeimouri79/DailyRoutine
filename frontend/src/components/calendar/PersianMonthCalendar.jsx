@@ -48,10 +48,10 @@ export default function PersianMonthCalendar({
             برو به امروز
           </button>
         ) : null}
-        <p className="monthly-calendar-title">{monthLabel}</p>
         <button className="btn btn-secondary" onClick={onNextMonth}>
           ماه بعد
         </button>
+        <p className="monthly-calendar-title">{monthLabel}</p>
       </div>
 
       <div className="monthly-weekdays">

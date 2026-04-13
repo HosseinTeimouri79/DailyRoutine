@@ -1,20 +1,5 @@
 import Card from "../ui/Card";
-import Button from "../ui/Button";
 import { formatPersianDateParts, formatPersianMonthYear } from "../../lib/date";
-
-function StatGrid({ data, action }) {
-  if (!data) return <p className="muted">در حال بارگذاری...</p>;
-
-  return (
-    <div className="stats-grid">
-      <div>روتین‌ها: {data.routines}</div>
-      <div>انجام‌شده: {data.done}</div>
-      <div>انجام‌نشده: {data.missed}</div>
-      <div>ثبت‌نشده: {data.remaining}</div>
-      {action ? action : null}
-    </div>
-  );
-}
 
 export default function WeeklyRoutines({
   error,
@@ -29,12 +14,42 @@ export default function WeeklyRoutines({
   openEditModal,
   onRequestRoutineDelete,
   toggleStatus,
-  weeklyReport,
-  onOpenWeeklyChart,
 }) {
+  function renderStatusButton(routineId, day, mobile = false) {
+    const key = `${routineId}-${day}`;
+    const status = logsMap.get(key);
+    const isFutureDay = day > todayISO;
+    const cls =
+      status === "done"
+        ? "status-btn done"
+        : status === "missed"
+          ? "status-btn missed"
+          : "status-btn";
+
+    return (
+      <button
+        className={`${cls} ${mobile ? "status-btn-mobile" : ""} ${isFutureDay ? "disabled" : ""}`.trim()}
+        disabled={isFutureDay}
+        title={isFutureDay ? "ثبت وضعیت برای تاریخ آینده مجاز نیست" : ""}
+        onClick={() => toggleStatus(routineId, day)}
+      >
+        <i
+          className={
+            status === "done"
+              ? "fa-solid fa-check"
+              : status === "missed"
+                ? "fa-solid fa-xmark"
+                : "fa-solid fa-minus"
+          }
+          aria-hidden="true"
+        />
+      </button>
+    );
+  }
+
   return (
     <Card
-      title="روتین های هفتگی"
+      title="روتین‌های من"
       subtitle="وضعیت هر روتین روی روزهای هفته"
       actions={
         <button
@@ -49,23 +64,30 @@ export default function WeeklyRoutines({
     >
       {error ? <p className="error-text">{error}</p> : null}
       <div className="week-nav">
-        <button className="btn btn-secondary" onClick={goToPreviousWeek}>
-          هفته قبل
-        </button>
+        <div className="week-nav-buttons">
+          <button className="btn btn-secondary" onClick={goToPreviousWeek}>
+            هفته قبل
+          </button>
+          <button
+            className="btn btn-secondary"
+            onClick={goToNextWeek}
+            disabled={!canGoNextWeek}
+          >
+            هفته بعد
+          </button>
+        </div>
         <p className="muted week-range-label">
           از {formatPersianDateParts(weekDays[0]).day}{" "}
           {formatPersianMonthYear(weekDays[0])}
-          {" تا "}
+          {/* {"تا "}  fa-arrows-left-right-to-line */}
+          <i
+            className="fa-solid fa-arrows-left-right-to-line app-inline-icon"
+            style={{ margin: "0 8px" }}
+            aria-hidden="true"
+          />
           {formatPersianDateParts(weekDays[6]).day}{" "}
           {formatPersianMonthYear(weekDays[6])}
         </p>
-        <button
-          className="btn btn-secondary"
-          onClick={goToNextWeek}
-          disabled={!canGoNextWeek}
-        >
-          هفته بعد
-        </button>
       </div>
 
       <div className="calendar-wrap">
@@ -123,39 +145,9 @@ export default function WeeklyRoutines({
                   </td>
                   {weekDays.map((day) => {
                     const key = `${routine.id}-${day}`;
-                    const status = logsMap.get(key);
-                    const isFutureDay = day > todayISO;
-                    const cls =
-                      status === "done"
-                        ? "status-btn done"
-                        : status === "missed"
-                          ? "status-btn missed"
-                          : "status-btn";
 
                     return (
-                      <td key={key}>
-                        <button
-                          className={`${cls} ${isFutureDay ? "disabled" : ""}`.trim()}
-                          disabled={isFutureDay}
-                          title={
-                            isFutureDay
-                              ? "ثبت وضعیت برای تاریخ آینده مجاز نیست"
-                              : ""
-                          }
-                          onClick={() => toggleStatus(routine.id, day)}
-                        >
-                          <i
-                            className={
-                              status === "done"
-                                ? "fa-solid fa-check"
-                                : status === "missed"
-                                  ? "fa-solid fa-xmark"
-                                  : "fa-solid fa-minus"
-                            }
-                            aria-hidden="true"
-                          />
-                        </button>
-                      </td>
+                      <td key={key}>{renderStatusButton(routine.id, day)}</td>
                     );
                   })}
                 </tr>
@@ -165,14 +157,58 @@ export default function WeeklyRoutines({
         </table>
       </div>
 
-      <StatGrid
-        data={weeklyReport}
-        action={
-          <Button variant="secondary" onClick={onOpenWeeklyChart}>
-            چارت گزارش هفتگی
-          </Button>
-        }
-      />
+      <div className="weekly-mobile-list">
+        {!routines.length ? (
+          <p className="muted">روتینی یافت نشد.</p>
+        ) : (
+          routines.map((routine) => (
+            <div key={`mobile-${routine.id}`} className="weekly-mobile-row">
+              <div className="week-mobile-header">
+                <div className="routine-title-wrap">
+                  <span
+                    className="routine-color-dot"
+                    style={{
+                      backgroundColor: routine.color || "#9fb6ff",
+                    }}
+                  />
+                  <span className="routine-title-cell">{routine.title}</span>
+                </div>
+                <div className="row-actions">
+                  <button
+                    className="routine-icon-btn"
+                    title="ویرایش"
+                    onClick={() => openEditModal(routine)}
+                  >
+                    <i className="fa-solid fa-pen" aria-hidden="true" />
+                  </button>
+                  <button
+                    className="routine-icon-btn delete"
+                    title="حذف"
+                    onClick={() => onRequestRoutineDelete(routine)}
+                  >
+                    <i className="fa-solid fa-trash" aria-hidden="true" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="weekly-mobile-weekdays">
+                {weekDays.map((date) => {
+                  const p = formatPersianDateParts(date);
+                  return <span key={`weekday-${routine.id}-${date}`}>{p.weekdayShort}</span>;
+                })}
+              </div>
+
+              <div className="week-mobile-status-row">
+                {weekDays.map((day) => (
+                  <div key={`mobile-status-${routine.id}-${day}`} className="week-mobile-status-cell">
+                    {renderStatusButton(routine.id, day, true)}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </Card>
   );
 }

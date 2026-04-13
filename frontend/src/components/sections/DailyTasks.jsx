@@ -62,6 +62,13 @@ export default function DailyTasks({
         {tasks.map((task) => (
           <li key={task.id} className="daily-task-item">
             <button
+              className="routine-icon-btn delete"
+              onClick={() => onRequestTaskDelete(task)}
+              title="حذف کار"
+            >
+              <i className="fa-solid fa-trash" aria-hidden="true" />
+            </button>
+            <button
               className={`daily-task-check ${task.is_done ? "done" : ""}`.trim()}
               onClick={() => toggleTaskDone(task)}
               title={
@@ -82,13 +89,6 @@ export default function DailyTasks({
             >
               {task.content}
             </span>
-            <button
-              className="routine-icon-btn delete"
-              onClick={() => onRequestTaskDelete(task)}
-              title="حذف کار"
-            >
-              <i className="fa-solid fa-trash" aria-hidden="true" />
-            </button>
           </li>
         ))}
       </ul>
