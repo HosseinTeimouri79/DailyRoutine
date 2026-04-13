@@ -240,6 +240,8 @@ a {
 :root[data-theme="dark"] .topbar p,
 :root[data-theme="dark"] .card-subtitle,
 :root[data-theme="dark"] .muted,
+:root[data-theme="dark"] .routine-title-cell,
+:root[data-theme="dark"] .monthly-calendar-title,
 :root[data-theme="dark"] .field label {
   color: #aebbe3;
 }
