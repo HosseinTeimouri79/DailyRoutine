@@ -83,7 +83,7 @@ export default function LoginPage() {
             id="phone"
             type="tel"
             label="شماره تلفن"
-            placeholder="مثال: 09123456789"
+            placeholder="مثال: 09151151010"
             value={form.phone}
             onChange={(e) =>
               setForm((prev) => ({ ...prev, phone: e.target.value }))
@@ -123,23 +123,27 @@ export default function LoginPage() {
 
           {error ? <p className="error-text">{error}</p> : null}
 
-          <Button type="submit" disabled={loading}>
-            {loading
-              ? "در حال ارسال..."
-              : mode === "register"
-                ? "ثبت‌نام"
-                : "ورود"}
-          </Button>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Button type="submit" disabled={loading}>
+              {loading
+                ? "در حال ارسال..."
+                : mode === "register"
+                  ? "ثبت‌نام"
+                  : "ورود"}
+            </Button>
 
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() =>
-              setMode((prev) => (prev === "login" ? "register" : "login"))
-            }
-          >
-            {mode === "register" ? "حساب دارید؟ ورود" : "حساب ندارید؟ ثبت‌نام"}
-          </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() =>
+                setMode((prev) => (prev === "login" ? "register" : "login"))
+              }
+            >
+              {mode === "register"
+                ? "حساب دارید؟ ورود"
+                : "حساب ندارید؟ ثبت‌نام"}
+            </Button>
+          </div>
         </form>
       </Card>
     </div>
