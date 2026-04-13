@@ -15,12 +15,8 @@ export default function Header({
     <header className="topbar">
       <div className="topbar-info">
         <h1>{title}</h1>
-        <p>
-          {user ? `سلام ${user.name} عزیر ` : ""}
-          <i
-            className="fa-solid fa-arrow-left app-inline-icon"
-            aria-hidden="true"
-          />
+        <p className="topbar-user-info">
+          <span>{user ? `سلام ${user.name} عزیر ` : ""}</span>
           <span className="topbar-motivation">
             {randomText}
             <i

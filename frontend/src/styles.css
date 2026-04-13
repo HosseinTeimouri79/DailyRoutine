@@ -156,8 +156,13 @@ a {
 }
 
 .topbar p {
-  margin: 6px 0 0;
-  color: #586488;
+  margin: 0;
+}
+
+.topbar-user-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
 }
 
 .topbar-motivation {
@@ -1271,10 +1276,8 @@ a {
     font-size: 1.1rem;
   }
 
-  .topbar p {
-    margin-top: 4px;
-    line-height: 1.8;
-    word-break: break-word;
+  .topbar-user-info {
+    flex-direction: column;
   }
 
   .topbar-motivation {
