@@ -82,4 +82,14 @@ export const api = {
     }),
   deleteDailyTask: (id) =>
     request(`/daily-tasks/${id}`, { method: "DELETE", auth: true }),
+  getNotes: (query = "") => request(`/notes${query}`, { auth: true }),
+  createNote: (payload) =>
+    request("/notes", { method: "POST", body: payload, auth: true }),
+  updateNote: (id, payload) =>
+    request(`/notes/${id}`, {
+      method: "PUT",
+      body: payload,
+      auth: true,
+    }),
+  deleteNote: (id) => request(`/notes/${id}`, { method: "DELETE", auth: true }),
 };

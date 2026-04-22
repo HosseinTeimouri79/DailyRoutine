@@ -166,3 +166,21 @@ export function getMonthGridGregorian(monthDays) {
 
   return cells;
 }
+
+export function formatPersianDateTimeFromSql(sqlDateTime) {
+  if (!sqlDateTime || typeof sqlDateTime !== "string") return "-";
+
+  const normalized = sqlDateTime.includes("T")
+    ? sqlDateTime
+    : sqlDateTime.replace(" ", "T");
+  const date = new Date(normalized);
+
+  if (Number.isNaN(date.getTime())) return "-";
+
+  return new Intl.DateTimeFormat("fa-IR", {
+    calendar: "persian",
+    numberingSystem: "latn",
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+}

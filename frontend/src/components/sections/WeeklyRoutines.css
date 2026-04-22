@@ -64,6 +64,36 @@
   gap: 6px;
 }
 
+.routine-week-progress {
+  --progress: 0%;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--color-success-border) var(--progress),
+    color-mix(in srgb, var(--color-primary-soft) 62%, var(--color-bg-surface)) 0
+  );
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 26px;
+}
+
+.routine-week-progress-inner {
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: var(--color-bg-surface);
+  border: var(--border-soft);
+  color: var(--color-text-secondary);
+  font-size: 0.56rem;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .status-btn {
   width: 34px;
   height: 28px;
@@ -190,6 +220,18 @@
 
   .routine-title-wrap {
     gap: 4px;
+  }
+
+  .routine-week-progress {
+    width: 24px;
+    height: 24px;
+    flex-basis: 24px;
+  }
+
+  .routine-week-progress-inner {
+    width: 18px;
+    height: 18px;
+    font-size: 0.52rem;
   }
 
   .status-btn {

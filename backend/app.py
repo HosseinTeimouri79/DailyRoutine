@@ -7,6 +7,7 @@ from flask_cors import CORS
 from core.db import close_connection, ensure_schema
 from routes.auth import auth_bp
 from routes.logs import logs_bp
+from routes.notes import notes_bp
 from routes.reports import reports_bp
 from routes.routines import routines_bp
 from routes.tasks import tasks_bp
@@ -27,6 +28,7 @@ def create_app():
     app.register_blueprint(routines_bp)
     app.register_blueprint(logs_bp)
     app.register_blueprint(tasks_bp)
+    app.register_blueprint(notes_bp)
     app.register_blueprint(reports_bp)
 
     app.teardown_appcontext(close_connection)

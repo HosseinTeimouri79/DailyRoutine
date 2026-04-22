@@ -16,6 +16,18 @@ export default function WeeklyRoutines({
   onRequestRoutineDelete,
   toggleStatus,
 }) {
+  function getRoutineWeekProgress(routineId) {
+    const doneCount = weekDays.reduce((count, day) => {
+      const status = logsMap.get(`${routineId}-${day}`);
+      return status === "done" ? count + 1 : count;
+    }, 0);
+
+    const totalDays = weekDays.length || 1;
+    const percent = Math.round((doneCount / totalDays) * 100);
+
+    return { doneCount, totalDays, percent };
+  }
+
   function renderStatusButton(routineId, day, mobile = false) {
     const key = `${routineId}-${day}`;
     const status = logsMap.get(key);
@@ -113,43 +125,49 @@ export default function WeeklyRoutines({
                 <td colSpan={weekDays.length + 1}>روتینی یافت نشد.</td>
               </tr>
             ) : (
-              routines.map((routine) => (
-                <tr key={routine.id}>
-                  <td className="routine-title-cell routine-title-cell-justify">
-                    <div className="routine-title-wrap">
-                      <button
-                        className="routine-icon-btn"
-                        title="ویرایش"
-                        onClick={() => openEditModal(routine)}
-                      >
-                        <i className="fa-solid fa-pen" aria-hidden="true" />
-                      </button>
-                      <button
-                        className="routine-icon-btn delete"
-                        title="حذف"
-                        onClick={() => onRequestRoutineDelete(routine)}
-                      >
-                        <i className="fa-solid fa-trash" aria-hidden="true" />
-                      </button>
-                      <span
-                        className="routine-color-dot"
-                        style={{
-                          backgroundColor:
-                            routine.color || "var(--color-primary)",
-                        }}
-                      />
-                      <span>{routine.title}</span>
-                    </div>
-                  </td>
-                  {weekDays.map((day) => {
-                    const key = `${routine.id}-${day}`;
+              routines.map((routine) => {
+                const progress = getRoutineWeekProgress(routine.id);
 
-                    return (
-                      <td key={key}>{renderStatusButton(routine.id, day)}</td>
-                    );
-                  })}
-                </tr>
-              ))
+                return (
+                  <tr key={routine.id}>
+                    <td className="routine-title-cell routine-title-cell-justify">
+                      <div className="routine-title-wrap">
+                        <span
+                          className="routine-week-progress"
+                          style={{ "--progress": `${progress.percent}%` }}
+                          title={`پیشرفت هفتگی: ${progress.doneCount} از ${progress.totalDays}`}
+                        >
+                          <span className="routine-week-progress-inner">
+                            {progress.percent}
+                          </span>
+                        </span>
+                        <button
+                          className="routine-icon-btn"
+                          title="ویرایش"
+                          onClick={() => openEditModal(routine)}
+                        >
+                          <i className="fa-solid fa-pen" aria-hidden="true" />
+                        </button>
+                        <button
+                          className="routine-icon-btn delete"
+                          title="حذف"
+                          onClick={() => onRequestRoutineDelete(routine)}
+                        >
+                          <i className="fa-solid fa-trash" aria-hidden="true" />
+                        </button>
+                        <span>{routine.title}</span>
+                      </div>
+                    </td>
+                    {weekDays.map((day) => {
+                      const key = `${routine.id}-${day}`;
+
+                      return (
+                        <td key={key}>{renderStatusButton(routine.id, day)}</td>
+                      );
+                    })}
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
@@ -159,59 +177,66 @@ export default function WeeklyRoutines({
         {!routines.length ? (
           <p className="muted">روتینی یافت نشد.</p>
         ) : (
-          routines.map((routine) => (
-            <div key={`mobile-${routine.id}`} className="weekly-mobile-row">
-              <div className="week-mobile-header">
-                <div className="routine-title-wrap">
-                  <span
-                    className="routine-color-dot"
-                    style={{
-                      backgroundColor: routine.color || "var(--color-primary)",
-                    }}
-                  />
-                  <span className="routine-title-cell">{routine.title}</span>
-                </div>
-                <div className="row-actions">
-                  <button
-                    className="routine-icon-btn"
-                    title="ویرایش"
-                    onClick={() => openEditModal(routine)}
-                  >
-                    <i className="fa-solid fa-pen" aria-hidden="true" />
-                  </button>
-                  <button
-                    className="routine-icon-btn delete"
-                    title="حذف"
-                    onClick={() => onRequestRoutineDelete(routine)}
-                  >
-                    <i className="fa-solid fa-trash" aria-hidden="true" />
-                  </button>
-                </div>
-              </div>
+          routines.map((routine) => {
+            const progress = getRoutineWeekProgress(routine.id);
 
-              <div className="weekly-mobile-weekdays">
-                {weekDays.map((date) => {
-                  const p = formatPersianDateParts(date);
-                  return (
-                    <span key={`weekday-${routine.id}-${date}`}>
-                      {p.weekdayShort}
+            return (
+              <div key={`mobile-${routine.id}`} className="weekly-mobile-row">
+                <div className="week-mobile-header">
+                  <div className="routine-title-wrap">
+                    <span
+                      className="routine-week-progress"
+                      style={{ "--progress": `${progress.percent}%` }}
+                      title={`پیشرفت هفتگی: ${progress.doneCount} از ${progress.totalDays}`}
+                    >
+                      <span className="routine-week-progress-inner">
+                        {progress.percent}
+                      </span>
                     </span>
-                  );
-                })}
-              </div>
-
-              <div className="week-mobile-status-row">
-                {weekDays.map((day) => (
-                  <div
-                    key={`mobile-status-${routine.id}-${day}`}
-                    className="week-mobile-status-cell"
-                  >
-                    {renderStatusButton(routine.id, day, true)}
+                    <span className="routine-title-cell">{routine.title}</span>
                   </div>
-                ))}
+                  <div className="row-actions">
+                    <button
+                      className="routine-icon-btn"
+                      title="ویرایش"
+                      onClick={() => openEditModal(routine)}
+                    >
+                      <i className="fa-solid fa-pen" aria-hidden="true" />
+                    </button>
+                    <button
+                      className="routine-icon-btn delete"
+                      title="حذف"
+                      onClick={() => onRequestRoutineDelete(routine)}
+                    >
+                      <i className="fa-solid fa-trash" aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="weekly-mobile-weekdays">
+                  {weekDays.map((date) => {
+                    const p = formatPersianDateParts(date);
+                    return (
+                      <span key={`weekday-${routine.id}-${date}`}>
+                        {p.weekdayShort}
+                      </span>
+                    );
+                  })}
+                </div>
+
+                <div className="week-mobile-status-row">
+                  {weekDays.map((day) => (
+                    <div
+                      key={`mobile-status-${routine.id}-${day}`}
+                      className="week-mobile-status-cell"
+                    >
+                      {renderStatusButton(routine.id, day, true)}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </Card>

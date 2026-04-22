@@ -6,6 +6,7 @@ import Snackbar from "../components/ui/Snackbar";
 import WeeklyRoutines from "../components/sections/WeeklyRoutines";
 import MonthlyCalendar from "../components/sections/MonthlyCalendar";
 import DailyTasks from "../components/sections/DailyTasks";
+import Notes from "../components/sections/Notes";
 import { api } from "../lib/api";
 import { useSnackbar } from "../hooks/useSnackbar";
 import {
@@ -172,6 +173,13 @@ export default function HomePage() {
   const [tasks, setTasks] = useState([]);
   const [newTaskText, setNewTaskText] = useState("");
   const [tasksLoading, setTasksLoading] = useState(false);
+  const [notes, setNotes] = useState([]);
+  const [notesSearch, setNotesSearch] = useState("");
+  const [notesLoading, setNotesLoading] = useState(false);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [editingNote, setEditingNote] = useState(null);
+  const [noteText, setNoteText] = useState("");
+  const [noteToDelete, setNoteToDelete] = useState(null);
   const [routines, setRoutines] = useState([]);
   const [selectedRoutineId, setSelectedRoutineId] = useState(null);
   const [logsMap, setLogsMap] = useState(new Map());
@@ -261,6 +269,15 @@ export default function HomePage() {
     if (activeTab !== "tasks") return;
     loadTasks();
   }, [activeTab, tasksDate]);
+
+  useEffect(() => {
+    if (activeTab !== "notes") return;
+    const timeoutId = setTimeout(() => {
+      loadNotes();
+    }, 250);
+
+    return () => clearTimeout(timeoutId);
+  }, [activeTab, notesSearch]);
 
   useEffect(() => {
     setTasksMonth(getPersianMonthFromISO(tasksDate));
@@ -427,10 +444,75 @@ export default function HomePage() {
     }
   }
 
+  async function loadNotes() {
+    try {
+      setNotesLoading(true);
+      const q = notesSearch.trim();
+      const query = q ? `?q=${encodeURIComponent(q)}` : "";
+      const rows = await api.getNotes(query);
+      setNotes(rows);
+    } catch (err) {
+      notify(err.message, "error");
+    } finally {
+      setNotesLoading(false);
+    }
+  }
+
+  function openCreateNoteModal() {
+    setEditingNote(null);
+    setNoteText("");
+    setIsNoteModalOpen(true);
+  }
+
+  function openEditNoteModal(note) {
+    setEditingNote(note);
+    setNoteText(note.content || "");
+    setIsNoteModalOpen(true);
+  }
+
+  async function submitNote(event) {
+    event.preventDefault();
+    const content = noteText.trim();
+    if (!content) return;
+
+    try {
+      if (editingNote?.id) {
+        await api.updateNote(editingNote.id, { content });
+      } else {
+        await api.createNote({ content });
+      }
+
+      setIsNoteModalOpen(false);
+      setEditingNote(null);
+      setNoteText("");
+      await loadNotes();
+      notify(
+        editingNote?.id
+          ? "یادداشت با موفقیت ویرایش شد."
+          : "یادداشت جدید با موفقیت ثبت شد.",
+        "success",
+      );
+    } catch (err) {
+      notify(err.message, "error");
+    }
+  }
+
+  async function deleteNote(noteId) {
+    try {
+      await api.deleteNote(noteId);
+      await loadNotes();
+      setNoteToDelete(null);
+      notify("یادداشت حذف شد.", "success");
+    } catch (err) {
+      notify(err.message, "error");
+    }
+  }
+
   function changeTab(nextTab) {
     setActiveTab(nextTab);
     setReportModal(null);
     setTaskToDelete(null);
+    setNoteToDelete(null);
   }
 
   return (
@@ -456,6 +538,13 @@ export default function HomePage() {
           onClick={() => changeTab("tasks")}
         >
           کارهای روزانه
+        </button>
+        <button
+          type="button"
+          className={`tab tab-btn ${activeTab === "notes" ? "active" : ""}`.trim()}
+          onClick={() => changeTab("notes")}
+        >
+          یادداشت‌ها
         </button>
       </div>
 
@@ -508,6 +597,18 @@ export default function HomePage() {
           tasks={tasks}
           toggleTaskDone={toggleTaskDone}
           onRequestTaskDelete={setTaskToDelete}
+        />
+      ) : null}
+
+      {activeTab === "notes" ? (
+        <Notes
+          notes={notes}
+          notesLoading={notesLoading}
+          notesSearch={notesSearch}
+          setNotesSearch={setNotesSearch}
+          onOpenAdd={openCreateNoteModal}
+          onOpenEdit={openEditNoteModal}
+          onRequestDelete={setNoteToDelete}
         />
       ) : null}
 
@@ -609,6 +710,59 @@ export default function HomePage() {
           </Button>
           <Button variant="danger" onClick={() => deleteTask(taskToDelete.id)}>
             حذف کار
+          </Button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={isNoteModalOpen}
+        onClose={() => {
+          setIsNoteModalOpen(false);
+          setEditingNote(null);
+        }}
+        title={editingNote ? "ویرایش یادداشت" : "افزودن یادداشت"}
+      >
+        <form className="stack" onSubmit={submitNote}>
+          <textarea
+            className="input note-form-textarea"
+            placeholder="متن یادداشت"
+            value={noteText}
+            onChange={(event) => setNoteText(event.target.value)}
+            required
+          />
+          <div className="modal-actions">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setIsNoteModalOpen(false);
+                setEditingNote(null);
+              }}
+            >
+              انصراف
+            </Button>
+            <Button type="submit">
+              {editingNote ? "ذخیره تغییرات" : "ثبت یادداشت"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        isOpen={Boolean(noteToDelete)}
+        onClose={() => setNoteToDelete(null)}
+        title="تأیید حذف یادداشت"
+        className="delete-confirm-modal"
+      >
+        <p className="muted delete-confirm-text">
+          آیا از حذف این یادداشت مطمئن هستید؟
+        </p>
+        <div className="modal-actions">
+          <Button variant="secondary" onClick={() => setNoteToDelete(null)}>
+            انصراف
+          </Button>
+          <Button variant="danger" onClick={() => deleteNote(noteToDelete.id)}>
+            حذف یادداشت
           </Button>
         </div>
       </Modal>
