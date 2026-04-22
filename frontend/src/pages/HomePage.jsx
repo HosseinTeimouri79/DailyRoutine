@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import AppShell from "../components/layout/AppShell";
 import Button from "../components/ui/Button";
 import Modal from "../components/ui/Modal";
@@ -149,6 +149,13 @@ function getDefaultRoutineColor() {
     .trim();
 }
 
+function requestNotificationPermissionIfNeeded() {
+  if (typeof window === "undefined" || !("Notification" in window)) return;
+  if (Notification.permission === "default") {
+    Notification.requestPermission().catch(() => {});
+  }
+}
+
 export default function HomePage() {
   const [month, setMonth] = useState(() =>
     getPersianMonthFromISO(getTodayISO()),
@@ -167,11 +174,18 @@ export default function HomePage() {
   const [newRoutineColor, setNewRoutineColor] = useState(() =>
     getDefaultRoutineColor(),
   );
+  const [newRoutineAlarmEnabled, setNewRoutineAlarmEnabled] = useState(false);
+  const [newRoutineAlarmTime, setNewRoutineAlarmTime] = useState("09:00");
   const [selectedMonthlyDate, setSelectedMonthlyDate] = useState(getTodayISO());
   const [tasksDate, setTasksDate] = useState(getTodayISO());
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [tasks, setTasks] = useState([]);
+  const [alarmTasks, setAlarmTasks] = useState([]);
   const [newTaskText, setNewTaskText] = useState("");
+  const [newTaskAlarmEnabled, setNewTaskAlarmEnabled] = useState(false);
+  const [newTaskAlarmTime, setNewTaskAlarmTime] = useState("09:00");
   const [tasksLoading, setTasksLoading] = useState(false);
   const [notes, setNotes] = useState([]);
   const [notesSearch, setNotesSearch] = useState("");
@@ -184,6 +198,7 @@ export default function HomePage() {
   const [selectedRoutineId, setSelectedRoutineId] = useState(null);
   const [logsMap, setLogsMap] = useState(new Map());
   const [error, setError] = useState("");
+  const firedAlarmKeysRef = useRef(new Set());
   const { snackbar, notify } = useSnackbar();
 
   const monthDays = useMemo(
@@ -283,6 +298,88 @@ export default function HomePage() {
     setTasksMonth(getPersianMonthFromISO(tasksDate));
   }, [tasksDate]);
 
+  useEffect(() => {
+    if (!newRoutineAlarmEnabled && !newTaskAlarmEnabled) return;
+    requestNotificationPermissionIfNeeded();
+  }, [newRoutineAlarmEnabled, newTaskAlarmEnabled]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadTodayTasksForAlarms() {
+      try {
+        const rows = await api.getDailyTasks(getTodayISO());
+        if (!cancelled) setAlarmTasks(rows);
+      } catch {
+        if (!cancelled) setAlarmTasks([]);
+      }
+    }
+
+    loadTodayTasksForAlarms();
+    const intervalId = setInterval(loadTodayTasksForAlarms, 60_000);
+    return () => {
+      cancelled = true;
+      clearInterval(intervalId);
+    };
+  }, []);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const now = new Date();
+      const todayISODate = getTodayISO();
+      const hhmm = now.toTimeString().slice(0, 5);
+
+      const notifyAlarm = (key, title, body) => {
+        if (firedAlarmKeysRef.current.has(key)) return;
+        firedAlarmKeysRef.current.add(key);
+
+        if (
+          typeof window !== "undefined" &&
+          "Notification" in window &&
+          Notification.permission === "granted"
+        ) {
+          new Notification(title, { body });
+          return;
+        }
+
+        notify(`${title}: ${body}`, "warn");
+      };
+
+      routines
+        .filter(
+          (routine) =>
+            routine.is_active &&
+            routine.alarm_enabled &&
+            routine.alarm_time === hhmm,
+        )
+        .forEach((routine) => {
+          notifyAlarm(
+            `routine-${routine.id}-${todayISODate}-${hhmm}`,
+            "هشدار روتین",
+            `زمان انجام «${routine.title}» رسیده است.`,
+          );
+        });
+
+      alarmTasks
+        .filter(
+          (task) =>
+            task.task_date === todayISODate &&
+            !task.is_done &&
+            task.alarm_enabled &&
+            task.alarm_time === hhmm,
+        )
+        .forEach((task) => {
+          notifyAlarm(
+            `task-${task.id}-${todayISODate}-${hhmm}`,
+            "هشدار کار روزانه",
+            `زمان انجام «${task.content}» رسیده است.`,
+          );
+        });
+    }, 15_000);
+
+    return () => clearInterval(intervalId);
+  }, [routines, alarmTasks, notify]);
+
   async function toggleStatus(routineId, date) {
     if (date > todayISO) {
       notify("ثبت وضعیت برای تاریخ آینده مجاز نیست.", "warn");
@@ -309,15 +406,21 @@ export default function HomePage() {
         await api.updateRoutine(editingRoutineId, {
           title: newRoutineTitle.trim(),
           color: newRoutineColor,
+          alarm_enabled: newRoutineAlarmEnabled,
+          alarm_time: newRoutineAlarmEnabled ? newRoutineAlarmTime : null,
         });
       } else {
         await api.createRoutine({
           title: newRoutineTitle.trim(),
           color: newRoutineColor,
+          alarm_enabled: newRoutineAlarmEnabled,
+          alarm_time: newRoutineAlarmEnabled ? newRoutineAlarmTime : null,
         });
       }
       setNewRoutineTitle("");
       setNewRoutineColor(getDefaultRoutineColor());
+      setNewRoutineAlarmEnabled(false);
+      setNewRoutineAlarmTime("09:00");
       setEditingRoutineId(null);
       setIsAddModalOpen(false);
       notify(
@@ -348,6 +451,8 @@ export default function HomePage() {
     setEditingRoutineId(null);
     setNewRoutineTitle("");
     setNewRoutineColor(getDefaultRoutineColor());
+    setNewRoutineAlarmEnabled(false);
+    setNewRoutineAlarmTime("09:00");
     setIsAddModalOpen(true);
   }
 
@@ -355,6 +460,8 @@ export default function HomePage() {
     setEditingRoutineId(routine.id);
     setNewRoutineTitle(routine.title || "");
     setNewRoutineColor(routine.color || getDefaultRoutineColor());
+    setNewRoutineAlarmEnabled(Boolean(routine.alarm_enabled));
+    setNewRoutineAlarmTime(routine.alarm_time || "09:00");
     setIsAddModalOpen(true);
   }
 
@@ -385,6 +492,30 @@ export default function HomePage() {
     setTasksDate(todayISO);
   }
 
+  function openCreateTaskModal() {
+    setEditingTask(null);
+    setNewTaskText("");
+    setNewTaskAlarmEnabled(false);
+    setNewTaskAlarmTime("09:00");
+    setIsTaskModalOpen(true);
+  }
+
+  function openEditTaskModal(task) {
+    setEditingTask(task);
+    setNewTaskText(task.content || "");
+    setNewTaskAlarmEnabled(Boolean(task.alarm_enabled));
+    setNewTaskAlarmTime(task.alarm_time || "09:00");
+    setIsTaskModalOpen(true);
+  }
+
+  function closeTaskModal() {
+    setIsTaskModalOpen(false);
+    setEditingTask(null);
+    setNewTaskText("");
+    setNewTaskAlarmEnabled(false);
+    setNewTaskAlarmTime("09:00");
+  }
+
   function getSelectedRoutineDayStatus(isoDate) {
     if (!selectedRoutineId) return null;
     return logsMap.get(`${selectedRoutineId}-${isoDate}`) || null;
@@ -409,16 +540,38 @@ export default function HomePage() {
     }
   }
 
-  async function createTask(event) {
+  async function submitTask(event) {
     event.preventDefault();
     const content = newTaskText.trim();
     if (!content) return;
 
     try {
-      await api.createDailyTask({ date: tasksDate, content });
-      setNewTaskText("");
+      if (editingTask?.id) {
+        await api.updateDailyTask(editingTask.id, {
+          content,
+          alarm_enabled: newTaskAlarmEnabled,
+          alarm_time: newTaskAlarmEnabled ? newTaskAlarmTime : null,
+        });
+      } else {
+        await api.createDailyTask({
+          date: tasksDate,
+          content,
+          alarm_enabled: newTaskAlarmEnabled,
+          alarm_time: newTaskAlarmEnabled ? newTaskAlarmTime : null,
+        });
+      }
+
+      closeTaskModal();
       await loadTasks();
-      notify("کار جدید اضافه شد.", "success");
+      const todayISODate = getTodayISO();
+      if (tasksDate === todayISODate) {
+        const rows = await api.getDailyTasks(todayISODate);
+        setAlarmTasks(rows);
+      }
+      notify(
+        editingTask?.id ? "کار ویرایش شد." : "کار جدید اضافه شد.",
+        "success",
+      );
     } catch (err) {
       notify(err.message, "error");
     }
@@ -428,6 +581,10 @@ export default function HomePage() {
     try {
       await api.updateDailyTask(task.id, { is_done: !task.is_done });
       await loadTasks();
+      if (task.task_date === getTodayISO()) {
+        const rows = await api.getDailyTasks(getTodayISO());
+        setAlarmTasks(rows);
+      }
     } catch (err) {
       notify(err.message, "error");
     }
@@ -437,6 +594,8 @@ export default function HomePage() {
     try {
       await api.deleteDailyTask(taskId);
       await loadTasks();
+      const rows = await api.getDailyTasks(getTodayISO());
+      setAlarmTasks(rows);
       notify("کار حذف شد.", "success");
       setTaskToDelete(null);
     } catch (err) {
@@ -511,6 +670,7 @@ export default function HomePage() {
   function changeTab(nextTab) {
     setActiveTab(nextTab);
     setReportModal(null);
+    closeTaskModal();
     setTaskToDelete(null);
     setNoteToDelete(null);
   }
@@ -579,6 +739,7 @@ export default function HomePage() {
           setSelectedMonthlyDate={setSelectedMonthlyDate}
           getSelectedRoutineDayStatus={getSelectedRoutineDayStatus}
           monthlyReport={monthlyReport}
+          monthlyRoutineReport={monthlyRoutineReport}
           onOpenMonthlyChart={openMonthlyReportChart}
         />
       ) : null}
@@ -590,9 +751,8 @@ export default function HomePage() {
           goToTodayTasks={goToTodayTasks}
           tasksDate={tasksDate}
           setTasksDate={setTasksDate}
-          newTaskText={newTaskText}
-          setNewTaskText={setNewTaskText}
-          createTask={createTask}
+          onOpenAddTaskModal={openCreateTaskModal}
+          onOpenEditTaskModal={openEditTaskModal}
           tasksLoading={tasksLoading}
           tasks={tasks}
           toggleTaskDone={toggleTaskDone}
@@ -631,6 +791,8 @@ export default function HomePage() {
         onClose={() => {
           setIsAddModalOpen(false);
           setEditingRoutineId(null);
+          setNewRoutineAlarmEnabled(false);
+          setNewRoutineAlarmTime("09:00");
         }}
         title={editingRoutineId ? "ویرایش روتین" : "افزودن روتین جدید"}
       >
@@ -652,6 +814,22 @@ export default function HomePage() {
               onChange={(e) => setNewRoutineColor(e.target.value)}
             />
           </div>
+          <label className="routine-alarm-toggle">
+            <input
+              type="checkbox"
+              checked={newRoutineAlarmEnabled}
+              onChange={(e) => setNewRoutineAlarmEnabled(e.target.checked)}
+            />
+            فعال‌سازی هشدار
+          </label>
+          <input
+            type="time"
+            className="input"
+            value={newRoutineAlarmTime}
+            onChange={(e) => setNewRoutineAlarmTime(e.target.value)}
+            disabled={!newRoutineAlarmEnabled}
+            required={newRoutineAlarmEnabled}
+          />
           <div className="modal-actions">
             <Button
               type="button"
@@ -659,6 +837,8 @@ export default function HomePage() {
               onClick={() => {
                 setIsAddModalOpen(false);
                 setEditingRoutineId(null);
+                setNewRoutineAlarmEnabled(false);
+                setNewRoutineAlarmTime("09:00");
               }}
             >
               انصراف
@@ -696,6 +876,46 @@ export default function HomePage() {
       </Modal>
 
       <Modal
+        isOpen={isTaskModalOpen}
+        onClose={closeTaskModal}
+        title={editingTask ? "ویرایش کار" : "افزودن کار جدید"}
+      >
+        <form className="stack" onSubmit={submitTask}>
+          <input
+            className="input"
+            placeholder="شرح کار"
+            value={newTaskText}
+            onChange={(event) => setNewTaskText(event.target.value)}
+            required
+          />
+          <label className="routine-alarm-toggle">
+            <input
+              type="checkbox"
+              checked={newTaskAlarmEnabled}
+              onChange={(event) => setNewTaskAlarmEnabled(event.target.checked)}
+            />
+            فعال‌سازی هشدار
+          </label>
+          <input
+            type="time"
+            className="input"
+            value={newTaskAlarmTime}
+            onChange={(event) => setNewTaskAlarmTime(event.target.value)}
+            disabled={!newTaskAlarmEnabled}
+            required={newTaskAlarmEnabled}
+          />
+          <div className="modal-actions">
+            <Button type="button" variant="secondary" onClick={closeTaskModal}>
+              انصراف
+            </Button>
+            <Button type="submit">
+              {editingTask ? "ذخیره تغییرات" : "ثبت کار"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
         isOpen={Boolean(taskToDelete)}
         onClose={() => setTaskToDelete(null)}
         title="تأیید حذف کار"
@@ -720,7 +940,7 @@ export default function HomePage() {
           setIsNoteModalOpen(false);
           setEditingNote(null);
         }}
-        title={editingNote ? "ویرایش یادداشت" : "افزودن یادداشت"}
+        title={editingNote ? "ویرایش" : "افزودن"}
       >
         <form className="stack" onSubmit={submitNote}>
           <textarea

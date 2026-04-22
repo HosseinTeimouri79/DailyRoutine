@@ -1,6 +1,6 @@
 .daily-tasks-toolbar {
-  display: grid;
-  gap: 10px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .daily-tasks-calendar {
@@ -13,7 +13,21 @@
 
 .daily-tasks-form {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
+}
+
+.daily-task-alarm-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-secondary);
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+
+.daily-task-time-input {
+  max-width: 140px;
 }
 
 .daily-tasks-list {
@@ -68,4 +82,14 @@
 .daily-task-text.done {
   text-decoration: line-through;
   color: var(--color-text-muted);
+}
+
+.daily-task-alarm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-inline-start: auto;
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  white-space: nowrap;
 }

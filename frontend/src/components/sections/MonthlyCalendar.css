@@ -42,6 +42,18 @@
   word-break: break-word;
 }
 
+.routine-month-progress {
+  flex-shrink: 0;
+}
+
+.routine-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+  flex: 0 0 10px;
+}
+
 .routine-badge.active {
   background: color-mix(
     in srgb,

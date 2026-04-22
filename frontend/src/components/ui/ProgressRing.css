@@ -1,0 +1,31 @@
+.progress-ring {
+  --progress: 0%;
+  --ring-size: 26px;
+  --ring-inner-size: 19px;
+  width: var(--ring-size);
+  height: var(--ring-size);
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--color-success-border) var(--progress),
+    color-mix(in srgb, var(--color-primary-soft) 62%, var(--color-bg-surface)) 0
+  );
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 var(--ring-size);
+}
+
+.progress-ring-inner {
+  width: var(--ring-inner-size);
+  height: var(--ring-inner-size);
+  border-radius: 50%;
+  background: var(--color-bg-surface);
+  border: var(--border-soft);
+  color: var(--color-text-secondary);
+  font-size: 0.56rem;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

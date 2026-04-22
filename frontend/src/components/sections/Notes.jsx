@@ -35,7 +35,7 @@ export default function Notes({
           value={notesSearch}
           onChange={(event) => setNotesSearch(event.target.value)}
         />
-        <Button onClick={onOpenAdd}>افزودن یادداشت</Button>
+        <Button onClick={onOpenAdd}>افزودن</Button>
       </div>
 
       {notesLoading ? <p className="muted">در حال بارگذاری...</p> : null}
@@ -58,7 +58,7 @@ export default function Notes({
                   <button
                     className="routine-icon-btn"
                     onClick={() => onOpenEdit(note)}
-                    title="ویرایش یادداشت"
+                    title="ویرایش"
                   >
                     <i className="fa-solid fa-pen" aria-hidden="true" />
                   </button>

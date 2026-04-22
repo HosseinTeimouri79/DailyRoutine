@@ -1,4 +1,5 @@
 import Card from "../ui/Card";
+import ProgressRing from "../ui/ProgressRing";
 import { formatPersianDateParts, formatPersianMonthYear } from "../../lib/date";
 import "./WeeklyRoutines.css";
 
@@ -132,15 +133,13 @@ export default function WeeklyRoutines({
                   <tr key={routine.id}>
                     <td className="routine-title-cell routine-title-cell-justify">
                       <div className="routine-title-wrap">
-                        <span
+                        <ProgressRing
                           className="routine-week-progress"
-                          style={{ "--progress": `${progress.percent}%` }}
+                          percent={progress.percent}
+                          size={26}
+                          innerSize={19}
                           title={`پیشرفت هفتگی: ${progress.doneCount} از ${progress.totalDays}`}
-                        >
-                          <span className="routine-week-progress-inner">
-                            {progress.percent}
-                          </span>
-                        </span>
+                        />
                         <button
                           className="routine-icon-btn"
                           title="ویرایش"
@@ -156,6 +155,18 @@ export default function WeeklyRoutines({
                           <i className="fa-solid fa-trash" aria-hidden="true" />
                         </button>
                         <span>{routine.title}</span>
+                        {routine.alarm_enabled && routine.alarm_time ? (
+                          <span
+                            className="routine-alarm-chip"
+                            title="زمان هشدار"
+                          >
+                            <i
+                              className="fa-regular fa-clock"
+                              aria-hidden="true"
+                            />
+                            {routine.alarm_time}
+                          </span>
+                        ) : null}
                       </div>
                     </td>
                     {weekDays.map((day) => {
@@ -184,16 +195,20 @@ export default function WeeklyRoutines({
               <div key={`mobile-${routine.id}`} className="weekly-mobile-row">
                 <div className="week-mobile-header">
                   <div className="routine-title-wrap">
-                    <span
+                    <ProgressRing
                       className="routine-week-progress"
-                      style={{ "--progress": `${progress.percent}%` }}
+                      percent={progress.percent}
+                      size={24}
+                      innerSize={18}
                       title={`پیشرفت هفتگی: ${progress.doneCount} از ${progress.totalDays}`}
-                    >
-                      <span className="routine-week-progress-inner">
-                        {progress.percent}
-                      </span>
-                    </span>
+                    />
                     <span className="routine-title-cell">{routine.title}</span>
+                    {routine.alarm_enabled && routine.alarm_time ? (
+                      <span className="routine-alarm-chip" title="زمان هشدار">
+                        <i className="fa-regular fa-clock" aria-hidden="true" />
+                        {routine.alarm_time}
+                      </span>
+                    ) : null}
                   </div>
                   <div className="row-actions">
                     <button

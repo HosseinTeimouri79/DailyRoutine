@@ -77,6 +77,24 @@ def ensure_schema():
             "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_phone_unique ON users(phone) WHERE phone IS NOT NULL"
         )
 
+        routine_columns = conn.execute("PRAGMA table_info(routines)").fetchall()
+        routine_column_names = {column[1] for column in routine_columns}
+        if "alarm_enabled" not in routine_column_names:
+            conn.execute(
+                "ALTER TABLE routines ADD COLUMN alarm_enabled INTEGER NOT NULL DEFAULT 0"
+            )
+        if "alarm_time" not in routine_column_names:
+            conn.execute("ALTER TABLE routines ADD COLUMN alarm_time TEXT")
+
+        task_columns = conn.execute("PRAGMA table_info(daily_tasks)").fetchall()
+        task_column_names = {column[1] for column in task_columns}
+        if "alarm_enabled" not in task_column_names:
+            conn.execute(
+                "ALTER TABLE daily_tasks ADD COLUMN alarm_enabled INTEGER NOT NULL DEFAULT 0"
+            )
+        if "alarm_time" not in task_column_names:
+            conn.execute("ALTER TABLE daily_tasks ADD COLUMN alarm_time TEXT")
+
         if has_legacy_columns:
             conn.execute("PRAGMA foreign_keys = OFF")
             conn.execute(

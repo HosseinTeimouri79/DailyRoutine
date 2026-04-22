@@ -188,6 +188,14 @@
   padding: 4px;
 }
 
+.routine-alarm-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
 .delete-confirm-modal {
   width: min(420px, calc(100vw - 24px));
 }

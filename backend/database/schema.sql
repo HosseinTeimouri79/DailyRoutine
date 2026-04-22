@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS routines (
   color TEXT,
   icon TEXT,
   is_active INTEGER NOT NULL DEFAULT 1,
+  alarm_enabled INTEGER NOT NULL DEFAULT 0,
+  alarm_time TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -37,6 +39,8 @@ CREATE TABLE IF NOT EXISTS daily_tasks (
   task_date TEXT NOT NULL,
   content TEXT NOT NULL,
   is_done INTEGER NOT NULL DEFAULT 0,
+  alarm_enabled INTEGER NOT NULL DEFAULT 0,
+  alarm_time TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now')),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE

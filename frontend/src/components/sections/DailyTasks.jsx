@@ -14,9 +14,8 @@ export default function DailyTasks({
   goToTodayTasks,
   tasksDate,
   setTasksDate,
-  newTaskText,
-  setNewTaskText,
-  createTask,
+  onOpenAddTaskModal,
+  onOpenEditTaskModal,
   tasksLoading,
   tasks,
   toggleTaskDone,
@@ -42,15 +41,7 @@ export default function DailyTasks({
           تاریخ انتخاب‌شده: {formatPersianDateParts(tasksDate).day}{" "}
           {formatPersianMonthYear(tasksDate)}
         </p>
-        <form className="daily-tasks-form" onSubmit={createTask}>
-          <input
-            className="input"
-            placeholder="کار جدید برای این روز"
-            value={newTaskText}
-            onChange={(event) => setNewTaskText(event.target.value)}
-          />
-          <Button type="submit">افزودن</Button>
-        </form>
+        <Button onClick={onOpenAddTaskModal}>افزودن</Button>
       </div>
 
       {tasksLoading ? <p className="muted">در حال بارگذاری...</p> : null}
@@ -62,6 +53,13 @@ export default function DailyTasks({
       <ul className="daily-tasks-list">
         {tasks.map((task) => (
           <li key={task.id} className="daily-task-item">
+            <button
+              className="routine-icon-btn"
+              onClick={() => onOpenEditTaskModal(task)}
+              title="ویرایش کار"
+            >
+              <i className="fa-solid fa-pen" aria-hidden="true" />
+            </button>
             <button
               className="routine-icon-btn delete"
               onClick={() => onRequestTaskDelete(task)}
@@ -90,6 +88,12 @@ export default function DailyTasks({
             >
               {task.content}
             </span>
+            {task.alarm_enabled && task.alarm_time ? (
+              <span className="daily-task-alarm-badge" title="زمان هشدار">
+                <i className="fa-regular fa-clock" aria-hidden="true" />
+                {task.alarm_time}
+              </span>
+            ) : null}
           </li>
         ))}
       </ul>
