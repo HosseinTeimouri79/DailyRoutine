@@ -7,21 +7,21 @@ services:
       JWT_SECRET: super-secret-change-me
       JWT_EXPIRES_DAYS: 7
       DATABASE_PATH: /data/hadafino.db
-      CORS_ORIGIN: http://localhost:3000,http://127.0.0.1:3000
+      CORS_ORIGIN: http://localhost:3000,http://127.0.0.1:3000,http://192.168.101.27:3000
     volumes:
       - hadafino_data:/data
     ports:
-      - "4000:4000"
+      - "0.0.0.0:4000:4000"
 
   frontend:
     build:
       context: ./frontend
       args:
-        VITE_API_BASE_URL: http://localhost:4000/api
+        VITE_API_BASE_URL: http://192.168.101.27:4000/api
     depends_on:
       - backend
     ports:
-      - "3000:80"
+      - "0.0.0.0:3000:80"
 
 volumes:
   hadafino_data:
