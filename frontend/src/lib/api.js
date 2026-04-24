@@ -68,9 +68,6 @@ export const api = {
   upsertLog: (payload) =>
     request("/routine-logs", { method: "POST", body: payload, auth: true }),
   getLogs: (query = "") => request(`/routine-logs${query}`, { auth: true }),
-  getMonthlyReport: (month) =>
-    request(`/reports/monthly?month=${month}`, { auth: true }),
-  getWeeklyReport: () => request("/reports/weekly", { auth: true }),
   getDailyTasks: (date) => request(`/daily-tasks?date=${date}`, { auth: true }),
   getDailyTasksRange: (startDate, endDate) =>
     request(`/daily-tasks?startDate=${startDate}&endDate=${endDate}`, {

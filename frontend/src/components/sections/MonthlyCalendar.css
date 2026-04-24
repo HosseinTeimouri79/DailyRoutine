@@ -1,28 +1,10 @@
-.stats-flex {
-  padding-top: 12px;
+.monthly-calendar-overview {
   display: flex;
-  justify-content: space-between;
-}
-
-.stats-flex > div {
-  display: flex;
-  gap: 4px;
-  background: transparent;
-}
-
-.task-info {
-  padding: 6px 10px;
-  background: var(--color-bg-surface-soft);
-  border: var(--border-default);
-  border-radius: var(--radius-md);
+  gap: 8px;
 }
 
 .routine-badges {
-  margin-top: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  max-width: 100%;
+  flex: 1;
 }
 
 .routine-badge {
@@ -37,9 +19,11 @@
   align-items: center;
   gap: 6px;
   max-width: 100%;
+  height: fit-content;
   white-space: normal;
   overflow-wrap: anywhere;
   word-break: break-word;
+  margin: 4px;
 }
 
 .routine-month-progress {
@@ -65,17 +49,76 @@
   font-weight: 600;
 }
 
+.monthly-pie-report {
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-soft);
+  padding: 14px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.monthly-pie-wrap {
+  width: 180px;
+  height: 180px;
+  position: relative;
+}
+
+.monthly-pie-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  gap: 2px;
+}
+
+.monthly-pie-center strong {
+  font-size: 1.05rem;
+  color: var(--color-text-primary);
+}
+
+.monthly-pie-center span {
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+}
+
+.monthly-pie-legend {
+  display: grid;
+  gap: 8px;
+}
+
+.monthly-pie-legend-item {
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-surface);
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+}
+
+.monthly-pie-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+  flex: 0 0 10px;
+}
+
+.monthly-pie-legend-item strong {
+  margin-inline-start: auto;
+  color: var(--color-text-primary);
+}
+
 @media (max-width: 720px) {
-  .stats-flex {
+  .monthly-calendar-overview {
     flex-direction: column;
-    gap: 6px;
   }
 
-  .stats-flex > div {
-    justify-content: center;
-  }
-
-  .task-info {
-    font-size: 0.82rem;
+  .monthly-pie-wrap {
+    width: 168px;
+    height: 168px;
   }
 }

@@ -21,79 +21,6 @@ import {
 } from "../lib/date";
 import "./HomePage.css";
 
-function ReportChart({ routinesReport }) {
-  if (!routinesReport?.length) {
-    return <p className="muted">برای چارت، ابتدا روتین ثبت کنید.</p>;
-  }
-
-  const maxSingle = Math.max(
-    ...routinesReport.map((item) =>
-      Math.max(item.done, item.missed, item.remaining),
-    ),
-    1,
-  );
-
-  return (
-    <div className="report-chart-wrap">
-      <div className="report-chart-legend">
-        <span>
-          <i className="legend-dot done" />
-          انجام‌شده
-        </span>
-        <span>
-          <i className="legend-dot missed" />
-          انجام‌نشده
-        </span>
-        <span>
-          <i className="legend-dot remaining" />
-          ثبت‌نشده
-        </span>
-      </div>
-
-      <div className="routine-report-chart">
-        {routinesReport.map((routine) => {
-          const total = routine.done + routine.missed + routine.remaining;
-
-          return (
-            <div className="routine-report-col" key={routine.id}>
-              <div className="clustered-bars">
-                <div
-                  className="cluster-bar done"
-                  style={{
-                    height: `${Math.max((routine.done / maxSingle) * 100, 8)}%`,
-                  }}
-                  title={`انجام‌شده: ${routine.done}`}
-                />
-                <div
-                  className="cluster-bar missed"
-                  style={{
-                    height: `${Math.max((routine.missed / maxSingle) * 100, 8)}%`,
-                  }}
-                  title={`انجام‌نشده: ${routine.missed}`}
-                />
-                <div
-                  className="cluster-bar remaining"
-                  style={{
-                    height: `${Math.max((routine.remaining / maxSingle) * 100, 8)}%`,
-                  }}
-                  title={`ثبت‌نشده: ${routine.remaining}`}
-                />
-              </div>
-
-              <div className="routine-report-meta">
-                <span className="routine-report-total">{total}</span>
-                <span className="routine-report-name" title={routine.title}>
-                  {routine.title}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 function buildStatsForDays(days, routines, logsMap) {
   const total = days.length * routines.length;
   let done = 0;
@@ -167,7 +94,6 @@ export default function HomePage() {
   const todayISO = useMemo(() => getTodayISO(), []);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [routineToDelete, setRoutineToDelete] = useState(null);
-  const [reportModal, setReportModal] = useState(null);
   const [activeTab, setActiveTab] = useState("weekly");
   const [editingRoutineId, setEditingRoutineId] = useState(null);
   const [newRoutineTitle, setNewRoutineTitle] = useState("");
@@ -531,13 +457,6 @@ export default function HomePage() {
     return taskDatesWithEntries.has(isoDate) ? "has-entries" : null;
   }
 
-  function openMonthlyReportChart() {
-    setReportModal({
-      title: "چارت گزارش ماهانه",
-      routinesReport: monthlyRoutineReport,
-    });
-  }
-
   async function loadTasks() {
     try {
       setTasksLoading(true);
@@ -700,7 +619,6 @@ export default function HomePage() {
 
   function changeTab(nextTab) {
     setActiveTab(nextTab);
-    setReportModal(null);
     closeTaskModal();
     setTaskToDelete(null);
     setNoteToDelete(null);
@@ -762,7 +680,6 @@ export default function HomePage() {
             getSelectedRoutineDayStatus={getSelectedRoutineDayStatus}
             monthlyReport={monthlyReport}
             monthlyRoutineReport={monthlyRoutineReport}
-            onOpenMonthlyChart={openMonthlyReportChart}
           />
         </>
       ) : null}
@@ -795,20 +712,6 @@ export default function HomePage() {
           onRequestDelete={setNoteToDelete}
         />
       ) : null}
-
-      <Modal
-        isOpen={Boolean(reportModal)}
-        onClose={() => setReportModal(null)}
-        title={reportModal?.title}
-        className="chart-modal"
-      >
-        <ReportChart routinesReport={reportModal?.routinesReport} />
-        <div className="modal-actions">
-          <Button variant="secondary" onClick={() => setReportModal(null)}>
-            بستن
-          </Button>
-        </div>
-      </Modal>
 
       <Modal
         isOpen={isAddModalOpen}
