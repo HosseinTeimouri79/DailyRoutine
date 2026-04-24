@@ -26,6 +26,7 @@ export default function PersianMonthCalendar({
   onSelectDay,
   selectedDate,
   getDayStatus,
+  getDayBadge,
   className = "",
 }) {
   const monthDays = useMemo(
@@ -76,10 +77,12 @@ export default function PersianMonthCalendar({
 
           const dayParts = formatPersianDateParts(cell.isoDate);
           const status = getDayStatus ? getDayStatus(cell.isoDate) : null;
+          const badge = getDayBadge ? getDayBadge(cell.isoDate) : null;
           const cellClass = [
             "monthly-day",
             status === "done" ? "task-day-done" : "",
             status === "missed" ? "task-day-missed" : "",
+            badge ? `task-day-badge-${badge}` : "",
             selectedDate === cell.isoDate ? "selected" : "",
           ]
             .filter(Boolean)

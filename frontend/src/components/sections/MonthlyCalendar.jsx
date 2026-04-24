@@ -42,57 +42,59 @@ export default function MonthlyCalendar({
     (monthlyRoutineReport || []).map((item) => [item.id, item]),
   );
 
-  return (
-    <Card title="تقویم ماهانه" subtitle={subtitle}>
-      <div className="routine-badges">
-        {!routines.length ? (
-          <p className="muted">ابتدا یک روتین تعریف کنید.</p>
-        ) : (
-          routines.map((routine) => {
-            const stats = routineStatsMap.get(routine.id);
-            const totalDays =
-              (stats?.done || 0) +
-              (stats?.missed || 0) +
-              (stats?.remaining || 0);
-            const percent = totalDays
-              ? Math.round(((stats?.done || 0) / totalDays) * 100)
-              : 0;
+  if (!routines.length) {
+    return (
+      <Card title="گزارش ماهانه" subtitle={subtitle}>
+        <p className="empty-state-message">روتینی یافت نشد.</p>
+      </Card>
+    );
+  }
 
-            return (
-              <button
-                key={routine.id}
-                className={`routine-badge ${selectedRoutineId === routine.id ? "active" : ""}`.trim()}
-                onClick={() => setSelectedRoutineId(routine.id)}
-                style={
-                  selectedRoutineId === routine.id
-                    ? {
-                        "--routine-accent":
-                          routine.color || "var(--color-primary)",
-                      }
-                    : undefined
-                }
-              >
-                <ProgressRing
-                  className="routine-month-progress"
-                  percent={percent}
-                  size={24}
-                  innerSize={17}
-                  title={`پیشرفت ماهانه: ${percent}٪`}
-                />
-                <span
-                  className="routine-color-dot"
-                  style={{
-                    backgroundColor:
-                      selectedRoutineId === routine.id
-                        ? routine.color || "var(--color-primary)"
-                        : "var(--color-text-muted)",
-                  }}
-                />
-                {routine.title}
-              </button>
-            );
-          })
-        )}
+  return (
+    <Card title="گزارش ماهانه" subtitle={subtitle}>
+      <div className="routine-badges">
+        {routines.map((routine) => {
+          const stats = routineStatsMap.get(routine.id);
+          const totalDays =
+            (stats?.done || 0) + (stats?.missed || 0) + (stats?.remaining || 0);
+          const percent = totalDays
+            ? Math.round(((stats?.done || 0) / totalDays) * 100)
+            : 0;
+
+          return (
+            <button
+              key={routine.id}
+              className={`routine-badge ${selectedRoutineId === routine.id ? "active" : ""}`.trim()}
+              onClick={() => setSelectedRoutineId(routine.id)}
+              style={
+                selectedRoutineId === routine.id
+                  ? {
+                      "--routine-accent":
+                        routine.color || "var(--color-primary)",
+                    }
+                  : undefined
+              }
+            >
+              <ProgressRing
+                className="routine-month-progress"
+                percent={percent}
+                size={24}
+                innerSize={17}
+                title={`پیشرفت ماهانه: ${percent}٪`}
+              />
+              <span
+                className="routine-color-dot"
+                style={{
+                  backgroundColor:
+                    selectedRoutineId === routine.id
+                      ? routine.color || "var(--color-primary)"
+                      : "var(--color-text-muted)",
+                }}
+              />
+              {routine.title}
+            </button>
+          );
+        })}
       </div>
 
       <PersianMonthCalendar

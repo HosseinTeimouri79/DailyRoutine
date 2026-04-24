@@ -41,7 +41,7 @@ export default function Notes({
       {notesLoading ? <p className="muted">در حال بارگذاری...</p> : null}
 
       {!notesLoading && !notes.length ? (
-        <p className="muted">یادداشتی برای نمایش وجود ندارد.</p>
+        <p className="empty-state-message">یادداشتی برای نمایش وجود ندارد.</p>
       ) : null}
 
       <ul className="notes-list">

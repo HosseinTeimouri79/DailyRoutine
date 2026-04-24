@@ -52,10 +52,6 @@
 }
 
 @media (max-width: 720px) {
-  .notes-toolbar {
-    flex-direction: column;
-  }
-
   .note-meta-row {
     flex-direction: column;
     align-items: flex-start;

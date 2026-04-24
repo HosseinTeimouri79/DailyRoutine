@@ -61,10 +61,32 @@ export default function WeeklyRoutines({
     );
   }
 
+  if (!routines.length) {
+    return (
+      <Card
+        title="روتین‌های من"
+        subtitle="وضعیت هر روتین در روزهای هفته"
+        actions={
+          <button
+            className="btn btn-primary"
+            onClick={openAddModal}
+            title="افزودن روتین"
+            aria-label="افزودن روتین"
+          >
+            افزودن
+          </button>
+        }
+      >
+        {error ? <p className="error-text">{error}</p> : null}
+        <p className="empty-state-message">روتینی یافت نشد.</p>
+      </Card>
+    );
+  }
+
   return (
     <Card
       title="روتین‌های من"
-      subtitle="وضعیت هر روتین روی روزهای هفته"
+      subtitle="وضعیت هر روتین در روزهای هفته"
       actions={
         <button
           className="btn btn-primary"
@@ -121,138 +143,125 @@ export default function WeeklyRoutines({
             </tr>
           </thead>
           <tbody>
-            {!routines.length ? (
-              <tr>
-                <td colSpan={weekDays.length + 1}>روتینی یافت نشد.</td>
-              </tr>
-            ) : (
-              routines.map((routine) => {
-                const progress = getRoutineWeekProgress(routine.id);
+            {routines.map((routine) => {
+              const progress = getRoutineWeekProgress(routine.id);
 
-                return (
-                  <tr key={routine.id}>
-                    <td className="routine-title-cell routine-title-cell-justify">
-                      <div className="routine-title-wrap">
-                        <ProgressRing
-                          className="routine-week-progress"
-                          percent={progress.percent}
-                          size={26}
-                          innerSize={19}
-                          title={`پیشرفت هفتگی: ${progress.doneCount} از ${progress.totalDays}`}
-                        />
-                        <button
-                          className="routine-icon-btn"
-                          title="ویرایش"
-                          onClick={() => openEditModal(routine)}
-                        >
-                          <i className="fa-solid fa-pen" aria-hidden="true" />
-                        </button>
-                        <button
-                          className="routine-icon-btn delete"
-                          title="حذف"
-                          onClick={() => onRequestRoutineDelete(routine)}
-                        >
-                          <i className="fa-solid fa-trash" aria-hidden="true" />
-                        </button>
-                        <span>{routine.title}</span>
-                        {routine.alarm_enabled && routine.alarm_time ? (
-                          <span
-                            className="routine-alarm-chip"
-                            title="زمان هشدار"
-                          >
-                            <i
-                              className="fa-regular fa-clock"
-                              aria-hidden="true"
-                            />
-                            {routine.alarm_time}
-                          </span>
-                        ) : null}
-                      </div>
-                    </td>
-                    {weekDays.map((day) => {
-                      const key = `${routine.id}-${day}`;
+              return (
+                <tr key={routine.id}>
+                  <td className="routine-title-cell routine-title-cell-justify">
+                    <div className="routine-title-wrap">
+                      <ProgressRing
+                        className="routine-week-progress"
+                        percent={progress.percent}
+                        size={26}
+                        innerSize={19}
+                        title={`پیشرفت هفتگی: ${progress.doneCount} از ${progress.totalDays}`}
+                      />
+                      <button
+                        className="routine-icon-btn"
+                        title="ویرایش"
+                        onClick={() => openEditModal(routine)}
+                      >
+                        <i className="fa-solid fa-pen" aria-hidden="true" />
+                      </button>
+                      <button
+                        className="routine-icon-btn delete"
+                        title="حذف"
+                        onClick={() => onRequestRoutineDelete(routine)}
+                      >
+                        <i className="fa-solid fa-trash" aria-hidden="true" />
+                      </button>
+                      <span>{routine.title}</span>
+                      {routine.alarm_enabled && routine.alarm_time ? (
+                        <span className="routine-alarm-chip" title="زمان هشدار">
+                          <i
+                            className="fa-regular fa-clock"
+                            aria-hidden="true"
+                          />
+                          {routine.alarm_time}
+                        </span>
+                      ) : null}
+                    </div>
+                  </td>
+                  {weekDays.map((day) => {
+                    const key = `${routine.id}-${day}`;
 
-                      return (
-                        <td key={key}>{renderStatusButton(routine.id, day)}</td>
-                      );
-                    })}
-                  </tr>
-                );
-              })
-            )}
+                    return (
+                      <td key={key}>{renderStatusButton(routine.id, day)}</td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       <div className="weekly-mobile-list">
-        {!routines.length ? (
-          <p className="muted">روتینی یافت نشد.</p>
-        ) : (
-          routines.map((routine) => {
-            const progress = getRoutineWeekProgress(routine.id);
+        {routines.map((routine) => {
+          const progress = getRoutineWeekProgress(routine.id);
 
-            return (
-              <div key={`mobile-${routine.id}`} className="weekly-mobile-row">
-                <div className="week-mobile-header">
-                  <div className="routine-title-wrap">
-                    <ProgressRing
-                      className="routine-week-progress"
-                      percent={progress.percent}
-                      size={24}
-                      innerSize={18}
-                      title={`پیشرفت هفتگی: ${progress.doneCount} از ${progress.totalDays}`}
-                    />
-                    <span className="routine-title-cell">{routine.title}</span>
-                    {routine.alarm_enabled && routine.alarm_time ? (
-                      <span className="routine-alarm-chip" title="زمان هشدار">
-                        <i className="fa-regular fa-clock" aria-hidden="true" />
-                        {routine.alarm_time}
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="row-actions">
-                    <button
-                      className="routine-icon-btn"
-                      title="ویرایش"
-                      onClick={() => openEditModal(routine)}
-                    >
-                      <i className="fa-solid fa-pen" aria-hidden="true" />
-                    </button>
-                    <button
-                      className="routine-icon-btn delete"
-                      title="حذف"
-                      onClick={() => onRequestRoutineDelete(routine)}
-                    >
-                      <i className="fa-solid fa-trash" aria-hidden="true" />
-                    </button>
-                  </div>
+          return (
+            <div key={`mobile-${routine.id}`} className="weekly-mobile-row">
+              <div className="week-mobile-header">
+                <div className="routine-title-wrap">
+                  <ProgressRing
+                    className="routine-week-progress"
+                    percent={progress.percent}
+                    size={24}
+                    innerSize={18}
+                    title={`پیشرفت هفتگی: ${progress.doneCount} از ${progress.totalDays}`}
+                  />
+                  <span className="routine-title-cell">{routine.title}</span>
+                  {routine.alarm_enabled && routine.alarm_time ? (
+                    <span className="routine-alarm-chip" title="زمان هشدار">
+                      <i className="fa-regular fa-clock" aria-hidden="true" />
+                      {routine.alarm_time}
+                    </span>
+                  ) : null}
                 </div>
-
-                <div className="weekly-mobile-weekdays">
-                  {weekDays.map((date) => {
-                    const p = formatPersianDateParts(date);
-                    return (
-                      <span key={`weekday-${routine.id}-${date}`}>
-                        {p.weekdayShort}
-                      </span>
-                    );
-                  })}
-                </div>
-
-                <div className="week-mobile-status-row">
-                  {weekDays.map((day) => (
-                    <div
-                      key={`mobile-status-${routine.id}-${day}`}
-                      className="week-mobile-status-cell"
-                    >
-                      {renderStatusButton(routine.id, day, true)}
-                    </div>
-                  ))}
+                <div className="row-actions">
+                  <button
+                    className="routine-icon-btn"
+                    title="ویرایش"
+                    onClick={() => openEditModal(routine)}
+                  >
+                    <i className="fa-solid fa-pen" aria-hidden="true" />
+                  </button>
+                  <button
+                    className="routine-icon-btn delete"
+                    title="حذف"
+                    onClick={() => onRequestRoutineDelete(routine)}
+                  >
+                    <i className="fa-solid fa-trash" aria-hidden="true" />
+                  </button>
                 </div>
               </div>
-            );
-          })
-        )}
+
+              <div className="weekly-mobile-weekdays">
+                {weekDays.map((date) => {
+                  const p = formatPersianDateParts(date);
+                  return (
+                    <span key={`weekday-${routine.id}-${date}`}>
+                      {p.weekdayShort}
+                    </span>
+                  );
+                })}
+              </div>
+
+              <div className="week-mobile-status-row">
+                {weekDays.map((day) => (
+                  <div
+                    key={`mobile-status-${routine.id}-${day}`}
+                    className="week-mobile-status-cell"
+                  >
+                    {renderStatusButton(routine.id, day, true)}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </Card>
   );

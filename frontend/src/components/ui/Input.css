@@ -1,6 +1,4 @@
-.input,
-.inline-input,
-.month-input {
+.input {
   width: 100%;
   border: var(--border-soft);
   border-radius: var(--radius-sm);
@@ -10,9 +8,7 @@
   font-family: inherit;
 }
 
-.input:focus,
-.inline-input:focus,
-.month-input:focus {
+.input:focus {
   outline: 2px solid color-mix(in srgb, var(--color-primary) 34%, transparent);
   border-color: var(--color-primary);
 }

@@ -40,19 +40,34 @@ def normalize_alarm_payload(data: dict, current_enabled=None, current_time=None)
 @auth_required
 def list_daily_tasks():
     task_date = (request.args.get("date") or "").strip()
-    if not task_date:
-        return jsonify({"message": "date is required"}), 400
+    start_date = (request.args.get("startDate") or "").strip()
+    end_date = (request.args.get("endDate") or "").strip()
 
-    rows = query_all(
-        """
-        SELECT id, user_id, task_date, content, is_done, alarm_enabled, alarm_time, created_at, updated_at
-        FROM daily_tasks
-        WHERE user_id = ? AND task_date = ?
-        ORDER BY is_done ASC, id DESC
-        """,
-        (g.user_id, task_date),
-    )
-    return jsonify(rows)
+    if task_date:
+        rows = query_all(
+            """
+            SELECT id, user_id, task_date, content, is_done, alarm_enabled, alarm_time, created_at, updated_at
+            FROM daily_tasks
+            WHERE user_id = ? AND task_date = ?
+            ORDER BY is_done ASC, id DESC
+            """,
+            (g.user_id, task_date),
+        )
+        return jsonify(rows)
+
+    if start_date and end_date:
+        rows = query_all(
+            """
+            SELECT id, user_id, task_date, content, is_done, alarm_enabled, alarm_time, created_at, updated_at
+            FROM daily_tasks
+            WHERE user_id = ? AND task_date BETWEEN ? AND ?
+            ORDER BY task_date ASC, is_done ASC, id DESC
+            """,
+            (g.user_id, start_date, end_date),
+        )
+        return jsonify(rows)
+
+    return jsonify({"message": "date or startDate/endDate is required"}), 400
 
 
 @tasks_bp.post("")

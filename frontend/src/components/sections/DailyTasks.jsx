@@ -14,6 +14,7 @@ export default function DailyTasks({
   goToTodayTasks,
   tasksDate,
   setTasksDate,
+  getTaskDayBadge,
   onOpenAddTaskModal,
   onOpenEditTaskModal,
   tasksLoading,
@@ -34,6 +35,7 @@ export default function DailyTasks({
         onGoToday={goToTodayTasks}
         selectedDate={tasksDate}
         onSelectDay={setTasksDate}
+        getDayBadge={getTaskDayBadge}
       />
 
       <div className="daily-tasks-toolbar">
@@ -47,7 +49,9 @@ export default function DailyTasks({
       {tasksLoading ? <p className="muted">در حال بارگذاری...</p> : null}
 
       {!tasksLoading && !tasks.length ? (
-        <p className="muted">برای این روز هنوز کاری ثبت نشده است.</p>
+        <p className="empty-state-message">
+          برای این روز هنوز کاری ثبت نشده است.
+        </p>
       ) : null}
 
       <ul className="daily-tasks-list">

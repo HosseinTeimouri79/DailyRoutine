@@ -67,18 +67,6 @@
   color: var(--color-text-secondary);
 }
 
-.profile-section-title {
-  margin: 0;
-  font-size: 0.95rem;
-  color: var(--color-text-primary);
-}
-
-.profile-password-form {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: var(--border-default);
-}
-
 @media (max-width: 720px) {
   .app-shell {
     padding: 12px;

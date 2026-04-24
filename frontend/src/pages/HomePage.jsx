@@ -187,6 +187,7 @@ export default function HomePage() {
   const [newTaskAlarmEnabled, setNewTaskAlarmEnabled] = useState(false);
   const [newTaskAlarmTime, setNewTaskAlarmTime] = useState("09:00");
   const [tasksLoading, setTasksLoading] = useState(false);
+  const [taskDatesWithEntries, setTaskDatesWithEntries] = useState(new Set());
   const [notes, setNotes] = useState([]);
   const [notesSearch, setNotesSearch] = useState("");
   const [notesLoading, setNotesLoading] = useState(false);
@@ -284,6 +285,11 @@ export default function HomePage() {
     if (activeTab !== "tasks") return;
     loadTasks();
   }, [activeTab, tasksDate]);
+
+  useEffect(() => {
+    if (activeTab !== "tasks") return;
+    loadTaskDatesForMonth(tasksMonth);
+  }, [activeTab, tasksMonth]);
 
   useEffect(() => {
     if (activeTab !== "notes") return;
@@ -521,6 +527,10 @@ export default function HomePage() {
     return logsMap.get(`${selectedRoutineId}-${isoDate}`) || null;
   }
 
+  function getTaskDayBadge(isoDate) {
+    return taskDatesWithEntries.has(isoDate) ? "has-entries" : null;
+  }
+
   function openMonthlyReportChart() {
     setReportModal({
       title: "چارت گزارش ماهانه",
@@ -537,6 +547,24 @@ export default function HomePage() {
       notify(err.message, "error");
     } finally {
       setTasksLoading(false);
+    }
+  }
+
+  async function loadTaskDatesForMonth(targetMonth) {
+    const monthDays = getGregorianDatesForPersianMonth(targetMonth);
+    if (!monthDays.length) {
+      setTaskDatesWithEntries(new Set());
+      return;
+    }
+
+    try {
+      const startDate = monthDays[0];
+      const endDate = monthDays[monthDays.length - 1];
+      const rows = await api.getDailyTasksRange(startDate, endDate);
+      const nextDates = new Set(rows.map((row) => row.task_date));
+      setTaskDatesWithEntries(nextDates);
+    } catch {
+      setTaskDatesWithEntries(new Set());
     }
   }
 
@@ -568,6 +596,7 @@ export default function HomePage() {
         const rows = await api.getDailyTasks(todayISODate);
         setAlarmTasks(rows);
       }
+      await loadTaskDatesForMonth(tasksMonth);
       notify(
         editingTask?.id ? "کار ویرایش شد." : "کار جدید اضافه شد.",
         "success",
@@ -581,6 +610,7 @@ export default function HomePage() {
     try {
       await api.updateDailyTask(task.id, { is_done: !task.is_done });
       await loadTasks();
+      await loadTaskDatesForMonth(tasksMonth);
       if (task.task_date === getTodayISO()) {
         const rows = await api.getDailyTasks(getTodayISO());
         setAlarmTasks(rows);
@@ -594,6 +624,7 @@ export default function HomePage() {
     try {
       await api.deleteDailyTask(taskId);
       await loadTasks();
+      await loadTaskDatesForMonth(tasksMonth);
       const rows = await api.getDailyTasks(getTodayISO());
       setAlarmTasks(rows);
       notify("کار حذف شد.", "success");
@@ -687,13 +718,6 @@ export default function HomePage() {
         </button>
         <button
           type="button"
-          className={`tab tab-btn ${activeTab === "monthly" ? "active" : ""}`.trim()}
-          onClick={() => changeTab("monthly")}
-        >
-          تقویم ماهانه
-        </button>
-        <button
-          type="button"
           className={`tab tab-btn ${activeTab === "tasks" ? "active" : ""}`.trim()}
           onClick={() => changeTab("tasks")}
         >
@@ -709,39 +733,38 @@ export default function HomePage() {
       </div>
 
       {activeTab === "weekly" ? (
-        <WeeklyRoutines
-          error={error}
-          openAddModal={openAddModal}
-          goToPreviousWeek={goToPreviousWeek}
-          goToNextWeek={goToNextWeek}
-          canGoNextWeek={canGoNextWeek}
-          weekDays={weekDays}
-          routines={routines}
-          logsMap={logsMap}
-          todayISO={todayISO}
-          openEditModal={openEditModal}
-          onRequestRoutineDelete={setRoutineToDelete}
-          toggleStatus={toggleStatus}
-        />
-      ) : null}
-
-      {activeTab === "monthly" ? (
-        <MonthlyCalendar
-          subtitle={`وضعیت روتین انتخاب‌شده روی روزهای ${formatPersianMonthYear(monthDays[0] || todayISO)}`}
-          routines={routines}
-          selectedRoutineId={selectedRoutineId}
-          setSelectedRoutineId={setSelectedRoutineId}
-          month={month}
-          goToPreviousMonth={goToPreviousMonth}
-          goToNextMonth={goToNextMonth}
-          goToTodayMonthly={goToTodayMonthly}
-          selectedMonthlyDate={selectedMonthlyDate}
-          setSelectedMonthlyDate={setSelectedMonthlyDate}
-          getSelectedRoutineDayStatus={getSelectedRoutineDayStatus}
-          monthlyReport={monthlyReport}
-          monthlyRoutineReport={monthlyRoutineReport}
-          onOpenMonthlyChart={openMonthlyReportChart}
-        />
+        <>
+          <WeeklyRoutines
+            error={error}
+            openAddModal={openAddModal}
+            goToPreviousWeek={goToPreviousWeek}
+            goToNextWeek={goToNextWeek}
+            canGoNextWeek={canGoNextWeek}
+            weekDays={weekDays}
+            routines={routines}
+            logsMap={logsMap}
+            todayISO={todayISO}
+            openEditModal={openEditModal}
+            onRequestRoutineDelete={setRoutineToDelete}
+            toggleStatus={toggleStatus}
+          />
+          <MonthlyCalendar
+            subtitle={`وضعیت روتین انتخاب‌ شده در ${formatPersianMonthYear(monthDays[0] || todayISO)}`}
+            routines={routines}
+            selectedRoutineId={selectedRoutineId}
+            setSelectedRoutineId={setSelectedRoutineId}
+            month={month}
+            goToPreviousMonth={goToPreviousMonth}
+            goToNextMonth={goToNextMonth}
+            goToTodayMonthly={goToTodayMonthly}
+            selectedMonthlyDate={selectedMonthlyDate}
+            setSelectedMonthlyDate={setSelectedMonthlyDate}
+            getSelectedRoutineDayStatus={getSelectedRoutineDayStatus}
+            monthlyReport={monthlyReport}
+            monthlyRoutineReport={monthlyRoutineReport}
+            onOpenMonthlyChart={openMonthlyReportChart}
+          />
+        </>
       ) : null}
 
       {activeTab === "tasks" ? (
@@ -755,6 +778,7 @@ export default function HomePage() {
           onOpenEditTaskModal={openEditTaskModal}
           tasksLoading={tasksLoading}
           tasks={tasks}
+          getTaskDayBadge={getTaskDayBadge}
           toggleTaskDone={toggleTaskDone}
           onRequestTaskDelete={setTaskToDelete}
         />
