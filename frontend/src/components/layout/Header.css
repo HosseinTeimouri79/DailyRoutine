@@ -15,6 +15,19 @@
   gap: 12px;
 }
 
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar-logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  display: block;
+}
+
 .topbar-actions {
   display: flex;
   align-items: center;
@@ -80,6 +93,11 @@
 
   .topbar h1 {
     font-size: 1.1rem;
+  }
+
+  .topbar-logo {
+    width: 26px;
+    height: 26px;
   }
 
   .topbar-motivation {

@@ -54,7 +54,14 @@ export default function Header({
   return (
     <header className="topbar">
       <div className="topbar-main">
-        <h1>{title}</h1>
+        <div className="topbar-brand">
+          <img
+            className="topbar-logo"
+            src="/assets/logo/logo.svg"
+            alt="لوگوی هدفینو"
+          />
+          <h1>{title}</h1>
+        </div>
         <div className="topbar-menu" ref={menuRef}>
           <button
             type="button"
