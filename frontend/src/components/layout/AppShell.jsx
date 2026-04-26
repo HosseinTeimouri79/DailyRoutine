@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, clearSession, getUser, setSession } from "../../lib/api";
+import { useSettings } from "../../lib/settings";
+import { t } from "../../lib/i18n";
 import Header from "./Header";
 import Button from "../ui/Button";
 import Modal from "../ui/Modal";
@@ -31,18 +33,7 @@ export default function AppShell({ title, children }) {
     text: "",
   });
   const profileFileInputRef = useRef(null);
-  const [theme, setTheme] = useState(() => {
-    const saved = localStorage.getItem("dr_theme");
-    if (saved === "dark" || saved === "light") return saved;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  });
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("dr_theme", theme);
-  }, [theme]);
+  const { theme, language, setTheme, setLanguage } = useSettings();
 
   function openProfile() {
     setProfileMessage({ type: "", text: "" });
@@ -89,7 +80,7 @@ export default function AppShell({ title, children }) {
     } catch {
       setProfileMessage({
         type: "error",
-        text: "بارگذاری اطلاعات پروفایل ناموفق بود.",
+        text: t("appShell.loadingProfileError", language),
       });
     } finally {
       setProfileLoading(false);
@@ -113,11 +104,14 @@ export default function AppShell({ title, children }) {
         setUser(updatedUser);
         const token = localStorage.getItem("dr_token");
         if (token) setSession(token, updatedUser);
-        setProfileMessage({ type: "success", text: "تصویر پروفایل ذخیره شد." });
+        setProfileMessage({
+          type: "success",
+          text: t("appShell.profileImageSaved", language),
+        });
       } catch (error) {
         setProfileMessage({
           type: "error",
-          text: error.message || "ذخیره تصویر ناموفق بود.",
+          text: error.message || t("appShell.profileImageSaveError", language),
         });
       } finally {
         setProfileLoading(false);
@@ -133,7 +127,7 @@ export default function AppShell({ title, children }) {
     if (!nextName) {
       setProfileMessage({
         type: "error",
-        text: "نام کاربری نمی‌تواند خالی باشد.",
+        text: t("appShell.usernameRequired", language),
       });
       return;
     }
@@ -166,7 +160,7 @@ export default function AppShell({ title, children }) {
     if (!passwordForm.current || !passwordForm.next || !passwordForm.confirm) {
       setPasswordMessage({
         type: "error",
-        text: "تمام فیلدهای رمز را تکمیل کنید.",
+        text: t("appShell.fillPasswordFields", language),
       });
       return;
     }
@@ -174,7 +168,7 @@ export default function AppShell({ title, children }) {
     if (passwordForm.next.length < 6) {
       setPasswordMessage({
         type: "error",
-        text: "رمز جدید باید حداقل ۶ کاراکتر باشد.",
+        text: t("appShell.passwordLengthError", language),
       });
       return;
     }
@@ -182,7 +176,7 @@ export default function AppShell({ title, children }) {
     if (passwordForm.next !== passwordForm.confirm) {
       setPasswordMessage({
         type: "error",
-        text: "تکرار رمز جدید با رمز جدید یکسان نیست.",
+        text: t("appShell.passwordMismatch", language),
       });
       return;
     }
@@ -195,7 +189,7 @@ export default function AppShell({ title, children }) {
       });
       setPasswordMessage({
         type: "success",
-        text: "رمز عبور با موفقیت تغییر کرد.",
+        text: t("appShell.passwordChangeSuccess", language),
       });
       setTimeout(() => {
         closePasswordModal();
@@ -203,7 +197,7 @@ export default function AppShell({ title, children }) {
     } catch (error) {
       setPasswordMessage({
         type: "error",
-        text: error.message || "تغییر رمز ناموفق بود.",
+        text: error.message || t("appShell.passwordChangeError", language),
       });
     } finally {
       setPasswordLoading(false);
@@ -216,15 +210,17 @@ export default function AppShell({ title, children }) {
   }
 
   return (
-    <div className="app-shell" dir="rtl">
+    <div className="app-shell" dir={language === "fa" ? "rtl" : "ltr"}>
       <Header
         title={title}
         user={user}
         theme={theme}
+        language={language}
         onOpenProfile={openProfile}
         onToggleTheme={() =>
           setTheme((prev) => (prev === "dark" ? "light" : "dark"))
         }
+        onChangeLanguage={() => setLanguage(language === "fa" ? "en" : "fa")}
         onLogout={logout}
       />
 
@@ -233,7 +229,7 @@ export default function AppShell({ title, children }) {
       <Modal
         isOpen={isProfileOpen}
         onClose={closeProfile}
-        title="پروفایل کاربری"
+        title={t("appShell.profileModalTitle", language)}
         className="profile-modal"
       >
         <div className="profile-identity">
@@ -241,17 +237,20 @@ export default function AppShell({ title, children }) {
             <button
               className="profile-avatar-btn"
               onClick={onAvatarClick}
-              title="تغییر تصویر پروفایل"
+              title={t("appShell.changeProfileImage", language)}
             >
               {user?.profile_image ? (
                 <img
                   src={user.profile_image}
-                  alt="تصویر پروفایل"
+                  alt={t("appShell.profileImageAlt", language)}
                   className="profile-avatar"
                 />
               ) : (
                 <div className="profile-avatar profile-avatar-fallback">
-                  {(user?.name || "کاربر").slice(0, 1)}
+                  {(user?.name || t("common.userFallback", language)).slice(
+                    0,
+                    1,
+                  )}
                 </div>
               )}
             </button>
@@ -266,7 +265,9 @@ export default function AppShell({ title, children }) {
           </div>
           <form className="profile-meta" onSubmit={submitProfile}>
             <div className="field">
-              <label htmlFor="profileName">نام کاربری</label>
+              <label htmlFor="profileName">
+                {t("appShell.username", language)}
+              </label>
               <input
                 id="profileName"
                 className="input"
@@ -275,7 +276,9 @@ export default function AppShell({ title, children }) {
               />
             </div>
             <div className="field">
-              <label htmlFor="profilePhone">شماره تلفن</label>
+              <label htmlFor="profilePhone">
+                {t("appShell.phone", language)}
+              </label>
               <input
                 id="profilePhone"
                 className="input"
@@ -286,7 +289,9 @@ export default function AppShell({ title, children }) {
             </div>
             <div className="modal-actions">
               <Button type="submit" disabled={profileLoading}>
-                {profileLoading ? "در حال ذخیره..." : "ذخیره نام کاربری"}
+                {profileLoading
+                  ? t("appShell.saving", language)
+                  : t("appShell.saveUsername", language)}
               </Button>
             </div>
           </form>
@@ -304,23 +309,27 @@ export default function AppShell({ title, children }) {
 
         <div className="modal-actions">
           <Button type="button" onClick={openPasswordModal}>
-            تغییر رمز عبور
+            {t("appShell.changePassword", language)}
           </Button>
           <Button type="button" variant="secondary" onClick={closeProfile}>
-            بستن
+            {t("common.close", language)}
           </Button>
         </div>
-        {profileLoading ? <p className="muted">در حال بروزرسانی...</p> : null}
+        {profileLoading ? (
+          <p className="muted">{t("appShell.updatingProfile", language)}</p>
+        ) : null}
       </Modal>
 
       <Modal
         isOpen={isPasswordModalOpen}
         onClose={closePasswordModal}
-        title="تغییر رمز عبور"
+        title={t("appShell.passwordModalTitle", language)}
       >
         <form className="stack" onSubmit={submitPasswordChange}>
           <div className="field">
-            <label htmlFor="currentPassword">رمز فعلی</label>
+            <label htmlFor="currentPassword">
+              {t("appShell.currentPassword", language)}
+            </label>
             <div className="password-input-wrap">
               <input
                 id="currentPassword"
@@ -339,10 +348,14 @@ export default function AppShell({ title, children }) {
                 className="password-toggle-btn"
                 onClick={() => togglePasswordVisibility("current")}
                 title={
-                  passwordVisibility.current ? "مخفی کردن رمز" : "نمایش رمز"
+                  passwordVisibility.current
+                    ? t("appShell.hidePassword", language)
+                    : t("appShell.showPassword", language)
                 }
                 aria-label={
-                  passwordVisibility.current ? "مخفی کردن رمز" : "نمایش رمز"
+                  passwordVisibility.current
+                    ? t("appShell.hidePassword", language)
+                    : t("appShell.showPassword", language)
                 }
               >
                 <i
@@ -357,7 +370,9 @@ export default function AppShell({ title, children }) {
             </div>
           </div>
           <div className="field">
-            <label htmlFor="nextPassword">رمز جدید</label>
+            <label htmlFor="nextPassword">
+              {t("appShell.newPassword", language)}
+            </label>
             <div className="password-input-wrap">
               <input
                 id="nextPassword"
@@ -375,9 +390,15 @@ export default function AppShell({ title, children }) {
                 type="button"
                 className="password-toggle-btn"
                 onClick={() => togglePasswordVisibility("next")}
-                title={passwordVisibility.next ? "مخفی کردن رمز" : "نمایش رمز"}
+                title={
+                  passwordVisibility.next
+                    ? t("appShell.hidePassword", language)
+                    : t("appShell.showPassword", language)
+                }
                 aria-label={
-                  passwordVisibility.next ? "مخفی کردن رمز" : "نمایش رمز"
+                  passwordVisibility.next
+                    ? t("appShell.hidePassword", language)
+                    : t("appShell.showPassword", language)
                 }
               >
                 <i
@@ -392,7 +413,9 @@ export default function AppShell({ title, children }) {
             </div>
           </div>
           <div className="field">
-            <label htmlFor="confirmPassword">تکرار رمز جدید</label>
+            <label htmlFor="confirmPassword">
+              {t("appShell.confirmPassword", language)}
+            </label>
             <div className="password-input-wrap">
               <input
                 id="confirmPassword"
@@ -411,10 +434,14 @@ export default function AppShell({ title, children }) {
                 className="password-toggle-btn"
                 onClick={() => togglePasswordVisibility("confirm")}
                 title={
-                  passwordVisibility.confirm ? "مخفی کردن رمز" : "نمایش رمز"
+                  passwordVisibility.confirm
+                    ? t("appShell.hidePassword", language)
+                    : t("appShell.showPassword", language)
                 }
                 aria-label={
-                  passwordVisibility.confirm ? "مخفی کردن رمز" : "نمایش رمز"
+                  passwordVisibility.confirm
+                    ? t("appShell.hidePassword", language)
+                    : t("appShell.showPassword", language)
                 }
               >
                 <i
@@ -445,10 +472,12 @@ export default function AppShell({ title, children }) {
               variant="secondary"
               onClick={closePasswordModal}
             >
-              انصراف
+              {t("common.cancel", language)}
             </Button>
             <Button type="submit" disabled={passwordLoading}>
-              {passwordLoading ? "در حال ثبت..." : "ذخیره تغییر رمز"}
+              {passwordLoading
+                ? t("appShell.saving", language)
+                : t("appShell.savePassword", language)}
             </Button>
           </div>
         </form>

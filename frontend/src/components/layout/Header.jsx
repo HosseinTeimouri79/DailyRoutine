@@ -1,21 +1,25 @@
 import { useEffect, useRef, useState } from "react";
-import { motivationalTexts } from "../../data/motivationalTexts";
+import { t } from "../../lib/i18n";
 import "./Header.css";
 
 export default function Header({
   title,
   user,
   theme,
+  language,
   onOpenProfile,
   onToggleTheme,
+  onChangeLanguage,
   onLogout,
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
-  const [randomText] = useState(
-    () =>
-      motivationalTexts[Math.floor(Math.random() * motivationalTexts.length)],
-  );
+  const [randomText] = useState(() => {
+    const texts = t("header.motivationalTexts", language);
+    return Array.isArray(texts)
+      ? texts[Math.floor(Math.random() * texts.length)]
+      : "";
+  });
 
   useEffect(() => {
     if (!isMenuOpen) return;
@@ -46,6 +50,11 @@ export default function Header({
     setIsMenuOpen(false);
   }
 
+  function toggleLanguageFromMenu() {
+    onChangeLanguage?.();
+    setIsMenuOpen(false);
+  }
+
   function logoutFromMenu() {
     onLogout?.();
     setIsMenuOpen(false);
@@ -58,7 +67,7 @@ export default function Header({
           <img
             className="topbar-logo"
             src="/assets/logo/logo.svg"
-            alt="لوگوی هدفینو"
+            alt={t("header.logoAlt", language)}
           />
           <h1>{title}</h1>
         </div>
@@ -67,8 +76,8 @@ export default function Header({
             type="button"
             className="hamburger-toggle-btn"
             onClick={() => setIsMenuOpen((prev) => !prev)}
-            title="منو"
-            aria-label="منو"
+            title={t("header.menu", language)}
+            aria-label={t("header.menu", language)}
             aria-expanded={isMenuOpen}
           >
             <i className="fa-solid fa-bars" aria-hidden="true" />
@@ -78,16 +87,16 @@ export default function Header({
             <button
               className="profile-toggle-btn"
               onClick={openProfileFromMenu}
-              title="پروفایل"
-              aria-label="پروفایل"
+              title={t("header.profile", language)}
+              aria-label={t("header.profile", language)}
             >
               <i className="fa-solid fa-user" aria-hidden="true" />
             </button>
             <button
               className="theme-toggle-btn"
               onClick={toggleThemeFromMenu}
-              title="تغییر تم"
-              aria-label="تغییر تم"
+              title={t("header.theme", language)}
+              aria-label={t("header.theme", language)}
             >
               <i
                 className={
@@ -97,10 +106,18 @@ export default function Header({
               />
             </button>
             <button
+              className="language-toggle-btn"
+              onClick={toggleLanguageFromMenu}
+              title={t("header.language", language)}
+              aria-label={t("header.language", language)}
+            >
+              <span>{language === "fa" ? "EN" : "FA"}</span>
+            </button>
+            <button
               className="logout-toggle-btn"
               onClick={logoutFromMenu}
-              title="خروج"
-              aria-label="خروج"
+              title={t("header.logout", language)}
+              aria-label={t("header.logout", language)}
             >
               <i
                 className="fa-solid fa-right-from-bracket"

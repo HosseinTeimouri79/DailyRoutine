@@ -31,7 +31,42 @@
   font-size: 0.9rem;
 }
 
+.auth-settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.auth-setting-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 140px;
+  padding: 0.85rem 1rem;
+  border: var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
+}
+
+.auth-setting-btn:hover,
+.auth-setting-btn:focus-visible {
+  background: var(--color-primary-soft);
+  color: var(--color-text-primary);
+}
+
+.auth-setting-btn i {
+  font-size: 1rem;
+}
+
 .login-actions {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
 }

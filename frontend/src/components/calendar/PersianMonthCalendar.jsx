@@ -6,17 +6,8 @@ import {
   getMonthGridGregorian,
   getTodayISO,
 } from "../../lib/date";
+import { t } from "../../lib/i18n";
 import "./PersianMonthCalendar.css";
-
-const WEEKDAY_LABELS = [
-  "شنبه",
-  "یکشنبه",
-  "دوشنبه",
-  "سه‌شنبه",
-  "چهارشنبه",
-  "پنجشنبه",
-  "جمعه",
-];
 
 export default function PersianMonthCalendar({
   month,
@@ -27,8 +18,10 @@ export default function PersianMonthCalendar({
   selectedDate,
   getDayStatus,
   getDayBadge,
+  language = "fa",
   className = "",
 }) {
+  const weekdays = t("calendar.weekdays", language);
   const monthDays = useMemo(
     () => getGregorianDatesForPersianMonth(month),
     [month],
@@ -44,22 +37,22 @@ export default function PersianMonthCalendar({
       <div className="monthly-calendar-header">
         <div className="monthly-calendar-navigation">
           <button className="btn btn-secondary" onClick={onPrevMonth}>
-            ماه قبل
+            {t("calendar.previousMonth", language)}
           </button>
           {onGoToday ? (
             <button className="btn btn-secondary" onClick={onGoToday}>
-              برو به امروز
+              {t("calendar.goToToday", language)}
             </button>
           ) : null}
           <button className="btn btn-secondary" onClick={onNextMonth}>
-            ماه بعد
+            {t("calendar.nextMonth", language)}
           </button>
         </div>
         <p className="monthly-calendar-title">{monthLabel}</p>
       </div>
 
       <div className="monthly-weekdays">
-        {WEEKDAY_LABELS.map((label) => (
+        {weekdays.map((label) => (
           <span key={label}>{label}</span>
         ))}
       </div>

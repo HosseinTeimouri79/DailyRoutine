@@ -6,6 +6,7 @@ import {
   formatPersianMonthYear,
   shiftPersianMonth,
 } from "../../lib/date";
+import { t } from "../../lib/i18n";
 import "./DailyTasks.css";
 
 export default function DailyTasks({
@@ -21,11 +22,12 @@ export default function DailyTasks({
   tasks,
   toggleTaskDone,
   onRequestTaskDelete,
+  language,
 }) {
   return (
     <Card
-      title="کارهای روزانه"
-      subtitle="روز را از تقویم انتخاب کن و کارهای همان روز را مدیریت کن"
+      title={t("dailyTasks.title", language)}
+      subtitle={t("dailyTasks.subtitle", language)}
     >
       <PersianMonthCalendar
         className="daily-tasks-calendar"
@@ -36,21 +38,27 @@ export default function DailyTasks({
         selectedDate={tasksDate}
         onSelectDay={setTasksDate}
         getDayBadge={getTaskDayBadge}
+        language={language}
       />
 
       <div className="daily-tasks-toolbar">
         <p className="muted tasks-selected-date">
-          تاریخ انتخاب‌شده: {formatPersianDateParts(tasksDate).day}{" "}
+          {t("dailyTasks.selectedDate", language)}:{" "}
+          {formatPersianDateParts(tasksDate).day}{" "}
           {formatPersianMonthYear(tasksDate)}
         </p>
-        <Button onClick={onOpenAddTaskModal}>افزودن</Button>
+        <Button onClick={onOpenAddTaskModal}>
+          {t("dailyTasks.add", language)}
+        </Button>
       </div>
 
-      {tasksLoading ? <p className="muted">در حال بارگذاری...</p> : null}
+      {tasksLoading ? (
+        <p className="muted">{t("dailyTasks.loading", language)}</p>
+      ) : null}
 
       {!tasksLoading && !tasks.length ? (
         <p className="empty-state-message">
-          برای این روز هنوز کاری ثبت نشده است.
+          {t("dailyTasks.noTasks", language)}
         </p>
       ) : null}
 
@@ -60,14 +68,14 @@ export default function DailyTasks({
             <button
               className="routine-icon-btn"
               onClick={() => onOpenEditTaskModal(task)}
-              title="ویرایش کار"
+              title={t("dailyTasks.editTask", language)}
             >
               <i className="fa-solid fa-pen" aria-hidden="true" />
             </button>
             <button
               className="routine-icon-btn delete"
               onClick={() => onRequestTaskDelete(task)}
-              title="حذف کار"
+              title={t("dailyTasks.deleteTask", language)}
             >
               <i className="fa-solid fa-trash" aria-hidden="true" />
             </button>
@@ -76,8 +84,8 @@ export default function DailyTasks({
               onClick={() => toggleTaskDone(task)}
               title={
                 task.is_done
-                  ? "علامت‌گذاری به‌عنوان ناتمام"
-                  : "علامت‌گذاری به‌عنوان انجام‌شده"
+                  ? t("dailyTasks.markUndone", language)
+                  : t("dailyTasks.markDone", language)
               }
             >
               <i
@@ -93,7 +101,10 @@ export default function DailyTasks({
               {task.content}
             </span>
             {task.alarm_enabled && task.alarm_time ? (
-              <span className="daily-task-alarm-badge" title="زمان هشدار">
+              <span
+                className="daily-task-alarm-badge"
+                title={t("common.alarmTime", language)}
+              >
                 <i className="fa-regular fa-clock" aria-hidden="true" />
                 {task.alarm_time}
               </span>

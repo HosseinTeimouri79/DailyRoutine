@@ -39,7 +39,7 @@ async function request(path, { method = "GET", body, auth = false } = {}) {
 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(data.message || "خطا در درخواست");
+    throw new Error(data.message || "Request failed");
   }
 
   return data;

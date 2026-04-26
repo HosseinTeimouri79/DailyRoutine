@@ -9,6 +9,8 @@ import DailyTasks from "../components/sections/DailyTasks";
 import Notes from "../components/sections/Notes";
 import { api } from "../lib/api";
 import { useSnackbar } from "../hooks/useSnackbar";
+import { useSettings } from "../lib/settings";
+import { t } from "../lib/i18n";
 import {
   formatPersianMonthYear,
   getGregorianDatesForPersianMonth,
@@ -127,6 +129,7 @@ export default function HomePage() {
   const [error, setError] = useState("");
   const firedAlarmKeysRef = useRef(new Set());
   const { snackbar, notify } = useSnackbar();
+  const { language } = useSettings();
 
   const monthDays = useMemo(
     () => getGregorianDatesForPersianMonth(month),
@@ -287,8 +290,10 @@ export default function HomePage() {
         .forEach((routine) => {
           notifyAlarm(
             `routine-${routine.id}-${todayISODate}-${hhmm}`,
-            "هشدار روتین",
-            `زمان انجام «${routine.title}» رسیده است.`,
+            t("notifications.routineAlarmTitle", language),
+            t("notifications.routineAlarmBody", language, {
+              title: routine.title,
+            }),
           );
         });
 
@@ -303,8 +308,10 @@ export default function HomePage() {
         .forEach((task) => {
           notifyAlarm(
             `task-${task.id}-${todayISODate}-${hhmm}`,
-            "هشدار کار روزانه",
-            `زمان انجام «${task.content}» رسیده است.`,
+            t("notifications.taskAlarmTitle", language),
+            t("notifications.taskAlarmBody", language, {
+              content: task.content,
+            }),
           );
         });
     }, 15_000);
@@ -314,7 +321,7 @@ export default function HomePage() {
 
   async function toggleStatus(routineId, date) {
     if (date > todayISO) {
-      notify("ثبت وضعیت برای تاریخ آینده مجاز نیست.", "warn");
+      notify(t("notifications.statusFutureDateWarn", language), "warn");
       return;
     }
 
@@ -322,7 +329,7 @@ export default function HomePage() {
       const key = `${routineId}-${date}`;
       const next = getNextStatus(logsMap.get(key));
       await api.upsertLog({ routine_id: routineId, date, status: next });
-      notify("وضعیت روتین با موفقیت ثبت شد.", "success");
+      notify(t("notifications.routineStatusSaved", language), "success");
       await load();
     } catch (err) {
       setError(err.message);
@@ -357,8 +364,8 @@ export default function HomePage() {
       setIsAddModalOpen(false);
       notify(
         editingRoutineId
-          ? "روتین با موفقیت ویرایش شد."
-          : "روتین جدید با موفقیت ساخته شد.",
+          ? t("notifications.routineEdited", language)
+          : t("notifications.routineCreated", language),
         "success",
       );
       await load();
@@ -371,7 +378,7 @@ export default function HomePage() {
   async function removeRoutine(id) {
     try {
       await api.deleteRoutine(id);
-      notify("روتین حذف شد.", "success");
+      notify(t("notifications.routineDeleted", language), "success");
       await load();
     } catch (err) {
       setError(err.message);
@@ -517,7 +524,9 @@ export default function HomePage() {
       }
       await loadTaskDatesForMonth(tasksMonth);
       notify(
-        editingTask?.id ? "کار ویرایش شد." : "کار جدید اضافه شد.",
+        editingTask?.id
+          ? t("notifications.taskEdited", language)
+          : t("notifications.taskCreated", language),
         "success",
       );
     } catch (err) {
@@ -546,7 +555,7 @@ export default function HomePage() {
       await loadTaskDatesForMonth(tasksMonth);
       const rows = await api.getDailyTasks(getTodayISO());
       setAlarmTasks(rows);
-      notify("کار حذف شد.", "success");
+      notify(t("notifications.taskDeleted", language), "success");
       setTaskToDelete(null);
     } catch (err) {
       notify(err.message, "error");
@@ -597,8 +606,8 @@ export default function HomePage() {
       await loadNotes();
       notify(
         editingNote?.id
-          ? "یادداشت با موفقیت ویرایش شد."
-          : "یادداشت جدید با موفقیت ثبت شد.",
+          ? t("notifications.noteEdited", language)
+          : t("notifications.noteCreated", language),
         "success",
       );
     } catch (err) {
@@ -611,7 +620,7 @@ export default function HomePage() {
       await api.deleteNote(noteId);
       await loadNotes();
       setNoteToDelete(null);
-      notify("یادداشت حذف شد.", "success");
+      notify(t("notifications.noteDeleted", language), "success");
     } catch (err) {
       notify(err.message, "error");
     }
@@ -625,28 +634,28 @@ export default function HomePage() {
   }
 
   return (
-    <AppShell title="هدفی‌نو">
+    <AppShell title={t("header.title", language)}>
       <div className="nav-tabs page-tabs">
         <button
           type="button"
           className={`tab tab-btn ${activeTab === "weekly" ? "active" : ""}`.trim()}
           onClick={() => changeTab("weekly")}
         >
-          روتین‌های من
+          {t("weekly.title", language)}
         </button>
         <button
           type="button"
           className={`tab tab-btn ${activeTab === "tasks" ? "active" : ""}`.trim()}
           onClick={() => changeTab("tasks")}
         >
-          کارهای روزانه
+          {t("dailyTasks.title", language)}
         </button>
         <button
           type="button"
           className={`tab tab-btn ${activeTab === "notes" ? "active" : ""}`.trim()}
           onClick={() => changeTab("notes")}
         >
-          یادداشت‌ها
+          {t("notes.title", language)}
         </button>
       </div>
 
@@ -665,9 +674,12 @@ export default function HomePage() {
             openEditModal={openEditModal}
             onRequestRoutineDelete={setRoutineToDelete}
             toggleStatus={toggleStatus}
+            language={language}
           />
           <MonthlyCalendar
-            subtitle={`وضعیت روتین انتخاب‌ شده در ${formatPersianMonthYear(monthDays[0] || todayISO)}`}
+            subtitle={`${t("weekly.subtitle", language)} ${formatPersianMonthYear(
+              monthDays[0] || todayISO,
+            )}`}
             routines={routines}
             selectedRoutineId={selectedRoutineId}
             setSelectedRoutineId={setSelectedRoutineId}
@@ -680,6 +692,7 @@ export default function HomePage() {
             getSelectedRoutineDayStatus={getSelectedRoutineDayStatus}
             monthlyReport={monthlyReport}
             monthlyRoutineReport={monthlyRoutineReport}
+            language={language}
           />
         </>
       ) : null}
@@ -698,6 +711,7 @@ export default function HomePage() {
           getTaskDayBadge={getTaskDayBadge}
           toggleTaskDone={toggleTaskDone}
           onRequestTaskDelete={setTaskToDelete}
+          language={language}
         />
       ) : null}
 
@@ -710,6 +724,7 @@ export default function HomePage() {
           onOpenAdd={openCreateNoteModal}
           onOpenEdit={openEditNoteModal}
           onRequestDelete={setNoteToDelete}
+          language={language}
         />
       ) : null}
 
@@ -721,14 +736,18 @@ export default function HomePage() {
           setNewRoutineAlarmEnabled(false);
           setNewRoutineAlarmTime("09:00");
         }}
-        title={editingRoutineId ? "ویرایش روتین" : "افزودن روتین جدید"}
+        title={
+          editingRoutineId
+            ? t("weekly.editRoutine", language)
+            : t("weekly.addRoutine", language)
+        }
       >
         <form className="stack" onSubmit={createRoutine}>
           <div className="routine-form-row">
             <input
               id="newRoutineTitle"
               className="input routine-title-input"
-              placeholder="نام روتین"
+              placeholder={t("weekly.routineNamePlaceholder", language)}
               value={newRoutineTitle}
               onChange={(e) => setNewRoutineTitle(e.target.value)}
               required
@@ -747,7 +766,7 @@ export default function HomePage() {
               checked={newRoutineAlarmEnabled}
               onChange={(e) => setNewRoutineAlarmEnabled(e.target.checked)}
             />
-            فعال‌سازی هشدار
+            {t("weekly.enableAlarm", language)}
           </label>
           <input
             type="time"
@@ -768,10 +787,12 @@ export default function HomePage() {
                 setNewRoutineAlarmTime("09:00");
               }}
             >
-              انصراف
+              {t("common.cancel", language)}
             </Button>
             <Button type="submit">
-              {editingRoutineId ? "ذخیره تغییرات" : "ثبت روتین"}
+              {editingRoutineId
+                ? t("weekly.saveRoutineChanges", language)
+                : t("weekly.createRoutine", language)}
             </Button>
           </div>
         </form>
@@ -780,15 +801,17 @@ export default function HomePage() {
       <Modal
         isOpen={Boolean(routineToDelete)}
         onClose={() => setRoutineToDelete(null)}
-        title="تأیید حذف روتین"
+        title={t("weekly.confirmDeleteRoutineTitle", language)}
         className="delete-confirm-modal"
       >
         <p className="muted delete-confirm-text">
-          آیا از حذف روتین «{routineToDelete?.title}» مطمئن هستید؟
+          {t("weekly.confirmDeleteRoutineMessage", language, {
+            title: routineToDelete?.title || "",
+          })}
         </p>
         <div className="modal-actions">
           <Button variant="secondary" onClick={() => setRoutineToDelete(null)}>
-            انصراف
+            {t("common.cancel", language)}
           </Button>
           <Button
             variant="danger"
@@ -797,7 +820,7 @@ export default function HomePage() {
               setRoutineToDelete(null);
             }}
           >
-            حذف روتین
+            {t("weekly.deleteRoutine", language)}
           </Button>
         </div>
       </Modal>
@@ -805,12 +828,16 @@ export default function HomePage() {
       <Modal
         isOpen={isTaskModalOpen}
         onClose={closeTaskModal}
-        title={editingTask ? "ویرایش کار" : "افزودن کار جدید"}
+        title={
+          editingTask
+            ? t("dailyTasks.editTask", language)
+            : t("dailyTasks.add", language)
+        }
       >
         <form className="stack" onSubmit={submitTask}>
           <input
             className="input"
-            placeholder="شرح کار"
+            placeholder={t("dailyTasks.taskPlaceholder", language)}
             value={newTaskText}
             onChange={(event) => setNewTaskText(event.target.value)}
             required
@@ -821,7 +848,7 @@ export default function HomePage() {
               checked={newTaskAlarmEnabled}
               onChange={(event) => setNewTaskAlarmEnabled(event.target.checked)}
             />
-            فعال‌سازی هشدار
+            {t("dailyTasks.enableAlarm", language)}
           </label>
           <input
             type="time"
@@ -833,10 +860,12 @@ export default function HomePage() {
           />
           <div className="modal-actions">
             <Button type="button" variant="secondary" onClick={closeTaskModal}>
-              انصراف
+              {t("common.cancel", language)}
             </Button>
             <Button type="submit">
-              {editingTask ? "ذخیره تغییرات" : "ثبت کار"}
+              {editingTask
+                ? t("dailyTasks.saveTaskChanges", language)
+                : t("dailyTasks.createTask", language)}
             </Button>
           </div>
         </form>
@@ -845,18 +874,20 @@ export default function HomePage() {
       <Modal
         isOpen={Boolean(taskToDelete)}
         onClose={() => setTaskToDelete(null)}
-        title="تأیید حذف کار"
+        title={t("dailyTasks.confirmDeleteTaskTitle", language)}
         className="delete-confirm-modal"
       >
         <p className="muted delete-confirm-text">
-          آیا از حذف کار «{taskToDelete?.content}» مطمئن هستید؟
+          {t("dailyTasks.confirmDeleteTaskMessage", language, {
+            content: taskToDelete?.content || "",
+          })}
         </p>
         <div className="modal-actions">
           <Button variant="secondary" onClick={() => setTaskToDelete(null)}>
-            انصراف
+            {t("common.cancel", language)}
           </Button>
           <Button variant="danger" onClick={() => deleteTask(taskToDelete.id)}>
-            حذف کار
+            {t("dailyTasks.deleteTask", language)}
           </Button>
         </div>
       </Modal>
@@ -867,12 +898,14 @@ export default function HomePage() {
           setIsNoteModalOpen(false);
           setEditingNote(null);
         }}
-        title={editingNote ? "ویرایش" : "افزودن"}
+        title={
+          editingNote ? t("notes.edit", language) : t("notes.add", language)
+        }
       >
         <form className="stack" onSubmit={submitNote}>
           <textarea
             className="input note-form-textarea"
-            placeholder="متن یادداشت"
+            placeholder={t("notes.notePlaceholder", language)}
             value={noteText}
             onChange={(event) => setNoteText(event.target.value)}
             required
@@ -886,10 +919,12 @@ export default function HomePage() {
                 setEditingNote(null);
               }}
             >
-              انصراف
+              {t("common.cancel", language)}
             </Button>
             <Button type="submit">
-              {editingNote ? "ذخیره تغییرات" : "ثبت یادداشت"}
+              {editingNote
+                ? t("notes.edit", language)
+                : t("notes.add", language)}
             </Button>
           </div>
         </form>
@@ -898,18 +933,18 @@ export default function HomePage() {
       <Modal
         isOpen={Boolean(noteToDelete)}
         onClose={() => setNoteToDelete(null)}
-        title="تأیید حذف یادداشت"
+        title={t("notes.confirmDeleteTitle", language)}
         className="delete-confirm-modal"
       >
         <p className="muted delete-confirm-text">
-          آیا از حذف این یادداشت مطمئن هستید؟
+          {t("notes.confirmDeleteMessage", language)}
         </p>
         <div className="modal-actions">
           <Button variant="secondary" onClick={() => setNoteToDelete(null)}>
-            انصراف
+            {t("common.cancel", language)}
           </Button>
           <Button variant="danger" onClick={() => deleteNote(noteToDelete.id)}>
-            حذف یادداشت
+            {t("notes.delete", language)}
           </Button>
         </div>
       </Modal>

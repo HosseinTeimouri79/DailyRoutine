@@ -2,10 +2,12 @@ import Card from "../ui/Card";
 import ProgressRing from "../ui/ProgressRing";
 import PersianMonthCalendar from "../calendar/PersianMonthCalendar";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { t } from "../../lib/i18n";
 import "./MonthlyCalendar.css";
 
-function SelectedRoutinePieReport({ data }) {
-  if (!data) return <p className="muted">در حال بارگذاری...</p>;
+function SelectedRoutinePieReport({ data, language }) {
+  if (!data)
+    return <p className="muted">{t("dailyTasks.loading", language)}</p>;
 
   const done = data.done || 0;
   const missed = data.missed || 0;
@@ -15,19 +17,19 @@ function SelectedRoutinePieReport({ data }) {
   const segments = [
     {
       key: "done",
-      label: "انجام‌شده",
+      label: t("monthly.done", language),
       value: done,
       fill: "var(--color-success-border)",
     },
     {
       key: "missed",
-      label: "انجام‌نشده",
+      label: t("monthly.missed", language),
       value: missed,
       fill: "var(--color-danger-border)",
     },
     {
       key: "remaining",
-      label: "ثبت‌نشده",
+      label: t("monthly.remaining", language),
       value: remaining,
       fill: "color-mix(in srgb, var(--color-primary) 35%, var(--color-bg-surface))",
     },
@@ -37,7 +39,7 @@ function SelectedRoutinePieReport({ data }) {
   const fallbackData = [
     {
       key: "empty",
-      label: "بدون داده",
+      label: t("monthly.noData", language),
       value: 1,
       fill: "var(--border-default)",
     },
@@ -63,7 +65,7 @@ function SelectedRoutinePieReport({ data }) {
       <div
         className="monthly-pie-wrap"
         role="img"
-        aria-label="گزارش وضعیت روتین"
+        aria-label={t("monthly.reportAriaLabel", language)}
       >
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -95,8 +97,11 @@ function SelectedRoutinePieReport({ data }) {
         </ResponsiveContainer>
 
         <div className="monthly-pie-center">
-          <strong>{donePercent}٪</strong>
-          <span>انجام‌شده</span>
+          <strong>
+            {donePercent}
+            {t("monthly.percentSymbol", language)}
+          </strong>
+          <span>{t("monthly.done", language)}</span>
         </div>
       </div>
     </div>
@@ -117,6 +122,7 @@ export default function MonthlyCalendar({
   getSelectedRoutineDayStatus,
   monthlyReport,
   monthlyRoutineReport,
+  language,
 }) {
   const routineStatsMap = new Map(
     (monthlyRoutineReport || []).map((item) => [item.id, item]),
@@ -127,14 +133,16 @@ export default function MonthlyCalendar({
 
   if (!routines.length) {
     return (
-      <Card title="گزارش ماهانه" subtitle={subtitle}>
-        <p className="empty-state-message">روتینی یافت نشد.</p>
+      <Card title={t("monthly.title", language)} subtitle={subtitle}>
+        <p className="empty-state-message">
+          {t("monthly.noRoutines", language)}
+        </p>
       </Card>
     );
   }
 
   return (
-    <Card title="گزارش ماهانه" subtitle={subtitle}>
+    <Card title={t("monthly.title", language)} subtitle={subtitle}>
       <div className="monthly-calendar-overview">
         <div className="routine-badges">
           {routines.map((routine) => {
@@ -166,7 +174,9 @@ export default function MonthlyCalendar({
                   percent={percent}
                   size={24}
                   innerSize={17}
-                  title={`پیشرفت ماهانه: ${percent}٪`}
+                  title={t("monthly.monthProgressTitle", language, {
+                    percent,
+                  })}
                 />
                 <span
                   className="routine-color-dot"
@@ -184,6 +194,7 @@ export default function MonthlyCalendar({
         </div>
         <SelectedRoutinePieReport
           data={selectedRoutineStats || monthlyReport}
+          language={language}
         />
       </div>
 
@@ -195,6 +206,7 @@ export default function MonthlyCalendar({
         selectedDate={selectedMonthlyDate}
         onSelectDay={setSelectedMonthlyDate}
         getDayStatus={getSelectedRoutineDayStatus}
+        language={language}
       />
     </Card>
   );

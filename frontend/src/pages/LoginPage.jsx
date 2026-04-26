@@ -4,6 +4,8 @@ import Card from "../components/ui/Card";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import { api, setSession, getToken } from "../lib/api";
+import { useSettings } from "../lib/settings";
+import { t } from "../lib/i18n";
 import "./LoginPage.css";
 
 const IRAN_PHONE_REGEX = /^(?:\+98|0)?9\d{9}$/;
@@ -18,6 +20,7 @@ function normalizeIranPhone(rawPhone) {
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { theme, language, setTheme, setLanguage } = useSettings();
   const [mode, setMode] = useState("login");
   const [form, setForm] = useState({ name: "", phone: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -36,7 +39,7 @@ export default function LoginPage() {
     try {
       const normalizedPhone = normalizeIranPhone(form.phone);
       if (!IRAN_PHONE_REGEX.test(normalizedPhone)) {
-        throw new Error("شماره تلفن معتبر ایران وارد کنید.");
+        throw new Error(t("login.invalidPhone", language));
       }
 
       const payload =
@@ -62,16 +65,53 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="auth-page" dir="rtl">
+    <div className="auth-page" dir={language === "fa" ? "rtl" : "ltr"}>
       <Card
-        title={mode === "register" ? "ایجاد حساب" : "ورود به حساب"}
-        subtitle="مدیریت روتین‌های روزانه با تقویم فارسی"
+        title={
+          mode === "register"
+            ? t("login.titleRegister", language)
+            : t("login.titleLogin", language)
+        }
+        subtitle={t("login.subtitle", language)}
       >
+        <div className="auth-settings-row">
+          <button
+            type="button"
+            className="auth-setting-btn"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            title={t("login.theme", language)}
+            aria-label={t("login.theme", language)}
+          >
+            <i
+              className={
+                theme === "dark" ? "fa-solid fa-sun" : "fa-solid fa-moon"
+              }
+              aria-hidden="true"
+            />
+            <span>
+              {theme === "dark"
+                ? t("login.themeDark", language)
+                : t("login.themeLight", language)}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="auth-setting-btn"
+            onClick={() => setLanguage(language === "fa" ? "en" : "fa")}
+            title={t("login.language", language)}
+            aria-label={t("login.language", language)}
+          >
+            <i className="fa-solid fa-language" aria-hidden="true" />
+            <span>{language === "fa" ? "EN" : "FA"}</span>
+          </button>
+        </div>
+
         <form className="stack" onSubmit={submit}>
           {mode === "register" ? (
             <Input
               id="name"
-              label="نام"
+              label={t("login.name", language)}
               value={form.name}
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, name: e.target.value }))
@@ -83,8 +123,8 @@ export default function LoginPage() {
           <Input
             id="phone"
             type="tel"
-            label="شماره تلفن"
-            placeholder="مثال: 09151151010"
+            label={t("login.phone", language)}
+            placeholder={t("login.phonePlaceholder", language)}
             value={form.phone}
             onChange={(e) =>
               setForm((prev) => ({ ...prev, phone: e.target.value }))
@@ -93,7 +133,7 @@ export default function LoginPage() {
           />
 
           <div className="field">
-            <label htmlFor="password">رمز عبور</label>
+            <label htmlFor="password">{t("login.password", language)}</label>
             <div className="password-input-wrap">
               <input
                 id="password"
@@ -109,8 +149,16 @@ export default function LoginPage() {
                 type="button"
                 className="password-toggle-btn"
                 onClick={() => setShowPassword((prev) => !prev)}
-                title={showPassword ? "مخفی کردن رمز" : "نمایش رمز"}
-                aria-label={showPassword ? "مخفی کردن رمز" : "نمایش رمز"}
+                title={
+                  showPassword
+                    ? t("login.hidePassword", language)
+                    : t("login.showPassword", language)
+                }
+                aria-label={
+                  showPassword
+                    ? t("login.hidePassword", language)
+                    : t("login.showPassword", language)
+                }
               >
                 <i
                   className={
@@ -127,10 +175,10 @@ export default function LoginPage() {
           <div className="login-actions">
             <Button type="submit" disabled={loading}>
               {loading
-                ? "در حال ارسال..."
+                ? t("appShell.saving", language)
                 : mode === "register"
-                  ? "ثبت‌نام"
-                  : "ورود"}
+                  ? t("login.submitRegister", language)
+                  : t("login.submitLogin", language)}
             </Button>
 
             <Button
@@ -141,8 +189,8 @@ export default function LoginPage() {
               }
             >
               {mode === "register"
-                ? "حساب دارید؟ ورود"
-                : "حساب ندارید؟ ثبت‌نام"}
+                ? t("login.haveAccount", language)
+                : t("login.noAccount", language)}
             </Button>
           </div>
         </form>

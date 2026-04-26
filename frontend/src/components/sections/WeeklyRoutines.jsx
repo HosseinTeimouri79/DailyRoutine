@@ -1,6 +1,7 @@
 import Card from "../ui/Card";
 import ProgressRing from "../ui/ProgressRing";
 import { formatPersianDateParts, formatPersianMonthYear } from "../../lib/date";
+import { t } from "../../lib/i18n";
 import "./WeeklyRoutines.css";
 
 export default function WeeklyRoutines({
@@ -16,6 +17,7 @@ export default function WeeklyRoutines({
   openEditModal,
   onRequestRoutineDelete,
   toggleStatus,
+  language,
 }) {
   function getRoutineWeekProgress(routineId) {
     const doneCount = weekDays.reduce((count, day) => {
@@ -44,7 +46,7 @@ export default function WeeklyRoutines({
       <button
         className={`${cls} ${mobile ? "status-btn-mobile" : ""} ${isFutureDay ? "disabled" : ""}`.trim()}
         disabled={isFutureDay}
-        title={isFutureDay ? "ثبت وضعیت برای تاریخ آینده مجاز نیست" : ""}
+        title={isFutureDay ? t("weekly.cannotSetFuture", language) : ""}
         onClick={() => toggleStatus(routineId, day)}
       >
         <i
@@ -64,37 +66,39 @@ export default function WeeklyRoutines({
   if (!routines.length) {
     return (
       <Card
-        title="روتین‌های من"
-        subtitle="وضعیت هر روتین در روزهای هفته"
+        title={t("weekly.title", language)}
+        subtitle={t("weekly.subtitle", language)}
         actions={
           <button
             className="btn btn-primary"
             onClick={openAddModal}
-            title="افزودن روتین"
-            aria-label="افزودن روتین"
+            title={t("weekly.add", language)}
+            aria-label={t("weekly.add", language)}
           >
-            افزودن
+            {t("weekly.add", language)}
           </button>
         }
       >
         {error ? <p className="error-text">{error}</p> : null}
-        <p className="empty-state-message">روتینی یافت نشد.</p>
+        <p className="empty-state-message">
+          {t("weekly.noRoutines", language)}
+        </p>
       </Card>
     );
   }
 
   return (
     <Card
-      title="روتین‌های من"
-      subtitle="وضعیت هر روتین در روزهای هفته"
+      title={t("weekly.title", language)}
+      subtitle={t("weekly.subtitle", language)}
       actions={
         <button
           className="btn btn-primary"
           onClick={openAddModal}
-          title="افزودن روتین"
-          aria-label="افزودن روتین"
+          title={t("weekly.add", language)}
+          aria-label={t("weekly.add", language)}
         >
-          افزودن
+          {t("weekly.add", language)}
         </button>
       }
     >
@@ -102,20 +106,19 @@ export default function WeeklyRoutines({
       <div className="week-nav">
         <div className="week-nav-buttons">
           <button className="btn btn-secondary" onClick={goToPreviousWeek}>
-            هفته قبل
+            {t("weekly.previousWeek", language)}
           </button>
           <button
             className="btn btn-secondary"
             onClick={goToNextWeek}
             disabled={!canGoNextWeek}
           >
-            هفته بعد
+            {t("weekly.nextWeek", language)}
           </button>
         </div>
         <p className="muted week-range-label">
-          از {formatPersianDateParts(weekDays[0]).day}{" "}
+          {formatPersianDateParts(weekDays[0]).day}{" "}
           {formatPersianMonthYear(weekDays[0])}
-          {/* {"تا "}  fa-arrows-left-right-to-line */}
           <i
             className="fa-solid fa-arrows-left-right-to-line app-inline-icon week-range-icon"
             aria-hidden="true"
@@ -129,7 +132,7 @@ export default function WeeklyRoutines({
         <table className="calendar-table week-table">
           <thead>
             <tr>
-              <th>روتین</th>
+              <th>{t("weekly.routine", language)}</th>
               {weekDays.map((date) => {
                 const p = formatPersianDateParts(date);
                 return (
@@ -155,25 +158,31 @@ export default function WeeklyRoutines({
                         percent={progress.percent}
                         size={26}
                         innerSize={19}
-                        title={`پیشرفت هفتگی: ${progress.doneCount} از ${progress.totalDays}`}
+                        title={t("weekly.progressLabel", language, {
+                          done: progress.doneCount,
+                          total: progress.totalDays,
+                        })}
                       />
                       <button
                         className="routine-icon-btn"
-                        title="ویرایش"
+                        title={t("weekly.edit", language)}
                         onClick={() => openEditModal(routine)}
                       >
                         <i className="fa-solid fa-pen" aria-hidden="true" />
                       </button>
                       <button
                         className="routine-icon-btn delete"
-                        title="حذف"
+                        title={t("weekly.delete", language)}
                         onClick={() => onRequestRoutineDelete(routine)}
                       >
                         <i className="fa-solid fa-trash" aria-hidden="true" />
                       </button>
                       <span>{routine.title}</span>
                       {routine.alarm_enabled && routine.alarm_time ? (
-                        <span className="routine-alarm-chip" title="زمان هشدار">
+                        <span
+                          className="routine-alarm-chip"
+                          title={t("dailyTasks.markDone", language)}
+                        >
                           <i
                             className="fa-regular fa-clock"
                             aria-hidden="true"
@@ -210,11 +219,17 @@ export default function WeeklyRoutines({
                     percent={progress.percent}
                     size={24}
                     innerSize={18}
-                    title={`پیشرفت هفتگی: ${progress.doneCount} از ${progress.totalDays}`}
+                    title={t("weekly.progressLabel", language, {
+                      done: progress.doneCount,
+                      total: progress.totalDays,
+                    })}
                   />
                   <span className="routine-title-cell">{routine.title}</span>
                   {routine.alarm_enabled && routine.alarm_time ? (
-                    <span className="routine-alarm-chip" title="زمان هشدار">
+                    <span
+                      className="routine-alarm-chip"
+                      title={t("common.alarmTime", language)}
+                    >
                       <i className="fa-regular fa-clock" aria-hidden="true" />
                       {routine.alarm_time}
                     </span>
@@ -223,14 +238,14 @@ export default function WeeklyRoutines({
                 <div className="row-actions">
                   <button
                     className="routine-icon-btn"
-                    title="ویرایش"
+                    title={t("weekly.edit", language)}
                     onClick={() => openEditModal(routine)}
                   >
                     <i className="fa-solid fa-pen" aria-hidden="true" />
                   </button>
                   <button
                     className="routine-icon-btn delete"
-                    title="حذف"
+                    title={t("weekly.delete", language)}
                     onClick={() => onRequestRoutineDelete(routine)}
                   >
                     <i className="fa-solid fa-trash" aria-hidden="true" />

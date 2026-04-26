@@ -1,13 +1,14 @@
 import Card from "../ui/Card";
 import Button from "../ui/Button";
 import { formatPersianDateTimeFromSql } from "../../lib/date";
+import { t } from "../../lib/i18n";
 import "./Notes.css";
 
-function getNoteDisplayDate(note) {
+function getNoteDisplayDate(note, language) {
   const hasEdit =
     note.updated_at && note.created_at && note.updated_at !== note.created_at;
   return {
-    label: hasEdit ? "آخرین ویرایش" : "تاریخ ایجاد",
+    label: hasEdit ? t("notes.updatedDate", language) : t("notes.createdDate", language),
     value: formatPersianDateTimeFromSql(
       hasEdit ? note.updated_at : note.created_at,
     ),
@@ -22,31 +23,32 @@ export default function Notes({
   onOpenAdd,
   onOpenEdit,
   onRequestDelete,
+  language,
 }) {
   return (
     <Card
-      title="یادداشت‌ها"
-      subtitle="یادداشت‌های شخصی را جستجو، ویرایش و حذف کن"
+      title={t("notes.title", language)}
+      subtitle={t("notes.subtitle", language)}
     >
       <div className="notes-toolbar">
         <input
           className="input"
-          placeholder="جستجو در یادداشت‌ها"
+          placeholder={t("notes.searchPlaceholder", language)}
           value={notesSearch}
           onChange={(event) => setNotesSearch(event.target.value)}
         />
-        <Button onClick={onOpenAdd}>افزودن</Button>
+        <Button onClick={onOpenAdd}>{t("notes.add", language)}</Button>
       </div>
 
-      {notesLoading ? <p className="muted">در حال بارگذاری...</p> : null}
+      {notesLoading ? <p className="muted">{t("notes.loading", language)}</p> : null}
 
       {!notesLoading && !notes.length ? (
-        <p className="empty-state-message">یادداشتی برای نمایش وجود ندارد.</p>
+        <p className="empty-state-message">{t("notes.noNotes", language)}</p>
       ) : null}
 
       <ul className="notes-list">
         {notes.map((note) => {
-          const displayDate = getNoteDisplayDate(note);
+          const displayDate = getNoteDisplayDate(note, language);
           return (
             <li className="note-item" key={note.id}>
               <p className="note-content">{note.content}</p>
@@ -58,14 +60,14 @@ export default function Notes({
                   <button
                     className="routine-icon-btn"
                     onClick={() => onOpenEdit(note)}
-                    title="ویرایش"
+                    title={t("notes.edit", language)}
                   >
                     <i className="fa-solid fa-pen" aria-hidden="true" />
                   </button>
                   <button
                     className="routine-icon-btn delete"
                     onClick={() => onRequestDelete(note)}
-                    title="حذف یادداشت"
+                    title={t("notes.delete", language)}
                   >
                     <i className="fa-solid fa-trash" aria-hidden="true" />
                   </button>
