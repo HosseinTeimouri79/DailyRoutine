@@ -16,6 +16,10 @@ export default function AppShell({ title, children }) {
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileName, setProfileName] = useState(initialUser?.name || "");
+  const [profileDob, setProfileDob] = useState(
+    initialUser?.date_of_birth || "",
+  );
+  const [profileGender, setProfileGender] = useState(initialUser?.gender || "");
   const [passwordForm, setPasswordForm] = useState({
     current: "",
     next: "",
@@ -38,6 +42,8 @@ export default function AppShell({ title, children }) {
   function openProfile() {
     setProfileMessage({ type: "", text: "" });
     setProfileName(user?.name || "");
+    setProfileDob(user?.date_of_birth || "");
+    setProfileGender(user?.gender || "");
     setIsProfileOpen(true);
     syncProfile();
   }
@@ -75,6 +81,8 @@ export default function AppShell({ title, children }) {
       };
       setUser(merged);
       setProfileName(merged?.name || "");
+      setProfileDob(merged?.date_of_birth || "");
+      setProfileGender(merged?.gender || "");
       const token = localStorage.getItem("dr_token");
       if (token) setSession(token, merged);
     } catch {
@@ -134,19 +142,25 @@ export default function AppShell({ title, children }) {
 
     try {
       setProfileLoading(true);
-      const updatedUser = await api.updateProfile({ name: nextName });
+      const updatedUser = await api.updateProfile({
+        name: nextName,
+        date_of_birth: profileDob || null,
+        gender: profileGender || null,
+      });
       setUser(updatedUser);
       setProfileName(updatedUser?.name || nextName);
+      setProfileDob(updatedUser?.date_of_birth || "");
+      setProfileGender(updatedUser?.gender || "");
       const token = localStorage.getItem("dr_token");
       if (token) setSession(token, updatedUser);
       setProfileMessage({
         type: "success",
-        text: "نام کاربری با موفقیت ذخیره شد.",
+        text: t("appShell.profileSaved", language),
       });
     } catch (error) {
       setProfileMessage({
         type: "error",
-        text: error.message || "ذخیره نام کاربری ناموفق بود.",
+        text: error.message || t("appShell.profileSaveError", language),
       });
     } finally {
       setProfileLoading(false);
@@ -276,6 +290,40 @@ export default function AppShell({ title, children }) {
               />
             </div>
             <div className="field">
+              <label htmlFor="profileDob">
+                {t("appShell.dateOfBirth", language)}
+              </label>
+              <input
+                id="profileDob"
+                type="date"
+                className="input"
+                value={profileDob}
+                onChange={(event) => setProfileDob(event.target.value)}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="profileGender">
+                {t("appShell.gender", language)}
+              </label>
+              <select
+                id="profileGender"
+                className="input"
+                value={profileGender}
+                onChange={(event) => setProfileGender(event.target.value)}
+              >
+                <option value="">{t("appShell.gender", language)}</option>
+                <option value="male">
+                  {t("appShell.genderMale", language)}
+                </option>
+                <option value="female">
+                  {t("appShell.genderFemale", language)}
+                </option>
+                <option value="other">
+                  {t("appShell.genderOther", language)}
+                </option>
+              </select>
+            </div>
+            <div className="field">
               <label htmlFor="profilePhone">
                 {t("appShell.phone", language)}
               </label>
@@ -291,7 +339,7 @@ export default function AppShell({ title, children }) {
               <Button type="submit" disabled={profileLoading}>
                 {profileLoading
                   ? t("appShell.saving", language)
-                  : t("appShell.saveUsername", language)}
+                  : t("appShell.saveProfile", language)}
               </Button>
             </div>
           </form>

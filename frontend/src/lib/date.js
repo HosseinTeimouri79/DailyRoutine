@@ -168,12 +168,23 @@ export function getMonthGridGregorian(monthDays) {
 }
 
 export function formatPersianDateTimeFromSql(sqlDateTime) {
-  if (!sqlDateTime || typeof sqlDateTime !== "string") return "-";
+  if (sqlDateTime === null || sqlDateTime === undefined || sqlDateTime === "")
+    return "-";
 
-  const normalized = sqlDateTime.includes("T")
-    ? sqlDateTime
-    : sqlDateTime.replace(" ", "T");
-  const date = new Date(normalized);
+  let date;
+  if (
+    typeof sqlDateTime === "number" ||
+    (typeof sqlDateTime === "string" && /^\d+$/.test(sqlDateTime))
+  ) {
+    date = new Date(Number(sqlDateTime) * 1000);
+  } else if (typeof sqlDateTime === "string") {
+    const normalized = sqlDateTime.includes("T")
+      ? sqlDateTime
+      : sqlDateTime.replace(" ", "T");
+    date = new Date(normalized);
+  } else {
+    return "-";
+  }
 
   if (Number.isNaN(date.getTime())) return "-";
 

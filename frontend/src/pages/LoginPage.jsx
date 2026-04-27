@@ -22,7 +22,13 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { theme, language, setTheme, setLanguage } = useSettings();
   const [mode, setMode] = useState("login");
-  const [form, setForm] = useState({ name: "", phone: "", password: "" });
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    password: "",
+    date_of_birth: "",
+    gender: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -48,6 +54,8 @@ export default function LoginPage() {
               name: form.name.trim(),
               phone: normalizedPhone,
               password: form.password,
+              date_of_birth: form.date_of_birth || null,
+              gender: form.gender || null,
             }
           : { phone: normalizedPhone, password: form.password };
 
@@ -109,15 +117,56 @@ export default function LoginPage() {
 
         <form className="stack" onSubmit={submit}>
           {mode === "register" ? (
-            <Input
-              id="name"
-              label={t("login.name", language)}
-              value={form.name}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, name: e.target.value }))
-              }
-              required
-            />
+            <>
+              <Input
+                id="name"
+                label={t("login.name", language)}
+                value={form.name}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, name: e.target.value }))
+                }
+                required
+              />
+              <div className="field">
+                <label htmlFor="dateOfBirth">
+                  {t("login.dateOfBirth", language)}
+                </label>
+                <input
+                  id="dateOfBirth"
+                  type="date"
+                  className="input"
+                  value={form.date_of_birth}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      date_of_birth: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="gender">{t("login.gender", language)}</label>
+                <select
+                  id="gender"
+                  className="input"
+                  value={form.gender}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, gender: e.target.value }))
+                  }
+                >
+                  <option value="">{t("login.gender", language)}</option>
+                  <option value="male">
+                    {t("login.genderMale", language)}
+                  </option>
+                  <option value="female">
+                    {t("login.genderFemale", language)}
+                  </option>
+                  <option value="other">
+                    {t("login.genderOther", language)}
+                  </option>
+                </select>
+              </div>
+            </>
           ) : null}
 
           <Input

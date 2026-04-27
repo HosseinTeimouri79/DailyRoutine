@@ -74,7 +74,7 @@ def update_note(note_id: int):
     execute(
         """
         UPDATE notes
-        SET content = ?, updated_at = datetime('now')
+        SET content = ?, updated_at = strftime('%s','now')
         WHERE id = ? AND user_id = ?
         """,
         (content, note_id, g.user_id),

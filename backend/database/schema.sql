@@ -6,7 +6,9 @@ CREATE TABLE IF NOT EXISTS users (
   phone TEXT NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
   profile_image TEXT,
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  date_of_birth INTEGER,
+  gender TEXT,
+  created_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
 );
 
 CREATE TABLE IF NOT EXISTS routines (
@@ -18,17 +20,17 @@ CREATE TABLE IF NOT EXISTS routines (
   is_active INTEGER NOT NULL DEFAULT 1,
   alarm_enabled INTEGER NOT NULL DEFAULT 0,
   alarm_time TEXT,
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS routine_logs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   routine_id INTEGER NOT NULL,
-  date TEXT NOT NULL,
+  date INTEGER NOT NULL,
   status TEXT NOT NULL CHECK(status IN ('done', 'missed')),
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+  updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
   UNIQUE(routine_id, date),
   FOREIGN KEY (routine_id) REFERENCES routines(id) ON DELETE CASCADE
 );
@@ -36,13 +38,13 @@ CREATE TABLE IF NOT EXISTS routine_logs (
 CREATE TABLE IF NOT EXISTS daily_tasks (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
-  task_date TEXT NOT NULL,
+  task_date INTEGER NOT NULL,
   content TEXT NOT NULL,
   is_done INTEGER NOT NULL DEFAULT 0,
   alarm_enabled INTEGER NOT NULL DEFAULT 0,
   alarm_time TEXT,
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+  updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -50,8 +52,8 @@ CREATE TABLE IF NOT EXISTS notes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
   content TEXT NOT NULL,
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+  updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 

@@ -3,6 +3,7 @@ import re
 
 from core.auth import auth_required
 from core.db import execute, query_all, query_one
+from core.date_utils import parse_iso_date_to_timestamp
 
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/api/daily-tasks")
@@ -42,28 +43,40 @@ def list_daily_tasks():
     task_date = (request.args.get("date") or "").strip()
     start_date = (request.args.get("startDate") or "").strip()
     end_date = (request.args.get("endDate") or "").strip()
+    select_columns = """
+            SELECT id, user_id,
+              COALESCE(
+                strftime('%Y-%m-%d', task_date, 'unixepoch'),
+                strftime('%Y-%m-%d', task_date)
+              ) AS task_date,
+              content, is_done, alarm_enabled, alarm_time, created_at, updated_at
+            FROM daily_tasks
+        """
 
     if task_date:
         rows = query_all(
-            """
-            SELECT id, user_id, task_date, content, is_done, alarm_enabled, alarm_time, created_at, updated_at
-            FROM daily_tasks
-            WHERE user_id = ? AND task_date = ?
+            f"""
+            {select_columns}
+            WHERE user_id = ? AND (
+              date(task_date, 'unixepoch') = ? OR date(task_date) = ?
+            )
             ORDER BY is_done ASC, id DESC
             """,
-            (g.user_id, task_date),
+            (g.user_id, task_date, task_date),
         )
         return jsonify(rows)
 
     if start_date and end_date:
         rows = query_all(
-            """
-            SELECT id, user_id, task_date, content, is_done, alarm_enabled, alarm_time, created_at, updated_at
-            FROM daily_tasks
-            WHERE user_id = ? AND task_date BETWEEN ? AND ?
+            f"""
+            {select_columns}
+            WHERE user_id = ? AND (
+              date(task_date, 'unixepoch') BETWEEN ? AND ?
+              OR date(task_date) BETWEEN ? AND ?
+            )
             ORDER BY task_date ASC, is_done ASC, id DESC
             """,
-            (g.user_id, start_date, end_date),
+            (g.user_id, start_date, end_date, start_date, end_date),
         )
         return jsonify(rows)
 
@@ -80,6 +93,10 @@ def create_daily_task():
     if not task_date or not content:
         return jsonify({"message": "date and content are required"}), 400
 
+    task_timestamp = parse_iso_date_to_timestamp(task_date)
+    if task_timestamp is None:
+        return jsonify({"message": "date must be a valid YYYY-MM-DD date"}), 400
+
     try:
         alarm_enabled, alarm_time = normalize_alarm_payload(data)
     except ValueError as err:
@@ -87,12 +104,17 @@ def create_daily_task():
 
     cursor = execute(
         "INSERT INTO daily_tasks(user_id, task_date, content, is_done, alarm_enabled, alarm_time) VALUES (?, ?, ?, 0, ?, ?)",
-        (g.user_id, task_date, content, alarm_enabled, alarm_time),
+        (g.user_id, task_timestamp, content, alarm_enabled, alarm_time),
     )
 
     row = query_one(
         """
-        SELECT id, user_id, task_date, content, is_done, alarm_enabled, alarm_time, created_at, updated_at
+        SELECT id, user_id,
+          COALESCE(
+            strftime('%Y-%m-%d', task_date, 'unixepoch'),
+            strftime('%Y-%m-%d', task_date)
+          ) AS task_date,
+          content, is_done, alarm_enabled, alarm_time, created_at, updated_at
         FROM daily_tasks
         WHERE id = ?
         """,
@@ -137,7 +159,7 @@ def update_daily_task(task_id: int):
     execute(
         """
         UPDATE daily_tasks
-        SET content = ?, is_done = ?, alarm_enabled = ?, alarm_time = ?, updated_at = datetime('now')
+        SET content = ?, is_done = ?, alarm_enabled = ?, alarm_time = ?, updated_at = strftime('%s','now')
         WHERE id = ? AND user_id = ?
         """,
         (
@@ -152,7 +174,12 @@ def update_daily_task(task_id: int):
 
     row = query_one(
         """
-        SELECT id, user_id, task_date, content, is_done, alarm_enabled, alarm_time, created_at, updated_at
+        SELECT id, user_id,
+          COALESCE(
+            strftime('%Y-%m-%d', task_date, 'unixepoch'),
+            strftime('%Y-%m-%d', task_date)
+          ) AS task_date,
+          content, is_done, alarm_enabled, alarm_time, created_at, updated_at
         FROM daily_tasks
         WHERE id = ?
         """,

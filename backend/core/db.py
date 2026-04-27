@@ -64,15 +64,23 @@ def ensure_schema():
             "phone",
             "password_hash",
             "profile_image",
+            "date_of_birth",
+            "gender",
             "created_at",
         }
         has_profile_image = any(column[1] == "profile_image" for column in columns)
         has_phone = any(column[1] == "phone" for column in columns)
+        has_date_of_birth = any(column[1] == "date_of_birth" for column in columns)
+        has_gender = any(column[1] == "gender" for column in columns)
         has_legacy_columns = bool(column_names - expected_columns)
         if not has_profile_image:
             conn.execute("ALTER TABLE users ADD COLUMN profile_image TEXT")
         if not has_phone:
             conn.execute("ALTER TABLE users ADD COLUMN phone TEXT")
+        if not has_date_of_birth:
+            conn.execute("ALTER TABLE users ADD COLUMN date_of_birth INTEGER")
+        if not has_gender:
+            conn.execute("ALTER TABLE users ADD COLUMN gender TEXT")
         conn.execute(
             "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_phone_unique ON users(phone) WHERE phone IS NOT NULL"
         )
@@ -105,13 +113,15 @@ def ensure_schema():
                   phone TEXT NOT NULL UNIQUE,
                   password_hash TEXT NOT NULL,
                   profile_image TEXT,
-                  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+                  date_of_birth INTEGER,
+                  gender TEXT,
+                  created_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
                 )
                 """
             )
             conn.execute(
                 """
-                INSERT INTO users_new(id, name, phone, password_hash, profile_image, created_at)
+                INSERT INTO users_new(id, name, phone, password_hash, profile_image, date_of_birth, gender, created_at)
                 SELECT
                   id,
                   name,
@@ -121,6 +131,8 @@ def ensure_schema():
                   END,
                   password_hash,
                   profile_image,
+                  date_of_birth,
+                  gender,
                   created_at
                 FROM users
                 """
