@@ -34,6 +34,42 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "VazirEnglish";
+  src:
+    url("../../assets/font/Vazir-v16.1.0/English-Digits/Normal/Vazir.woff2")
+      format("woff2"),
+    url("../../assets/font/Vazir-v16.1.0/English-Digits/Normal/Vazir.woff")
+      format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "VazirEnglish";
+  src:
+    url("../../assets/font/Vazir-v16.1.0/English-Digits/Medium/Vazir-Medium.woff2")
+      format("woff2"),
+    url("../../assets/font/Vazir-v16.1.0/English-Digits/Medium/Vazir-Medium.woff")
+      format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "VazirEnglish";
+  src:
+    url("../../assets/font/Vazir-v16.1.0/English-Digits/Bold/Vazir-Bold.woff2")
+      format("woff2"),
+    url("../../assets/font/Vazir-v16.1.0/English-Digits/Bold/Vazir-Bold.woff")
+      format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light;
   --page-max-width: 1200px;
@@ -85,6 +121,11 @@
 
   --shadow-card: 0 14px 30px -24px #1f3b9f;
   --shadow-modal: 0 20px 34px -20px #1f3b9f;
+}
+
+html[lang="en"] {
+  --font-family-base:
+    VazirEnglish, system-ui, -apple-system, Segoe UI, sans-serif;
 }
 
 :root[data-theme="dark"] {
