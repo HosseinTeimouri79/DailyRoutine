@@ -127,6 +127,7 @@ export default function HomePage() {
   const [routines, setRoutines] = useState([]);
   const [selectedRoutineId, setSelectedRoutineId] = useState(null);
   const [logsMap, setLogsMap] = useState(new Map());
+  const [selectedRoutineLogs, setSelectedRoutineLogs] = useState([]);
   const [error, setError] = useState("");
   const firedAlarmKeysRef = useRef(new Set());
   const { snackbar, notify } = useSnackbar();
@@ -209,6 +210,27 @@ export default function HomePage() {
   useEffect(() => {
     load();
   }, [month, requestStartDate, requestEndDate]);
+
+  useEffect(() => {
+    if (!selectedRoutineId) {
+      setSelectedRoutineLogs([]);
+      return;
+    }
+
+    let cancelled = false;
+    api
+      .getLogs(`?routineId=${selectedRoutineId}`)
+      .then((logs) => {
+        if (!cancelled) setSelectedRoutineLogs(logs);
+      })
+      .catch(() => {
+        if (!cancelled) setSelectedRoutineLogs([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedRoutineId, logsMap]);
 
   useEffect(() => {
     if (activeTab !== "tasks") return;
@@ -702,6 +724,9 @@ export default function HomePage() {
             getSelectedRoutineDayStatus={getSelectedRoutineDayStatus}
             monthlyReport={monthlyReport}
             monthlyRoutineReport={monthlyRoutineReport}
+            monthDays={monthDays}
+            logsMap={logsMap}
+            selectedRoutineLogs={selectedRoutineLogs}
             language={language}
             calendarType={calendarType}
           />

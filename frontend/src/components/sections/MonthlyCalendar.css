@@ -112,6 +112,43 @@
   color: var(--color-text-primary);
 }
 
+.monthly-pie-report-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(340px, 100%);
+}
+
+.monthly-streak-summary {
+  display: grid;
+  gap: 10px;
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  padding: 12px;
+}
+
+.monthly-streak-item {
+  display: grid;
+  gap: 4px;
+}
+
+.monthly-streak-item span {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.monthly-streak-item strong {
+  font-size: 1rem;
+  color: var(--color-text-primary);
+}
+
+.monthly-break-record {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+}
+
 @media (max-width: 720px) {
   .monthly-calendar-overview {
     flex-direction: column;

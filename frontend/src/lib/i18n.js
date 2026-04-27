@@ -126,6 +126,9 @@ const translations = {
       reportAriaLabel: "گزارش وضعیت روتین",
       monthProgressTitle: "پیشرفت ماهانه: {{percent}}٪",
       percentSymbol: "٪",
+      maxStreak: "بیشترین توالی",
+      currentStreak: "توالی فعلی",
+      breakRecord: "{{count}} تا شکستن رکورد قبلی مانده",
     },
     dailyTasks: {
       title: "کارهای روزانه",
@@ -339,6 +342,9 @@ const translations = {
       reportAriaLabel: "Routine report",
       monthProgressTitle: "Monthly progress: {{percent}}%",
       percentSymbol: "%",
+      maxStreak: "Best streak",
+      currentStreak: "Current streak",
+      breakRecord: "{{count}} to beat previous record",
     },
     dailyTasks: {
       title: "Daily tasks",

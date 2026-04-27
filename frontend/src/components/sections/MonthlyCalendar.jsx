@@ -123,6 +123,9 @@ export default function MonthlyCalendar({
   getSelectedRoutineDayStatus,
   monthlyReport,
   monthlyRoutineReport,
+  monthDays,
+  logsMap,
+  selectedRoutineLogs,
   language,
   calendarType,
 }) {
@@ -132,6 +135,67 @@ export default function MonthlyCalendar({
   const selectedRoutineStats = selectedRoutineId
     ? routineStatsMap.get(selectedRoutineId)
     : null;
+
+  function getSelectedRoutineStreaks() {
+    if (!selectedRoutineId || !selectedRoutineLogs?.length) return null;
+
+    const parseDate = (isoDate) => {
+      const [year, month, day] = isoDate.split("-").map(Number);
+      return Date.UTC(year, month - 1, day);
+    };
+
+    const entries = selectedRoutineLogs.map((entry) => ({
+      date: parseDate(entry.date),
+      status: entry.status,
+    }));
+
+    let maxStreak = 0;
+    let currentStreak = 0;
+    let currentRun = 0;
+    let previousDate = null;
+
+    entries.forEach(({ date, status }) => {
+      const isNextDay =
+        previousDate !== null && date - previousDate === 24 * 60 * 60 * 1000;
+
+      if (status === "done" && (previousDate === null || isNextDay)) {
+        currentRun += 1;
+      } else if (status === "done") {
+        currentRun = 1;
+      } else {
+        currentRun = 0;
+      }
+
+      maxStreak = Math.max(maxStreak, currentRun);
+      previousDate = date;
+    });
+
+    for (let i = entries.length - 1; i >= 0; i -= 1) {
+      if (entries[i].status !== "done") {
+        break;
+      }
+
+      if (i < entries.length - 1) {
+        const delta = entries[i + 1].date - entries[i].date;
+        if (delta !== 24 * 60 * 60 * 1000) {
+          break;
+        }
+      }
+
+      currentStreak += 1;
+    }
+
+    const remainingToBreakRecord =
+      maxStreak > currentStreak ? maxStreak - currentStreak + 1 : 1;
+
+    return {
+      maxStreak,
+      currentStreak,
+      remainingToBreakRecord,
+    };
+  }
+
+  const selectedRoutineStreaks = getSelectedRoutineStreaks();
 
   if (!routines.length) {
     return (
@@ -194,10 +258,29 @@ export default function MonthlyCalendar({
             );
           })}
         </div>
-        <SelectedRoutinePieReport
-          data={selectedRoutineStats || monthlyReport}
-          language={language}
-        />
+        <div className="monthly-pie-report-wrap">
+          <SelectedRoutinePieReport
+            data={selectedRoutineStats || monthlyReport}
+            language={language}
+          />
+          {selectedRoutineStreaks ? (
+            <div className="monthly-streak-summary">
+              <div className="monthly-streak-item">
+                <span>{t("monthly.maxStreak", language)}</span>
+                <strong>{selectedRoutineStreaks.maxStreak}</strong>
+              </div>
+              <div className="monthly-streak-item">
+                <span>{t("monthly.currentStreak", language)}</span>
+                <strong>{selectedRoutineStreaks.currentStreak}</strong>
+                <p className="monthly-break-record">
+                  {t("monthly.breakRecord", language, {
+                    count: selectedRoutineStreaks.remainingToBreakRecord,
+                  })}
+                </p>
+              </div>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <PersianMonthCalendar
