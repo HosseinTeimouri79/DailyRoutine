@@ -5,7 +5,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { t } from "../../lib/i18n";
 import "./MonthlyCalendar.css";
 
-function SelectedRoutinePieReport({ data, language }) {
+function SelectedRoutinePieReport({ data, language, selectedRoutineStreaks }) {
   if (!data)
     return <p className="muted">{t("dailyTasks.loading", language)}</p>;
 
@@ -60,6 +60,24 @@ function SelectedRoutinePieReport({ data, language }) {
             <strong>{segment.value}</strong>
           </div>
         ))}
+
+        {selectedRoutineStreaks ? (
+          <>
+            <div className="monthly-pie-legend-item">
+              <span>{t("monthly.maxStreak", language)}</span>
+              <strong>{selectedRoutineStreaks.maxStreak}</strong>
+            </div>
+            <div className="monthly-pie-legend-item">
+              <span>{t("monthly.currentStreak", language)}</span>
+              <strong>{selectedRoutineStreaks.currentStreak}</strong>
+            </div>
+            <p className="monthly-break-record">
+              {t("monthly.breakRecord", language, {
+                count: selectedRoutineStreaks.remainingToBreakRecord,
+              })}
+            </p>
+          </>
+        ) : null}
       </div>
 
       <div
@@ -195,8 +213,6 @@ export default function MonthlyCalendar({
     };
   }
 
-  const selectedRoutineStreaks = getSelectedRoutineStreaks();
-
   if (!routines.length) {
     return (
       <Card title={t("monthly.title", language)} subtitle={subtitle}>
@@ -262,24 +278,10 @@ export default function MonthlyCalendar({
           <SelectedRoutinePieReport
             data={selectedRoutineStats || monthlyReport}
             language={language}
+            selectedRoutineStreaks={
+              selectedRoutineId ? getSelectedRoutineStreaks() : null
+            }
           />
-          {selectedRoutineStreaks ? (
-            <div className="monthly-streak-summary">
-              <div className="monthly-streak-item">
-                <span>{t("monthly.maxStreak", language)}</span>
-                <strong>{selectedRoutineStreaks.maxStreak}</strong>
-              </div>
-              <div className="monthly-streak-item">
-                <span>{t("monthly.currentStreak", language)}</span>
-                <strong>{selectedRoutineStreaks.currentStreak}</strong>
-                <p className="monthly-break-record">
-                  {t("monthly.breakRecord", language, {
-                    count: selectedRoutineStreaks.remainingToBreakRecord,
-                  })}
-                </p>
-              </div>
-            </div>
-          ) : null}
         </div>
       </div>
 

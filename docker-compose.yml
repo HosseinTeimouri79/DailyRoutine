@@ -29,19 +29,22 @@ services:
       DATABASE_PASSWORD: change-me
       CORS_ORIGIN: http://localhost:3000,http://127.0.0.1:3000,http://192.168.101.27:3000
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     ports:
       - "0.0.0.0:4000:4000"
+    restart: unless-stopped
 
   frontend:
     build:
       context: ./frontend
       args:
-        VITE_API_BASE_URL: http://192.168.101.27:4000/api
+        VITE_API_BASE_URL: http://localhost:4000/api
     depends_on:
       - backend
     ports:
       - "0.0.0.0:3000:80"
+    restart: unless-stopped
 
 volumes:
   postgres_data:

@@ -4,6 +4,34 @@ export function getCurrentMonthISO() {
   return `${now.getFullYear()}-${month}`;
 }
 
+const dateTimeFormatterCache = new Map();
+const persianPartsFormatterCache = new Map();
+const persianMonthCache = new Map();
+
+function getCachedDateTimeFormatter(locale, options) {
+  const cacheKey = `${locale}:${JSON.stringify(options)}`;
+  let formatter = dateTimeFormatterCache.get(cacheKey);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat(locale, options);
+    dateTimeFormatterCache.set(cacheKey, formatter);
+  }
+  return formatter;
+}
+
+function getCachedPersianPartsFormatter() {
+  const cacheKey = "en-US-u-ca-persian:year-month-day";
+  let formatter = persianPartsFormatterCache.get(cacheKey);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat("en-US-u-ca-persian", {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    });
+    persianPartsFormatterCache.set(cacheKey, formatter);
+  }
+  return formatter;
+}
+
 export function getTodayISO() {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
@@ -57,27 +85,27 @@ export function formatDateParts(
   const date = new Date(`${isoDate}T00:00:00`);
   const { locale, optionsBase } = getCalendarIntlConfig(language, calendarType);
 
-  const day = new Intl.DateTimeFormat(locale, {
+  const day = getCachedDateTimeFormatter(locale, {
     ...optionsBase,
     day: "numeric",
   }).format(date);
 
-  const weekdayShort = new Intl.DateTimeFormat(locale, {
+  const weekdayShort = getCachedDateTimeFormatter(locale, {
     ...optionsBase,
     weekday: "short",
   }).format(date);
 
-  const weekdayLong = new Intl.DateTimeFormat(locale, {
+  const weekdayLong = getCachedDateTimeFormatter(locale, {
     ...optionsBase,
     weekday: "long",
   }).format(date);
 
-  const month = new Intl.DateTimeFormat(locale, {
+  const month = getCachedDateTimeFormatter(locale, {
     ...optionsBase,
     month: "long",
   }).format(date);
 
-  const year = new Intl.DateTimeFormat(locale, {
+  const year = getCachedDateTimeFormatter(locale, {
     ...optionsBase,
     year: "numeric",
   }).format(date);
@@ -98,11 +126,7 @@ export function getPersianDatePartsNumeric(isoDate) {
   const date = new Date(`${isoDate}T12:00:00`);
   if (Number.isNaN(date.getTime())) return null;
 
-  const parts = new Intl.DateTimeFormat("en-US-u-ca-persian", {
-    year: "numeric",
-    month: "numeric",
-    day: "numeric",
-  }).formatToParts(date);
+  const parts = getCachedPersianPartsFormatter().formatToParts(date);
 
   const year = Number(parts.find((part) => part.type === "year")?.value);
   const month = Number(parts.find((part) => part.type === "month")?.value);
@@ -156,6 +180,10 @@ export function getMonthCursorFromISO(isoDate, calendarType = "jalali") {
 }
 
 export function getGregorianDatesForPersianMonth({ year, month }) {
+  const cacheKey = `${year}-${String(month).padStart(2, "0")}`;
+  const cached = persianMonthCache.get(cacheKey);
+  if (cached) return cached;
+
   const results = [];
   const start = new Date(Date.UTC(year + 620, 0, 1, 12));
   const end = new Date(Date.UTC(year + 623, 0, 1, 12));
@@ -172,6 +200,7 @@ export function getGregorianDatesForPersianMonth({ year, month }) {
     }
   }
 
+  persianMonthCache.set(cacheKey, results);
   return results;
 }
 

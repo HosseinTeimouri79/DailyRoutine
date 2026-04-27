@@ -1,4 +1,5 @@
 import os
+import time
 
 import psycopg2
 import psycopg2.extras
@@ -7,6 +8,9 @@ from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+DB_CONNECT_RETRIES = int(os.getenv("DB_CONNECT_RETRIES", "20"))
+DB_CONNECT_DELAY = float(os.getenv("DB_CONNECT_DELAY", "1.5"))
 
 
 def resolve_db_url() -> str:
@@ -26,12 +30,28 @@ def resolve_db_url() -> str:
 
 def get_connection() -> psycopg2.extensions.connection:
     if "db" not in g:
-        g.db = psycopg2.connect(
-            resolve_db_url(),
-            cursor_factory=psycopg2.extras.RealDictCursor,
-        )
+        g.db = _connect_with_retry()
         g.db.autocommit = False
     return g.db
+
+
+def _connect_with_retry():
+    db_url = resolve_db_url()
+    last_error = None
+
+    for attempt in range(1, DB_CONNECT_RETRIES + 1):
+        try:
+            return psycopg2.connect(
+                db_url,
+                cursor_factory=psycopg2.extras.RealDictCursor,
+            )
+        except psycopg2.OperationalError as error:
+            last_error = error
+            if attempt == DB_CONNECT_RETRIES:
+                raise
+            time.sleep(DB_CONNECT_DELAY)
+
+    raise last_error
 
 
 def close_connection(_error=None):
@@ -64,8 +84,7 @@ def query_one(query: str, params=()):
 
 
 def ensure_schema():
-    db_url = resolve_db_url()
-    conn = psycopg2.connect(db_url)
+    conn = _connect_with_retry()
     try:
         schema_path = BASE_DIR / "database" / "schema.sql"
         script = schema_path.read_text(encoding="utf-8")

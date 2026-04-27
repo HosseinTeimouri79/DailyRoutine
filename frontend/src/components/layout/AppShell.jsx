@@ -276,6 +276,11 @@ export default function AppShell({ title, children }) {
     setIsDobPickerOpen(false);
   }
 
+  function toggleDobPicker(event) {
+    event?.preventDefault?.();
+    setIsDobPickerOpen((prev) => !prev);
+  }
+
   const profileDobPreview = profileDob
     ? `${formatDateParts(profileDob, language, profileCalendarType).day} ${formatMonthYear(profileDob, language, profileCalendarType)}`
     : "";
@@ -359,8 +364,7 @@ export default function AppShell({ title, children }) {
                   value={profileDobInputDisplay}
                   placeholder={t("appShell.dateOfBirthPlaceholder", language)}
                   readOnly
-                  onClick={() => setIsDobPickerOpen(true)}
-                  onFocus={() => setIsDobPickerOpen(true)}
+                  onMouseDown={toggleDobPicker}
                 />
               </div>
               {isDobPickerOpen ? (
