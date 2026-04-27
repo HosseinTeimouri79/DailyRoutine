@@ -55,7 +55,7 @@
 }
 
 .routine-title-cell-justify {
-  text-align: justify;
+  text-align: justify !important;
 }
 
 .routine-title-wrap {

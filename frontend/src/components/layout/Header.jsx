@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { t } from "../../lib/i18n";
+import { motivationalTexts } from "../../data/motivationalTexts";
 import "./Header.css";
+
+function getRandomMotivationalText(language) {
+  const texts = motivationalTexts[language === "fa" ? "fa" : "en"] || [];
+  return texts[Math.floor(Math.random() * texts.length)] || "";
+}
 
 export default function Header({
   title,
@@ -14,12 +20,13 @@ export default function Header({
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
-  const [randomText] = useState(() => {
-    const texts = t("header.motivationalTexts", language);
-    return Array.isArray(texts)
-      ? texts[Math.floor(Math.random() * texts.length)]
-      : "";
-  });
+  const [randomText, setRandomText] = useState(() =>
+    getRandomMotivationalText(language),
+  );
+
+  useEffect(() => {
+    setRandomText(getRandomMotivationalText(language));
+  }, [language]);
 
   useEffect(() => {
     if (!isMenuOpen) return;

@@ -40,13 +40,6 @@ const translations = {
       language: "تغییر زبان",
       menu: "منو",
       logoAlt: "لوگوی هدفینو",
-      motivationalTexts: [
-        "امروزت را بساز، آینده‌ات خودش ساخته می‌شود.",
-        "به روتینت پایبند بمان حتی وقتی حال نداری.",
-        "هر روز یک قدم، کافیست ادامه بدهی.",
-        "تو با نظم، از خیلی‌ها جلو می‌زنی.",
-        "با برنامه حرکت کن، حتی اگر آهسته باشد.",
-      ],
     },
     appShell: {
       profileModalTitle: "پروفایل کاربری",
@@ -255,13 +248,6 @@ const translations = {
       language: "Change language",
       menu: "Menu",
       logoAlt: "HadafiNo logo",
-      motivationalTexts: [
-        "Build your today; your future builds itself.",
-        "Stick to your routine even when you don't feel like it.",
-        "A single step each day is progress.",
-        "With discipline, you get ahead of many.",
-        "Keep moving with intention, no matter the pace.",
-      ],
     },
     appShell: {
       profileModalTitle: "User profile",

@@ -47,6 +47,11 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  function toggleRegisterDobPicker(event) {
+    event?.preventDefault?.();
+    setIsRegisterDobPickerOpen((prev) => !prev);
+  }
+
   useEffect(() => {
     if (mode !== "register") return;
     setRegisterDobMonth(
@@ -168,92 +173,82 @@ export default function LoginPage() {
                   }
                   placeholder={t("login.dateOfBirthPlaceholder", language)}
                   readOnly
-                  onClick={() => setIsRegisterDobPickerOpen(true)}
-                  onFocus={() => setIsRegisterDobPickerOpen(true)}
+                  onMouseDown={toggleRegisterDobPicker}
                 />
                 {isRegisterDobPickerOpen ? (
-                  <div className="auth-dob-calendar-wrap">
-                    <PersianMonthCalendar
-                      className="auth-dob-calendar"
-                      month={registerDobMonth}
-                      calendarType={form.calendar_type}
-                      onPrevMonth={() =>
-                        setRegisterDobMonth((prev) =>
-                          shiftMonthCursor(prev, -1),
-                        )
-                      }
-                      onNextMonth={() =>
-                        setRegisterDobMonth((prev) => shiftMonthCursor(prev, 1))
-                      }
-                      onSetMonth={setRegisterDobMonth}
-                      onGoToday={() =>
-                        setRegisterDobMonth(
-                          getMonthCursorFromISO(
-                            getTodayISO(),
-                            form.calendar_type,
-                          ),
-                        )
-                      }
-                      selectedDate={form.date_of_birth || undefined}
-                      onSelectDay={(isoDate) => {
-                        setForm((prev) => ({
-                          ...prev,
-                          date_of_birth: isoDate,
-                        }));
-                        setRegisterDobMonth(
-                          getMonthCursorFromISO(isoDate, form.calendar_type),
-                        );
-                        setIsRegisterDobPickerOpen(false);
-                      }}
-                      language={language}
-                    />
-                  </div>
+                  <PersianMonthCalendar
+                    className="auth-dob-calendar"
+                    month={registerDobMonth}
+                    calendarType={form.calendar_type}
+                    showMonthSwitchButtons={false}
+                    onSetMonth={setRegisterDobMonth}
+                    selectedDate={form.date_of_birth || undefined}
+                    onSelectDay={(isoDate) => {
+                      setForm((prev) => ({
+                        ...prev,
+                        date_of_birth: isoDate,
+                      }));
+                      setRegisterDobMonth(
+                        getMonthCursorFromISO(isoDate, form.calendar_type),
+                      );
+                      setIsRegisterDobPickerOpen(false);
+                    }}
+                    language={language}
+                  />
                 ) : null}
               </div>
-              <div className="field">
-                <label htmlFor="calendarType">
-                  {t("login.calendarType", language)}
-                </label>
-                <select
-                  id="calendarType"
-                  className="input"
-                  value={form.calendar_type}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      calendar_type: e.target.value,
-                    }))
-                  }
-                >
-                  <option value="jalali">
-                    {t("login.calendarJalali", language)}
-                  </option>
-                  <option value="gregorian">
-                    {t("login.calendarGregorian", language)}
-                  </option>
-                </select>
-              </div>
-              <div className="field">
-                <label htmlFor="gender">{t("login.gender", language)}</label>
-                <select
-                  id="gender"
-                  className="input"
-                  value={form.gender}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, gender: e.target.value }))
-                  }
-                >
-                  <option value="">{t("login.gender", language)}</option>
-                  <option value="male">
-                    {t("login.genderMale", language)}
-                  </option>
-                  <option value="female">
-                    {t("login.genderFemale", language)}
-                  </option>
-                  <option value="other">
-                    {t("login.genderOther", language)}
-                  </option>
-                </select>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                }}
+              >
+                <div className="field">
+                  <label htmlFor="calendarType">
+                    {t("login.calendarType", language)}
+                  </label>
+                  <select
+                    id="calendarType"
+                    className="input"
+                    value={form.calendar_type}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        calendar_type: e.target.value,
+                      }))
+                    }
+                  >
+                    <option value="jalali">
+                      {t("login.calendarJalali", language)}
+                    </option>
+                    <option value="gregorian">
+                      {t("login.calendarGregorian", language)}
+                    </option>
+                  </select>
+                </div>
+                <div className="field">
+                  <label htmlFor="gender">{t("login.gender", language)}</label>
+                  <select
+                    id="gender"
+                    className="input"
+                    value={form.gender}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, gender: e.target.value }))
+                    }
+                  >
+                    <option value="">{t("login.gender", language)}</option>
+                    <option value="male">
+                      {t("login.genderMale", language)}
+                    </option>
+                    <option value="female">
+                      {t("login.genderFemale", language)}
+                    </option>
+                    <option value="other">
+                      {t("login.genderOther", language)}
+                    </option>
+                  </select>
+                </div>
               </div>
             </>
           ) : null}

@@ -38,18 +38,6 @@
   margin-bottom: 16px;
 }
 
-.auth-dob-calendar-wrap {
-  margin-top: 8px;
-  padding: 10px;
-  border: var(--border-default);
-  border-radius: 12px;
-  background: color-mix(
-    in srgb,
-    var(--color-bg-surface) 90%,
-    var(--color-primary-soft)
-  );
-}
-
 .auth-dob-calendar .monthly-calendar-navigation {
   gap: 6px;
 }

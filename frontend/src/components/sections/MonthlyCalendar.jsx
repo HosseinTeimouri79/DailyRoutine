@@ -64,10 +64,12 @@ function SelectedRoutinePieReport({ data, language, selectedRoutineStreaks }) {
         {selectedRoutineStreaks ? (
           <>
             <div className="monthly-pie-legend-item">
+              <i class="fa-solid fa-gauge-circle-bolt fa-bounce"></i>
               <span>{t("monthly.maxStreak", language)}</span>
               <strong>{selectedRoutineStreaks.maxStreak}</strong>
             </div>
             <div className="monthly-pie-legend-item">
+              <i class="fa-solid fa-gauge-circle-plus fa-beat"></i>
               <span>{t("monthly.currentStreak", language)}</span>
               <strong>{selectedRoutineStreaks.currentStreak}</strong>
             </div>
@@ -260,13 +262,11 @@ export default function MonthlyCalendar({
                     percent,
                   })}
                 />
+                {console.log(routine)}
                 <span
                   className="routine-color-dot"
                   style={{
-                    backgroundColor:
-                      selectedRoutineId === routine.id
-                        ? routine.color || "var(--color-primary)"
-                        : "var(--color-text-muted)",
+                    backgroundColor: routine.color,
                   }}
                 />
                 {routine.title}

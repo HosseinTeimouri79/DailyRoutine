@@ -391,45 +391,55 @@ export default function AppShell({ title, children }) {
                 />
               ) : null}
             </div>
-            <div className="field">
-              <label htmlFor="profileGender">
-                {t("appShell.gender", language)}
-              </label>
-              <select
-                id="profileGender"
-                className="input"
-                value={profileGender}
-                onChange={(event) => setProfileGender(event.target.value)}
-              >
-                <option value="">{t("appShell.gender", language)}</option>
-                <option value="male">
-                  {t("appShell.genderMale", language)}
-                </option>
-                <option value="female">
-                  {t("appShell.genderFemale", language)}
-                </option>
-                <option value="other">
-                  {t("appShell.genderOther", language)}
-                </option>
-              </select>
-            </div>
-            <div className="field">
-              <label htmlFor="profileCalendarType">
-                {t("appShell.calendarType", language)}
-              </label>
-              <select
-                id="profileCalendarType"
-                className="input"
-                value={profileCalendarType}
-                onChange={(event) => setProfileCalendarType(event.target.value)}
-              >
-                <option value="jalali">
-                  {t("appShell.calendarJalali", language)}
-                </option>
-                <option value="gregorian">
-                  {t("appShell.calendarGregorian", language)}
-                </option>
-              </select>
+
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+              }}
+            >
+              <div className="field">
+                <label htmlFor="profileGender">
+                  {t("appShell.gender", language)}
+                </label>
+                <select
+                  id="profileGender"
+                  className="input"
+                  value={profileGender}
+                  onChange={(event) => setProfileGender(event.target.value)}
+                >
+                  <option value="">{t("appShell.gender", language)}</option>
+                  <option value="male">
+                    {t("appShell.genderMale", language)}
+                  </option>
+                  <option value="female">
+                    {t("appShell.genderFemale", language)}
+                  </option>
+                  <option value="other">
+                    {t("appShell.genderOther", language)}
+                  </option>
+                </select>
+              </div>
+              <div className="field">
+                <label htmlFor="profileCalendarType">
+                  {t("appShell.calendarType", language)}
+                </label>
+                <select
+                  id="profileCalendarType"
+                  className="input"
+                  value={profileCalendarType}
+                  onChange={(event) =>
+                    setProfileCalendarType(event.target.value)
+                  }
+                >
+                  <option value="jalali">
+                    {t("appShell.calendarJalali", language)}
+                  </option>
+                  <option value="gregorian">
+                    {t("appShell.calendarGregorian", language)}
+                  </option>
+                </select>
+              </div>
             </div>
             <div className="field">
               <label htmlFor="profilePhone">
