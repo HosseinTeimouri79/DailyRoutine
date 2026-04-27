@@ -1,10 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Card from "../components/ui/Card";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
+import PersianMonthCalendar from "../components/calendar/PersianMonthCalendar";
 import { api, setSession, getToken } from "../lib/api";
 import { useSettings } from "../lib/settings";
+import {
+  formatDateParts,
+  formatMonthYear,
+  getMonthCursorFromISO,
+  getTodayISO,
+  shiftMonthCursor,
+} from "../lib/date";
 import { t } from "../lib/i18n";
 import "./LoginPage.css";
 
@@ -20,18 +28,34 @@ function normalizeIranPhone(rawPhone) {
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { theme, language, setTheme, setLanguage } = useSettings();
+  const { theme, language, setTheme, setLanguage, setCalendarType } =
+    useSettings();
   const [mode, setMode] = useState("login");
   const [form, setForm] = useState({
     name: "",
     phone: "",
     password: "",
     date_of_birth: "",
+    calendar_type: "jalali",
     gender: "",
   });
+  const [registerDobMonth, setRegisterDobMonth] = useState(() =>
+    getMonthCursorFromISO(getTodayISO(), "jalali"),
+  );
+  const [isRegisterDobPickerOpen, setIsRegisterDobPickerOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (mode !== "register") return;
+    setRegisterDobMonth(
+      getMonthCursorFromISO(
+        form.date_of_birth || getTodayISO(),
+        form.calendar_type,
+      ),
+    );
+  }, [mode, form.calendar_type, form.date_of_birth]);
 
   if (getToken()) {
     navigate("/", { replace: true });
@@ -55,6 +79,7 @@ export default function LoginPage() {
               phone: normalizedPhone,
               password: form.password,
               date_of_birth: form.date_of_birth || null,
+              calendar_type: form.calendar_type,
               gender: form.gender || null,
             }
           : { phone: normalizedPhone, password: form.password };
@@ -64,6 +89,7 @@ export default function LoginPage() {
           ? await api.register(payload)
           : await api.login(payload);
       setSession(result.token, result.user);
+      setCalendarType(result?.user?.calendar_type || "jalali");
       navigate("/", { replace: true });
     } catch (err) {
       setError(err.message);
@@ -133,16 +159,79 @@ export default function LoginPage() {
                 </label>
                 <input
                   id="dateOfBirth"
-                  type="date"
+                  type="text"
                   className="input"
-                  value={form.date_of_birth}
+                  value={
+                    form.date_of_birth
+                      ? `${formatDateParts(form.date_of_birth, language, form.calendar_type).day} ${formatMonthYear(form.date_of_birth, language, form.calendar_type)}`
+                      : ""
+                  }
+                  placeholder={t("login.dateOfBirthPlaceholder", language)}
+                  readOnly
+                  onClick={() => setIsRegisterDobPickerOpen(true)}
+                  onFocus={() => setIsRegisterDobPickerOpen(true)}
+                />
+                {isRegisterDobPickerOpen ? (
+                  <div className="auth-dob-calendar-wrap">
+                    <PersianMonthCalendar
+                      className="auth-dob-calendar"
+                      month={registerDobMonth}
+                      calendarType={form.calendar_type}
+                      onPrevMonth={() =>
+                        setRegisterDobMonth((prev) =>
+                          shiftMonthCursor(prev, -1),
+                        )
+                      }
+                      onNextMonth={() =>
+                        setRegisterDobMonth((prev) => shiftMonthCursor(prev, 1))
+                      }
+                      onSetMonth={setRegisterDobMonth}
+                      onGoToday={() =>
+                        setRegisterDobMonth(
+                          getMonthCursorFromISO(
+                            getTodayISO(),
+                            form.calendar_type,
+                          ),
+                        )
+                      }
+                      selectedDate={form.date_of_birth || undefined}
+                      onSelectDay={(isoDate) => {
+                        setForm((prev) => ({
+                          ...prev,
+                          date_of_birth: isoDate,
+                        }));
+                        setRegisterDobMonth(
+                          getMonthCursorFromISO(isoDate, form.calendar_type),
+                        );
+                        setIsRegisterDobPickerOpen(false);
+                      }}
+                      language={language}
+                    />
+                  </div>
+                ) : null}
+              </div>
+              <div className="field">
+                <label htmlFor="calendarType">
+                  {t("login.calendarType", language)}
+                </label>
+                <select
+                  id="calendarType"
+                  className="input"
+                  value={form.calendar_type}
                   onChange={(e) =>
                     setForm((prev) => ({
                       ...prev,
-                      date_of_birth: e.target.value,
+                      calendar_type: e.target.value,
                     }))
                   }
-                />
+                >
+                  <option value="jalali">
+                    {t("login.calendarJalali", language)}
+                  </option>
+                  <option value="gregorian">
+                    {t("login.calendarGregorian", language)}
+                  </option>
+                </select>
               </div>
               <div className="field">
                 <label htmlFor="gender">{t("login.gender", language)}</label>

@@ -67,6 +67,20 @@
   color: var(--color-text-secondary);
 }
 
+.profile-dob-trigger-row {
+  display: grid;
+  gap: 8px;
+}
+
+.profile-dob-calendar .monthly-calendar-navigation {
+  gap: 6px;
+}
+
+.profile-dob-calendar .monthly-calendar-navigation .btn {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+}
+
 @media (max-width: 720px) {
   .app-shell {
     padding: 12px;

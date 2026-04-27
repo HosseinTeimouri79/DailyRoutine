@@ -114,6 +114,7 @@ export default function MonthlyCalendar({
   selectedRoutineId,
   setSelectedRoutineId,
   month,
+  setMonth,
   goToPreviousMonth,
   goToNextMonth,
   goToTodayMonthly,
@@ -123,6 +124,7 @@ export default function MonthlyCalendar({
   monthlyReport,
   monthlyRoutineReport,
   language,
+  calendarType,
 }) {
   const routineStatsMap = new Map(
     (monthlyRoutineReport || []).map((item) => [item.id, item]),
@@ -200,8 +202,10 @@ export default function MonthlyCalendar({
 
       <PersianMonthCalendar
         month={month}
+        calendarType={calendarType}
         onPrevMonth={goToPreviousMonth}
         onNextMonth={goToNextMonth}
+        onSetMonth={setMonth}
         onGoToday={goToTodayMonthly}
         selectedDate={selectedMonthlyDate}
         onSelectDay={setSelectedMonthlyDate}

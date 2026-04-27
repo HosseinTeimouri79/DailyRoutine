@@ -12,13 +12,13 @@ import { useSnackbar } from "../hooks/useSnackbar";
 import { useSettings } from "../lib/settings";
 import { t } from "../lib/i18n";
 import {
-  formatPersianMonthYear,
-  getGregorianDatesForPersianMonth,
-  getPersianMonthFromISO,
+  formatMonthYear,
+  getGregorianDatesForCalendarMonth,
+  getMonthCursorFromISO,
   getTodayISO,
   getWeekDaysGregorian,
   getWeekStartISO,
-  shiftPersianMonth,
+  shiftMonthCursor,
   shiftISODate,
 } from "../lib/date";
 import "./HomePage.css";
@@ -86,14 +86,15 @@ function requestNotificationPermissionIfNeeded() {
 }
 
 export default function HomePage() {
+  const { language, calendarType } = useSettings();
+  const todayISO = useMemo(() => getTodayISO(), []);
   const [month, setMonth] = useState(() =>
-    getPersianMonthFromISO(getTodayISO()),
+    getMonthCursorFromISO(todayISO, calendarType),
   );
   const [tasksMonth, setTasksMonth] = useState(() =>
-    getPersianMonthFromISO(getTodayISO()),
+    getMonthCursorFromISO(todayISO, calendarType),
   );
   const [weekStart, setWeekStart] = useState(getWeekStartISO(getTodayISO()));
-  const todayISO = useMemo(() => getTodayISO(), []);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [routineToDelete, setRoutineToDelete] = useState(null);
   const [activeTab, setActiveTab] = useState("weekly");
@@ -129,10 +130,9 @@ export default function HomePage() {
   const [error, setError] = useState("");
   const firedAlarmKeysRef = useRef(new Set());
   const { snackbar, notify } = useSnackbar();
-  const { language } = useSettings();
 
   const monthDays = useMemo(
-    () => getGregorianDatesForPersianMonth(month),
+    () => getGregorianDatesForCalendarMonth(month),
     [month],
   );
   const weekDays = useMemo(() => getWeekDaysGregorian(weekStart), [weekStart]);
@@ -230,8 +230,14 @@ export default function HomePage() {
   }, [activeTab, notesSearch]);
 
   useEffect(() => {
-    setTasksMonth(getPersianMonthFromISO(tasksDate));
-  }, [tasksDate]);
+    setTasksMonth(getMonthCursorFromISO(tasksDate, calendarType));
+  }, [tasksDate, calendarType]);
+
+  useEffect(() => {
+    setMonth((prev) =>
+      getMonthCursorFromISO(selectedMonthlyDate, calendarType),
+    );
+  }, [calendarType, selectedMonthlyDate]);
 
   useEffect(() => {
     if (!newRoutineAlarmEnabled && !newTaskAlarmEnabled) return;
@@ -414,20 +420,20 @@ export default function HomePage() {
   }
 
   function goToPreviousMonth() {
-    setMonth((prev) => shiftPersianMonth(prev, -1));
+    setMonth((prev) => shiftMonthCursor(prev, -1));
   }
 
   function goToNextMonth() {
-    setMonth((prev) => shiftPersianMonth(prev, 1));
+    setMonth((prev) => shiftMonthCursor(prev, 1));
   }
 
   function goToTodayMonthly() {
-    setMonth(getPersianMonthFromISO(todayISO));
+    setMonth(getMonthCursorFromISO(todayISO, calendarType));
     setSelectedMonthlyDate(todayISO);
   }
 
   function goToTodayTasks() {
-    setTasksMonth(getPersianMonthFromISO(todayISO));
+    setTasksMonth(getMonthCursorFromISO(todayISO, calendarType));
     setTasksDate(todayISO);
   }
 
@@ -477,7 +483,7 @@ export default function HomePage() {
   }
 
   async function loadTaskDatesForMonth(targetMonth) {
-    const monthDays = getGregorianDatesForPersianMonth(targetMonth);
+    const monthDays = getGregorianDatesForCalendarMonth(targetMonth);
     if (!monthDays.length) {
       setTaskDatesWithEntries(new Set());
       return;
@@ -675,16 +681,19 @@ export default function HomePage() {
             onRequestRoutineDelete={setRoutineToDelete}
             toggleStatus={toggleStatus}
             language={language}
+            calendarType={calendarType}
           />
           <MonthlyCalendar
-            subtitle={`${t("weekly.subtitle", language)} ${formatPersianMonthYear(
+            subtitle={`${t("weekly.subtitle", language)} ${formatMonthYear(
               monthDays[0] || todayISO,
               language,
+              calendarType,
             )}`}
             routines={routines}
             selectedRoutineId={selectedRoutineId}
             setSelectedRoutineId={setSelectedRoutineId}
             month={month}
+            setMonth={setMonth}
             goToPreviousMonth={goToPreviousMonth}
             goToNextMonth={goToNextMonth}
             goToTodayMonthly={goToTodayMonthly}
@@ -694,6 +703,7 @@ export default function HomePage() {
             monthlyReport={monthlyReport}
             monthlyRoutineReport={monthlyRoutineReport}
             language={language}
+            calendarType={calendarType}
           />
         </>
       ) : null}
@@ -713,6 +723,7 @@ export default function HomePage() {
           toggleTaskDone={toggleTaskDone}
           onRequestTaskDelete={setTaskToDelete}
           language={language}
+          calendarType={calendarType}
         />
       ) : null}
 
@@ -726,6 +737,7 @@ export default function HomePage() {
           onOpenEdit={openEditNoteModal}
           onRequestDelete={setNoteToDelete}
           language={language}
+          calendarType={calendarType}
         />
       ) : null}
 

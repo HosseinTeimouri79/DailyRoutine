@@ -1,6 +1,6 @@
 import Card from "../ui/Card";
 import ProgressRing from "../ui/ProgressRing";
-import { formatPersianDateParts, formatPersianMonthYear } from "../../lib/date";
+import { formatDateParts, formatMonthYear } from "../../lib/date";
 import { t } from "../../lib/i18n";
 import "./WeeklyRoutines.css";
 
@@ -18,6 +18,7 @@ export default function WeeklyRoutines({
   onRequestRoutineDelete,
   toggleStatus,
   language,
+  calendarType,
 }) {
   function getRoutineWeekProgress(routineId) {
     const doneCount = weekDays.reduce((count, day) => {
@@ -117,14 +118,14 @@ export default function WeeklyRoutines({
           </button>
         </div>
         <p className="muted week-range-label">
-          {formatPersianDateParts(weekDays[0], language).day}{" "}
-          {formatPersianMonthYear(weekDays[0], language)}
+          {formatDateParts(weekDays[0], language, calendarType).day}{" "}
+          {formatMonthYear(weekDays[0], language, calendarType)}
           <i
             className="fa-solid fa-arrows-left-right-to-line app-inline-icon week-range-icon"
             aria-hidden="true"
           />
-          {formatPersianDateParts(weekDays[6], language).day}{" "}
-          {formatPersianMonthYear(weekDays[6], language)}
+          {formatDateParts(weekDays[6], language, calendarType).day}{" "}
+          {formatMonthYear(weekDays[6], language, calendarType)}
         </p>
       </div>
 
@@ -134,7 +135,7 @@ export default function WeeklyRoutines({
             <tr>
               <th>{t("weekly.routine", language)}</th>
               {weekDays.map((date) => {
-                const p = formatPersianDateParts(date, language);
+                const p = formatDateParts(date, language, calendarType);
                 return (
                   <th key={date} title={p.weekdayLong}>
                     {p.weekdayShort}
@@ -255,7 +256,7 @@ export default function WeeklyRoutines({
 
               <div className="weekly-mobile-weekdays">
                 {weekDays.map((date) => {
-                  const p = formatPersianDateParts(date, language);
+                  const p = formatDateParts(date, language, calendarType);
                   return (
                     <span key={`weekday-${routine.id}-${date}`}>
                       {p.weekdayShort}

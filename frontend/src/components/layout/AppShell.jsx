@@ -2,6 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, clearSession, getUser, setSession } from "../../lib/api";
 import { useSettings } from "../../lib/settings";
+import PersianMonthCalendar from "../calendar/PersianMonthCalendar";
+import {
+  formatDateParts,
+  formatMonthYear,
+  getMonthCursorFromISO,
+  getTodayISO,
+  shiftMonthCursor,
+} from "../../lib/date";
 import { t } from "../../lib/i18n";
 import Header from "./Header";
 import Button from "../ui/Button";
@@ -18,6 +26,16 @@ export default function AppShell({ title, children }) {
   const [profileName, setProfileName] = useState(initialUser?.name || "");
   const [profileDob, setProfileDob] = useState(
     initialUser?.date_of_birth || "",
+  );
+  const [profileDobMonth, setProfileDobMonth] = useState(() =>
+    getMonthCursorFromISO(
+      initialUser?.date_of_birth || getTodayISO(),
+      initialUser?.calendar_type || "jalali",
+    ),
+  );
+  const [isDobPickerOpen, setIsDobPickerOpen] = useState(false);
+  const [profileCalendarType, setProfileCalendarType] = useState(
+    initialUser?.calendar_type || "jalali",
   );
   const [profileGender, setProfileGender] = useState(initialUser?.gender || "");
   const [passwordForm, setPasswordForm] = useState({
@@ -37,19 +55,29 @@ export default function AppShell({ title, children }) {
     text: "",
   });
   const profileFileInputRef = useRef(null);
-  const { theme, language, setTheme, setLanguage } = useSettings();
+  const { theme, language, setTheme, setLanguage, setCalendarType } =
+    useSettings();
 
   function openProfile() {
     setProfileMessage({ type: "", text: "" });
     setProfileName(user?.name || "");
     setProfileDob(user?.date_of_birth || "");
+    setProfileDobMonth(
+      getMonthCursorFromISO(
+        user?.date_of_birth || getTodayISO(),
+        user?.calendar_type || "jalali",
+      ),
+    );
+    setProfileCalendarType(user?.calendar_type || "jalali");
     setProfileGender(user?.gender || "");
+    setIsDobPickerOpen(false);
     setIsProfileOpen(true);
     syncProfile();
   }
 
   function closeProfile() {
     setIsProfileOpen(false);
+    setIsDobPickerOpen(false);
     setProfileMessage({ type: "", text: "" });
   }
 
@@ -82,7 +110,15 @@ export default function AppShell({ title, children }) {
       setUser(merged);
       setProfileName(merged?.name || "");
       setProfileDob(merged?.date_of_birth || "");
+      setProfileDobMonth(
+        getMonthCursorFromISO(
+          merged?.date_of_birth || getTodayISO(),
+          merged?.calendar_type || "jalali",
+        ),
+      );
+      setProfileCalendarType(merged?.calendar_type || "jalali");
       setProfileGender(merged?.gender || "");
+      setCalendarType(merged?.calendar_type || "jalali");
       const token = localStorage.getItem("dr_token");
       if (token) setSession(token, merged);
     } catch {
@@ -110,6 +146,7 @@ export default function AppShell({ title, children }) {
         setProfileLoading(true);
         const updatedUser = await api.updateProfile({ profile_image: value });
         setUser(updatedUser);
+        setCalendarType(updatedUser?.calendar_type || "jalali");
         const token = localStorage.getItem("dr_token");
         if (token) setSession(token, updatedUser);
         setProfileMessage({
@@ -145,12 +182,15 @@ export default function AppShell({ title, children }) {
       const updatedUser = await api.updateProfile({
         name: nextName,
         date_of_birth: profileDob || null,
+        calendar_type: profileCalendarType,
         gender: profileGender || null,
       });
       setUser(updatedUser);
       setProfileName(updatedUser?.name || nextName);
       setProfileDob(updatedUser?.date_of_birth || "");
+      setProfileCalendarType(updatedUser?.calendar_type || "jalali");
       setProfileGender(updatedUser?.gender || "");
+      setCalendarType(updatedUser?.calendar_type || "jalali");
       const token = localStorage.getItem("dr_token");
       if (token) setSession(token, updatedUser);
       setProfileMessage({
@@ -223,6 +263,24 @@ export default function AppShell({ title, children }) {
     navigate("/login", { replace: true });
   }
 
+  useEffect(() => {
+    if (!isProfileOpen) return;
+    setProfileDobMonth(
+      getMonthCursorFromISO(profileDob || getTodayISO(), profileCalendarType),
+    );
+  }, [profileCalendarType, isProfileOpen]);
+
+  function handleSelectDob(isoDate) {
+    setProfileDob(isoDate);
+    setProfileDobMonth(getMonthCursorFromISO(isoDate, profileCalendarType));
+    setIsDobPickerOpen(false);
+  }
+
+  const profileDobPreview = profileDob
+    ? `${formatDateParts(profileDob, language, profileCalendarType).day} ${formatMonthYear(profileDob, language, profileCalendarType)}`
+    : "";
+  const profileDobInputDisplay = profileDobPreview || "";
+
   return (
     <div className="app-shell" dir={language === "fa" ? "rtl" : "ltr"}>
       <Header
@@ -293,13 +351,41 @@ export default function AppShell({ title, children }) {
               <label htmlFor="profileDob">
                 {t("appShell.dateOfBirth", language)}
               </label>
-              <input
-                id="profileDob"
-                type="date"
-                className="input"
-                value={profileDob}
-                onChange={(event) => setProfileDob(event.target.value)}
-              />
+              <div className="profile-dob-trigger-row">
+                <input
+                  id="profileDob"
+                  type="text"
+                  className="input"
+                  value={profileDobInputDisplay}
+                  placeholder={t("appShell.dateOfBirthPlaceholder", language)}
+                  readOnly
+                  onClick={() => setIsDobPickerOpen(true)}
+                  onFocus={() => setIsDobPickerOpen(true)}
+                />
+              </div>
+              {isDobPickerOpen ? (
+                <PersianMonthCalendar
+                  className="profile-dob-calendar"
+                  month={profileDobMonth}
+                  calendarType={profileCalendarType}
+                  showMonthSwitchButtons={false}
+                  onPrevMonth={() =>
+                    setProfileDobMonth((prev) => shiftMonthCursor(prev, -1))
+                  }
+                  onNextMonth={() =>
+                    setProfileDobMonth((prev) => shiftMonthCursor(prev, 1))
+                  }
+                  onSetMonth={setProfileDobMonth}
+                  onGoToday={() =>
+                    setProfileDobMonth(
+                      getMonthCursorFromISO(getTodayISO(), profileCalendarType),
+                    )
+                  }
+                  selectedDate={profileDob || undefined}
+                  onSelectDay={handleSelectDob}
+                  language={language}
+                />
+              ) : null}
             </div>
             <div className="field">
               <label htmlFor="profileGender">
@@ -320,6 +406,24 @@ export default function AppShell({ title, children }) {
                 </option>
                 <option value="other">
                   {t("appShell.genderOther", language)}
+                </option>
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="profileCalendarType">
+                {t("appShell.calendarType", language)}
+              </label>
+              <select
+                id="profileCalendarType"
+                className="input"
+                value={profileCalendarType}
+                onChange={(event) => setProfileCalendarType(event.target.value)}
+              >
+                <option value="jalali">
+                  {t("appShell.calendarJalali", language)}
+                </option>
+                <option value="gregorian">
+                  {t("appShell.calendarGregorian", language)}
                 </option>
               </select>
             </div>

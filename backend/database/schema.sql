@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash TEXT NOT NULL,
   profile_image TEXT,
   date_of_birth BIGINT,
+  calendar_type TEXT NOT NULL DEFAULT 'jalali',
   gender TEXT,
   created_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::bigint)
 );
@@ -58,3 +59,5 @@ CREATE INDEX IF NOT EXISTS idx_logs_routine_id ON routine_logs(routine_id);
 CREATE INDEX IF NOT EXISTS idx_logs_date ON routine_logs(date);
 CREATE INDEX IF NOT EXISTS idx_daily_tasks_user_date ON daily_tasks(user_id, task_date);
 CREATE INDEX IF NOT EXISTS idx_notes_user_updated_at ON notes(user_id, updated_at DESC);
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS calendar_type TEXT NOT NULL DEFAULT 'jalali';

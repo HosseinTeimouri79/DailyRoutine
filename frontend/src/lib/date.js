@@ -34,14 +34,28 @@ export function getWeekDaysGregorian(weekStartISO) {
   return Array.from({ length: 7 }, (_, idx) => shiftISODate(weekStartISO, idx));
 }
 
-export function formatPersianDateParts(isoDate, language = "fa") {
-  const date = new Date(`${isoDate}T00:00:00`);
+export function normalizeCalendarType(calendarType) {
+  return calendarType === "gregorian" ? "gregorian" : "jalali";
+}
 
-  const locale = language === "en" ? "en-US" : "fa-IR";
-  const optionsBase = {
-    calendar: "persian",
-    numberingSystem: "latn",
+function getCalendarIntlConfig(language = "fa", calendarType = "jalali") {
+  const normalizedCalendarType = normalizeCalendarType(calendarType);
+  return {
+    locale: language === "en" ? "en-US" : "fa-IR",
+    optionsBase: {
+      calendar: normalizedCalendarType === "gregorian" ? "gregory" : "persian",
+      numberingSystem: "latn",
+    },
   };
+}
+
+export function formatDateParts(
+  isoDate,
+  language = "fa",
+  calendarType = "jalali",
+) {
+  const date = new Date(`${isoDate}T00:00:00`);
+  const { locale, optionsBase } = getCalendarIntlConfig(language, calendarType);
 
   const day = new Intl.DateTimeFormat(locale, {
     ...optionsBase,
@@ -71,8 +85,12 @@ export function formatPersianDateParts(isoDate, language = "fa") {
   return { day, weekdayShort, weekdayLong, month, year };
 }
 
-export function formatPersianMonthYear(isoDate, language = "fa") {
-  const p = formatPersianDateParts(isoDate, language);
+export function formatMonthYear(
+  isoDate,
+  language = "fa",
+  calendarType = "jalali",
+) {
+  const p = formatDateParts(isoDate, language, calendarType);
   return `${p.month} ${p.year}`;
 }
 
@@ -121,6 +139,22 @@ export function shiftPersianMonth(persianMonth, monthOffset) {
   return { year, month };
 }
 
+export function getGregorianMonthFromISO(isoDate) {
+  const [year, month] = (isoDate || getTodayISO()).split("-").map(Number);
+  return {
+    year: Number.isFinite(year) ? year : new Date().getFullYear(),
+    month: Number.isFinite(month) ? month : new Date().getMonth() + 1,
+  };
+}
+
+export function getMonthCursorFromISO(isoDate, calendarType = "jalali") {
+  const normalized = normalizeCalendarType(calendarType);
+  if (normalized === "gregorian") {
+    return { ...getGregorianMonthFromISO(isoDate), calendarType: normalized };
+  }
+  return { ...getPersianMonthFromISO(isoDate), calendarType: normalized };
+}
+
 export function getGregorianDatesForPersianMonth({ year, month }) {
   const results = [];
   const start = new Date(Date.UTC(year + 620, 0, 1, 12));
@@ -139,6 +173,25 @@ export function getGregorianDatesForPersianMonth({ year, month }) {
   }
 
   return results;
+}
+
+export function shiftMonthCursor(monthCursor, monthOffset) {
+  const normalized = normalizeCalendarType(monthCursor?.calendarType);
+  const shifted = shiftPersianMonth(monthCursor, monthOffset);
+  return {
+    ...shifted,
+    calendarType: normalized,
+  };
+}
+
+export function getGregorianDatesForCalendarMonth(monthCursor) {
+  const normalized = normalizeCalendarType(monthCursor?.calendarType);
+  if (normalized === "gregorian") {
+    return getMonthDaysGregorian(
+      `${monthCursor.year}-${String(monthCursor.month).padStart(2, "0")}`,
+    );
+  }
+  return getGregorianDatesForPersianMonth(monthCursor);
 }
 
 export function getMonthGridGregorian(monthDays) {
@@ -168,7 +221,11 @@ export function getMonthGridGregorian(monthDays) {
   return cells;
 }
 
-export function formatPersianDateTimeFromSql(sqlDateTime) {
+export function formatDateTimeFromSql(
+  sqlDateTime,
+  language = "fa",
+  calendarType = "jalali",
+) {
   if (sqlDateTime === null || sqlDateTime === undefined || sqlDateTime === "")
     return "-";
 
@@ -189,10 +246,23 @@ export function formatPersianDateTimeFromSql(sqlDateTime) {
 
   if (Number.isNaN(date.getTime())) return "-";
 
-  return new Intl.DateTimeFormat("fa-IR", {
-    calendar: "persian",
-    numberingSystem: "latn",
+  const { locale, optionsBase } = getCalendarIntlConfig(language, calendarType);
+
+  return new Intl.DateTimeFormat(locale, {
+    ...optionsBase,
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);
+}
+
+export function formatPersianDateParts(isoDate, language = "fa") {
+  return formatDateParts(isoDate, language, "jalali");
+}
+
+export function formatPersianMonthYear(isoDate, language = "fa") {
+  return formatMonthYear(isoDate, language, "jalali");
+}
+
+export function formatPersianDateTimeFromSql(sqlDateTime, language = "fa") {
+  return formatDateTimeFromSql(sqlDateTime, language, "jalali");
 }

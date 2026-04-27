@@ -1,16 +1,20 @@
 import Card from "../ui/Card";
 import Button from "../ui/Button";
-import { formatPersianDateTimeFromSql } from "../../lib/date";
+import { formatDateTimeFromSql } from "../../lib/date";
 import { t } from "../../lib/i18n";
 import "./Notes.css";
 
-function getNoteDisplayDate(note, language) {
+function getNoteDisplayDate(note, language, calendarType) {
   const hasEdit =
     note.updated_at && note.created_at && note.updated_at !== note.created_at;
   return {
-    label: hasEdit ? t("notes.updatedDate", language) : t("notes.createdDate", language),
-    value: formatPersianDateTimeFromSql(
+    label: hasEdit
+      ? t("notes.updatedDate", language)
+      : t("notes.createdDate", language),
+    value: formatDateTimeFromSql(
       hasEdit ? note.updated_at : note.created_at,
+      language,
+      calendarType,
     ),
   };
 }
@@ -24,6 +28,7 @@ export default function Notes({
   onOpenEdit,
   onRequestDelete,
   language,
+  calendarType,
 }) {
   return (
     <Card
@@ -40,7 +45,9 @@ export default function Notes({
         <Button onClick={onOpenAdd}>{t("notes.add", language)}</Button>
       </div>
 
-      {notesLoading ? <p className="muted">{t("notes.loading", language)}</p> : null}
+      {notesLoading ? (
+        <p className="muted">{t("notes.loading", language)}</p>
+      ) : null}
 
       {!notesLoading && !notes.length ? (
         <p className="empty-state-message">{t("notes.noNotes", language)}</p>
@@ -48,7 +55,7 @@ export default function Notes({
 
       <ul className="notes-list">
         {notes.map((note) => {
-          const displayDate = getNoteDisplayDate(note, language);
+          const displayDate = getNoteDisplayDate(note, language, calendarType);
           return (
             <li className="note-item" key={note.id}>
               <p className="note-content">{note.content}</p>

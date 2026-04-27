@@ -2,9 +2,9 @@ import Card from "../ui/Card";
 import Button from "../ui/Button";
 import PersianMonthCalendar from "../calendar/PersianMonthCalendar";
 import {
-  formatPersianDateParts,
-  formatPersianMonthYear,
-  shiftPersianMonth,
+  formatDateParts,
+  formatMonthYear,
+  shiftMonthCursor,
 } from "../../lib/date";
 import { t } from "../../lib/i18n";
 import "./DailyTasks.css";
@@ -23,6 +23,7 @@ export default function DailyTasks({
   toggleTaskDone,
   onRequestTaskDelete,
   language,
+  calendarType,
 }) {
   return (
     <Card
@@ -32,8 +33,10 @@ export default function DailyTasks({
       <PersianMonthCalendar
         className="daily-tasks-calendar"
         month={tasksMonth}
-        onPrevMonth={() => setTasksMonth((prev) => shiftPersianMonth(prev, -1))}
-        onNextMonth={() => setTasksMonth((prev) => shiftPersianMonth(prev, 1))}
+        calendarType={calendarType}
+        onPrevMonth={() => setTasksMonth((prev) => shiftMonthCursor(prev, -1))}
+        onNextMonth={() => setTasksMonth((prev) => shiftMonthCursor(prev, 1))}
+        onSetMonth={setTasksMonth}
         onGoToday={goToTodayTasks}
         selectedDate={tasksDate}
         onSelectDay={setTasksDate}
@@ -44,8 +47,8 @@ export default function DailyTasks({
       <div className="daily-tasks-toolbar">
         <p className="muted tasks-selected-date">
           {t("dailyTasks.selectedDate", language)}:{" "}
-          {formatPersianDateParts(tasksDate, language).day}{" "}
-          {formatPersianMonthYear(tasksDate, language)}
+          {formatDateParts(tasksDate, language, calendarType).day}{" "}
+          {formatMonthYear(tasksDate, language, calendarType)}
         </p>
         <Button onClick={onOpenAddTaskModal}>
           {t("dailyTasks.add", language)}

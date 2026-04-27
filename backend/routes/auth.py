@@ -11,6 +11,7 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
 IRAN_PHONE_REGEX = re.compile(r"^(?:\+98|0)?9\d{9}$")
 ALLOWED_GENDERS = {"male", "female", "other"}
+ALLOWED_CALENDAR_TYPES = {"jalali", "gregorian"}
 
 
 def normalize_iran_phone(raw_phone: str) -> str:
@@ -33,6 +34,25 @@ def normalize_gender(raw_gender):
     return gender if gender in ALLOWED_GENDERS else None
 
 
+def normalize_calendar_type(raw_calendar_type):
+    if raw_calendar_type is None:
+        return None
+
+    value = str(raw_calendar_type).strip().lower()
+    if not value:
+        return "jalali"
+
+    aliases = {
+        "jalali": "jalali",
+        "shamsi": "jalali",
+        "persian": "jalali",
+        "gregorian": "gregorian",
+        "miladi": "gregorian",
+    }
+    normalized = aliases.get(value)
+    return normalized if normalized in ALLOWED_CALENDAR_TYPES else None
+
+
 def build_user_response(user):
     if not user:
         return None
@@ -42,6 +62,7 @@ def build_user_response(user):
         "phone": user["phone"],
         "profile_image": user.get("profile_image"),
         "date_of_birth": normalize_date_to_iso(user.get("date_of_birth")),
+        "calendar_type": user.get("calendar_type") or "jalali",
         "gender": user.get("gender"),
     }
 
@@ -53,6 +74,7 @@ def register():
     phone = normalize_iran_phone(data.get("phone") or "")
     password = data.get("password") or ""
     date_of_birth = data.get("date_of_birth")
+    calendar_type = data.get("calendar_type")
     gender = data.get("gender")
 
     if not name or not phone or not password:
@@ -77,10 +99,24 @@ def register():
         if gender is None or (gender_value is None and str(gender).strip() != ""):
             return jsonify({"message": "gender must be male, female or other"}), 400
 
+    calendar_type_value = "jalali"
+    if calendar_type is not None:
+        calendar_type_value = normalize_calendar_type(calendar_type)
+        if calendar_type_value is None:
+            return jsonify({"message": "calendar_type must be jalali or gregorian"}), 400
+
     password_hash = hash_password(password)
     cursor = execute(
-        "INSERT INTO users(name, phone, password_hash, profile_image, date_of_birth, gender) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id",
-        (name, phone, password_hash, None, date_of_birth_ts, gender_value),
+        "INSERT INTO users(name, phone, password_hash, profile_image, date_of_birth, calendar_type, gender) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id",
+        (
+            name,
+            phone,
+            password_hash,
+            None,
+            date_of_birth_ts,
+            calendar_type_value,
+            gender_value,
+        ),
     )
     user_id = cursor.fetchone()["id"]
     token = generate_token(user_id, phone)
@@ -94,6 +130,7 @@ def register():
                 "phone": phone,
                 "profile_image": None,
                 "date_of_birth": normalize_date_to_iso(date_of_birth_ts),
+                "calendar_type": calendar_type_value,
                 "gender": gender_value,
             },
         }
@@ -113,7 +150,7 @@ def login():
         return jsonify({"message": "phone number is invalid"}), 400
 
     user = query_one(
-        "SELECT id, name, phone, password_hash, profile_image, date_of_birth, gender FROM users WHERE phone = %s",
+        "SELECT id, name, phone, password_hash, profile_image, date_of_birth, calendar_type, gender FROM users WHERE phone = %s",
         (phone,),
     )
     if not user or not verify_password(password, user["password_hash"]):
@@ -132,7 +169,7 @@ def login():
 @auth_required
 def me():
     user = query_one(
-        "SELECT id, name, phone, profile_image, date_of_birth, gender FROM users WHERE id = %s",
+        "SELECT id, name, phone, profile_image, date_of_birth, calendar_type, gender FROM users WHERE id = %s",
         (g.user_id,),
     )
     if not user:
@@ -147,6 +184,7 @@ def update_profile():
     name = data.get("name")
     profile_image = data.get("profile_image")
     date_of_birth = data.get("date_of_birth")
+    calendar_type = data.get("calendar_type")
     gender = data.get("gender")
 
     if name is not None:
@@ -174,8 +212,14 @@ def update_profile():
         if gender_value is None and str(gender).strip() != "":
             return jsonify({"message": "gender must be male, female or other"}), 400
 
+    calendar_type_value = None
+    if calendar_type is not None:
+        calendar_type_value = normalize_calendar_type(calendar_type)
+        if calendar_type_value is None:
+            return jsonify({"message": "calendar_type must be jalali or gregorian"}), 400
+
     current_user = query_one(
-        "SELECT id, name, phone, profile_image, date_of_birth, gender FROM users WHERE id = %s",
+        "SELECT id, name, phone, profile_image, date_of_birth, calendar_type, gender FROM users WHERE id = %s",
         (g.user_id,),
     )
     if not current_user:
@@ -188,15 +232,25 @@ def update_profile():
     next_date_of_birth = (
         date_of_birth_ts if date_of_birth is not None else current_user.get("date_of_birth")
     )
+    next_calendar_type = (
+        calendar_type_value if calendar_type is not None else current_user.get("calendar_type")
+    )
     next_gender = gender_value if gender is not None else current_user.get("gender")
 
     execute(
-        "UPDATE users SET name = %s, profile_image = %s, date_of_birth = %s, gender = %s WHERE id = %s",
-        (next_name, next_profile_image, next_date_of_birth, next_gender, g.user_id),
+        "UPDATE users SET name = %s, profile_image = %s, date_of_birth = %s, calendar_type = %s, gender = %s WHERE id = %s",
+        (
+            next_name,
+            next_profile_image,
+            next_date_of_birth,
+            next_calendar_type,
+            next_gender,
+            g.user_id,
+        ),
     )
 
     user = query_one(
-        "SELECT id, name, phone, profile_image, date_of_birth, gender FROM users WHERE id = %s",
+        "SELECT id, name, phone, profile_image, date_of_birth, calendar_type, gender FROM users WHERE id = %s",
         (g.user_id,),
     )
     return jsonify(build_user_response(user))
