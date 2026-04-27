@@ -40,7 +40,7 @@ def normalize_alarm_payload(data: dict, current_enabled=None, current_time=None)
 @auth_required
 def list_routines():
     rows = query_all(
-        "SELECT id, title, color, icon, is_active, alarm_enabled, alarm_time, created_at FROM routines WHERE user_id = ? ORDER BY id DESC",
+        "SELECT id, title, color, icon, is_active, alarm_enabled, alarm_time, created_at FROM routines WHERE user_id = %s ORDER BY id DESC",
         (g.user_id,),
     )
     return jsonify(rows)
@@ -63,13 +63,13 @@ def create_routine():
         return jsonify({"message": str(err)}), 400
 
     cursor = execute(
-        "INSERT INTO routines(user_id, title, color, icon, alarm_enabled, alarm_time) VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO routines(user_id, title, color, icon, alarm_enabled, alarm_time) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id",
         (g.user_id, title, color, icon, alarm_enabled, alarm_time),
     )
 
     return jsonify(
         {
-            "id": cursor.lastrowid,
+            "id": cursor.fetchone()["id"],
             "title": title,
             "color": color,
             "icon": icon,
@@ -84,7 +84,7 @@ def create_routine():
 @auth_required
 def update_routine(routine_id: int):
     routine = query_one(
-        "SELECT id, title, color, icon, is_active, alarm_enabled, alarm_time FROM routines WHERE id = ? AND user_id = ?",
+        "SELECT id, title, color, icon, is_active, alarm_enabled, alarm_time FROM routines WHERE id = %s AND user_id = %s",
         (routine_id, g.user_id),
     )
     if not routine:
@@ -92,8 +92,8 @@ def update_routine(routine_id: int):
 
     data = request.get_json(silent=True) or {}
     title = (data.get("title") or routine["title"]).strip()
-    color = (data.get("color") if data.get("color") is not None else routine["color"])
-    icon = (data.get("icon") if data.get("icon") is not None else routine["icon"])
+    color = data.get("color") if data.get("color") is not None else routine["color"]
+    icon = data.get("icon") if data.get("icon") is not None else routine["icon"]
     is_active = data.get("is_active", routine["is_active"])
 
     if not title:
@@ -110,7 +110,7 @@ def update_routine(routine_id: int):
         return jsonify({"message": str(err)}), 400
 
     execute(
-        "UPDATE routines SET title = ?, color = ?, icon = ?, is_active = ?, alarm_enabled = ?, alarm_time = ? WHERE id = ? AND user_id = ?",
+        "UPDATE routines SET title = %s, color = %s, icon = %s, is_active = %s, alarm_enabled = %s, alarm_time = %s WHERE id = %s AND user_id = %s",
         (
             title,
             color,
@@ -140,11 +140,11 @@ def update_routine(routine_id: int):
 @auth_required
 def delete_routine(routine_id: int):
     routine = query_one(
-        "SELECT id FROM routines WHERE id = ? AND user_id = ?",
+        "SELECT id FROM routines WHERE id = %s AND user_id = %s",
         (routine_id, g.user_id),
     )
     if not routine:
         return jsonify({"message": "routine not found"}), 404
 
-    execute("DELETE FROM routines WHERE id = ? AND user_id = ?", (routine_id, g.user_id))
+    execute("DELETE FROM routines WHERE id = %s AND user_id = %s", (routine_id, g.user_id))
     return jsonify({"message": "deleted"})

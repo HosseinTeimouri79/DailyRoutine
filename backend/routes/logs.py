@@ -24,7 +24,7 @@ def upsert_log():
         return jsonify({"message": "date must be a valid YYYY-MM-DD date"}), 400
 
     routine = query_one(
-        "SELECT id FROM routines WHERE id = ? AND user_id = ?",
+        "SELECT id FROM routines WHERE id = %s AND user_id = %s",
         (routine_id, g.user_id),
     )
     if not routine:
@@ -33,10 +33,10 @@ def upsert_log():
     execute(
         """
         INSERT INTO routine_logs(routine_id, date, status)
-        VALUES (?, ?, ?)
+        VALUES (%s, %s, %s)
         ON CONFLICT(routine_id, date) DO UPDATE SET
           status = excluded.status,
-          updated_at = strftime('%s','now')
+          updated_at = EXTRACT(EPOCH FROM NOW())::bigint
         """,
         (routine_id, log_timestamp, status),
     )
@@ -51,27 +51,24 @@ def list_logs():
     start_date = request.args.get("startDate")
     end_date = request.args.get("endDate")
 
-    filters = ["r.user_id = ?"]
+    filters = ["r.user_id = %s"]
     params = [g.user_id]
 
     if routine_id:
-        filters.append("l.routine_id = ?")
+        filters.append("l.routine_id = %s")
         params.append(routine_id)
     if start_date:
-        filters.append("(date(l.date, 'unixepoch') >= ? OR date(l.date) >= ?)" )
-        params.extend([start_date, start_date])
+        filters.append("TO_TIMESTAMP(l.date)::date >= %s::date")
+        params.append(start_date)
     if end_date:
-        filters.append("(date(l.date, 'unixepoch') <= ? OR date(l.date) <= ?)")
-        params.extend([end_date, end_date])
+        filters.append("TO_TIMESTAMP(l.date)::date <= %s::date")
+        params.append(end_date)
 
     where_clause = " AND ".join(filters)
     rows = query_all(
         f"""
         SELECT l.id, l.routine_id,
-          COALESCE(
-            strftime('%Y-%m-%d', l.date, 'unixepoch'),
-            strftime('%Y-%m-%d', l.date)
-          ) AS date,
+          TO_CHAR(TO_TIMESTAMP(l.date), 'YYYY-MM-DD') AS date,
           l.status
         FROM routine_logs l
         INNER JOIN routines r ON r.id = l.routine_id

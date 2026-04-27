@@ -1,28 +1,36 @@
 import os
-import sqlite3
-from pathlib import Path
 
+import psycopg2
+import psycopg2.extras
 from flask import g
+from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DEFAULT_DB_PATH = BASE_DIR / "database" / "hadafino.db"
 
 
-def resolve_db_path() -> str:
-    raw_path = os.getenv("DATABASE_PATH", str(DEFAULT_DB_PATH))
-    if raw_path.startswith("./"):
-        return str((BASE_DIR / raw_path[2:]).resolve())
-    return str(Path(raw_path).resolve())
+def resolve_db_url() -> str:
+    db_url = os.getenv("DATABASE_URL")
+    if db_url:
+        return db_url
+
+    db_host = os.getenv("DATABASE_HOST", "postgres")
+    db_port = os.getenv("DATABASE_PORT", "5432")
+    db_name = os.getenv("DATABASE_NAME", "hadafino")
+    db_user = os.getenv("DATABASE_USER", "hadafino")
+    db_password = os.getenv("DATABASE_PASSWORD", "change-me")
+    return (
+        f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    )
 
 
-def get_connection() -> sqlite3.Connection:
+def get_connection() -> psycopg2.extensions.connection:
     if "db" not in g:
-        db_path = resolve_db_path()
-        Path(db_path).parent.mkdir(parents=True, exist_ok=True)
-        g.db = sqlite3.connect(db_path)
-        g.db.row_factory = sqlite3.Row
-        g.db.execute("PRAGMA foreign_keys = ON")
+        g.db = psycopg2.connect(
+            resolve_db_url(),
+            cursor_factory=psycopg2.extras.RealDictCursor,
+        )
+        g.db.autocommit = False
     return g.db
 
 
@@ -34,116 +42,35 @@ def close_connection(_error=None):
 
 def execute(query: str, params=()):
     conn = get_connection()
-    cursor = conn.execute(query, params)
+    cursor = conn.cursor()
+    cursor.execute(query, params)
     conn.commit()
     return cursor
 
 
 def query_all(query: str, params=()):
-    cursor = get_connection().execute(query, params)
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(query, params)
     return [dict(row) for row in cursor.fetchall()]
 
 
 def query_one(query: str, params=()):
-    cursor = get_connection().execute(query, params)
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(query, params)
     row = cursor.fetchone()
     return dict(row) if row else None
 
 
 def ensure_schema():
-    conn = sqlite3.connect(resolve_db_path())
+    db_url = resolve_db_url()
+    conn = psycopg2.connect(db_url)
     try:
         schema_path = BASE_DIR / "database" / "schema.sql"
         script = schema_path.read_text(encoding="utf-8")
-        conn.executescript(script)
-        columns = conn.execute("PRAGMA table_info(users)").fetchall()
-        column_names = {column[1] for column in columns}
-        expected_columns = {
-            "id",
-            "name",
-            "phone",
-            "password_hash",
-            "profile_image",
-            "date_of_birth",
-            "gender",
-            "created_at",
-        }
-        has_profile_image = any(column[1] == "profile_image" for column in columns)
-        has_phone = any(column[1] == "phone" for column in columns)
-        has_date_of_birth = any(column[1] == "date_of_birth" for column in columns)
-        has_gender = any(column[1] == "gender" for column in columns)
-        has_legacy_columns = bool(column_names - expected_columns)
-        if not has_profile_image:
-            conn.execute("ALTER TABLE users ADD COLUMN profile_image TEXT")
-        if not has_phone:
-            conn.execute("ALTER TABLE users ADD COLUMN phone TEXT")
-        if not has_date_of_birth:
-            conn.execute("ALTER TABLE users ADD COLUMN date_of_birth INTEGER")
-        if not has_gender:
-            conn.execute("ALTER TABLE users ADD COLUMN gender TEXT")
-        conn.execute(
-            "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_phone_unique ON users(phone) WHERE phone IS NOT NULL"
-        )
-
-        routine_columns = conn.execute("PRAGMA table_info(routines)").fetchall()
-        routine_column_names = {column[1] for column in routine_columns}
-        if "alarm_enabled" not in routine_column_names:
-            conn.execute(
-                "ALTER TABLE routines ADD COLUMN alarm_enabled INTEGER NOT NULL DEFAULT 0"
-            )
-        if "alarm_time" not in routine_column_names:
-            conn.execute("ALTER TABLE routines ADD COLUMN alarm_time TEXT")
-
-        task_columns = conn.execute("PRAGMA table_info(daily_tasks)").fetchall()
-        task_column_names = {column[1] for column in task_columns}
-        if "alarm_enabled" not in task_column_names:
-            conn.execute(
-                "ALTER TABLE daily_tasks ADD COLUMN alarm_enabled INTEGER NOT NULL DEFAULT 0"
-            )
-        if "alarm_time" not in task_column_names:
-            conn.execute("ALTER TABLE daily_tasks ADD COLUMN alarm_time TEXT")
-
-        if has_legacy_columns:
-            conn.execute("PRAGMA foreign_keys = OFF")
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS users_new (
-                  id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  name TEXT NOT NULL,
-                  phone TEXT NOT NULL UNIQUE,
-                  password_hash TEXT NOT NULL,
-                  profile_image TEXT,
-                  date_of_birth INTEGER,
-                  gender TEXT,
-                  created_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-                )
-                """
-            )
-            conn.execute(
-                """
-                INSERT INTO users_new(id, name, phone, password_hash, profile_image, date_of_birth, gender, created_at)
-                SELECT
-                  id,
-                  name,
-                  CASE
-                    WHEN phone IS NULL OR TRIM(phone) = '' THEN ('090000' || printf('%05d', id))
-                    ELSE phone
-                  END,
-                  password_hash,
-                  profile_image,
-                  date_of_birth,
-                  gender,
-                  created_at
-                FROM users
-                """
-            )
-            conn.execute("DROP TABLE users")
-            conn.execute("ALTER TABLE users_new RENAME TO users")
-            conn.execute("PRAGMA foreign_keys = ON")
-            conn.execute(
-                "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_phone_unique ON users(phone) WHERE phone IS NOT NULL"
-            )
-
+        with conn.cursor() as cursor:
+            cursor.execute(script)
         conn.commit()
     finally:
         conn.close()

@@ -1,60 +1,56 @@
-PRAGMA foreign_keys = ON;
-
 CREATE TABLE IF NOT EXISTS users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   phone TEXT NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
   profile_image TEXT,
-  date_of_birth INTEGER,
+  date_of_birth BIGINT,
   gender TEXT,
-  created_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+  created_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::bigint)
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_phone_unique ON users(phone) WHERE phone IS NOT NULL;
+
 CREATE TABLE IF NOT EXISTS routines (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   color TEXT,
   icon TEXT,
   is_active INTEGER NOT NULL DEFAULT 1,
   alarm_enabled INTEGER NOT NULL DEFAULT 0,
   alarm_time TEXT,
-  created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  created_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::bigint)
 );
 
 CREATE TABLE IF NOT EXISTS routine_logs (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  routine_id INTEGER NOT NULL,
-  date INTEGER NOT NULL,
+  id SERIAL PRIMARY KEY,
+  routine_id INTEGER NOT NULL REFERENCES routines(id) ON DELETE CASCADE,
+  date BIGINT NOT NULL,
   status TEXT NOT NULL CHECK(status IN ('done', 'missed')),
-  created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-  updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-  UNIQUE(routine_id, date),
-  FOREIGN KEY (routine_id) REFERENCES routines(id) ON DELETE CASCADE
+  created_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::bigint),
+  updated_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::bigint),
+  UNIQUE (routine_id, date)
 );
 
 CREATE TABLE IF NOT EXISTS daily_tasks (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
-  task_date INTEGER NOT NULL,
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  task_date BIGINT NOT NULL,
   content TEXT NOT NULL,
   is_done INTEGER NOT NULL DEFAULT 0,
   alarm_enabled INTEGER NOT NULL DEFAULT 0,
   alarm_time TEXT,
-  created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-  updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  created_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::bigint),
+  updated_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::bigint)
 );
 
 CREATE TABLE IF NOT EXISTS notes (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
-  created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-  updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  created_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::bigint),
+  updated_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::bigint)
 );
 
 CREATE INDEX IF NOT EXISTS idx_routines_user_id ON routines(user_id);

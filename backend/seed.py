@@ -1,28 +1,25 @@
 from core.auth import hash_password
-from core.db import ensure_schema, resolve_db_path
-
-import sqlite3
+from core.db import ensure_schema, execute, query_one
 
 
 def run_seed():
     ensure_schema()
-    conn = sqlite3.connect(resolve_db_path())
     demo_phone = "09123456789"
-    try:
-        cursor = conn.execute("SELECT id FROM users WHERE phone = ?", (demo_phone,))
-        if cursor.fetchone():
-            print("Seed already exists")
-            return
+    existing = query_one("SELECT id FROM users WHERE phone = %s", (demo_phone,))
+    if existing:
+        print("Seed already exists")
+        return
 
-        password_hash = hash_password("123456")
-        conn.execute(
-            "INSERT INTO users(name, phone, password_hash) VALUES (?, ?, ?)",
-            ("Demo User", demo_phone, password_hash),
-        )
-        conn.commit()
+    password_hash = hash_password("123456")
+    cursor = execute(
+        "INSERT INTO users(name, phone, password_hash) VALUES (%s, %s, %s) RETURNING id",
+        ("Demo User", demo_phone, password_hash),
+    )
+    inserted = cursor.fetchone()
+    if inserted:
         print(f"Seed done: {demo_phone} / 123456")
-    finally:
-        conn.close()
+    else:
+        print("Seed failed")
 
 
 if __name__ == "__main__":

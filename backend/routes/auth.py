@@ -61,7 +61,7 @@ def register():
     if not IRAN_PHONE_REGEX.fullmatch(phone):
         return jsonify({"message": "phone number is invalid"}), 400
 
-    existing = query_one("SELECT id FROM users WHERE phone = ?", (phone,))
+    existing = query_one("SELECT id FROM users WHERE phone = %s", (phone,))
     if existing:
         return jsonify({"message": "phone already exists"}), 409
 
@@ -79,10 +79,10 @@ def register():
 
     password_hash = hash_password(password)
     cursor = execute(
-        "INSERT INTO users(name, phone, password_hash, profile_image, date_of_birth, gender) VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO users(name, phone, password_hash, profile_image, date_of_birth, gender) VALUES (%s, %s, %s, %s, %s, %s) RETURNING id",
         (name, phone, password_hash, None, date_of_birth_ts, gender_value),
     )
-    user_id = cursor.lastrowid
+    user_id = cursor.fetchone()["id"]
     token = generate_token(user_id, phone)
 
     return jsonify(
@@ -113,7 +113,7 @@ def login():
         return jsonify({"message": "phone number is invalid"}), 400
 
     user = query_one(
-        "SELECT id, name, phone, password_hash, profile_image, date_of_birth, gender FROM users WHERE phone = ?",
+        "SELECT id, name, phone, password_hash, profile_image, date_of_birth, gender FROM users WHERE phone = %s",
         (phone,),
     )
     if not user or not verify_password(password, user["password_hash"]):
@@ -132,7 +132,7 @@ def login():
 @auth_required
 def me():
     user = query_one(
-        "SELECT id, name, phone, profile_image, date_of_birth, gender FROM users WHERE id = ?",
+        "SELECT id, name, phone, profile_image, date_of_birth, gender FROM users WHERE id = %s",
         (g.user_id,),
     )
     if not user:
@@ -175,7 +175,7 @@ def update_profile():
             return jsonify({"message": "gender must be male, female or other"}), 400
 
     current_user = query_one(
-        "SELECT id, name, phone, profile_image, date_of_birth, gender FROM users WHERE id = ?",
+        "SELECT id, name, phone, profile_image, date_of_birth, gender FROM users WHERE id = %s",
         (g.user_id,),
     )
     if not current_user:
@@ -191,12 +191,12 @@ def update_profile():
     next_gender = gender_value if gender is not None else current_user.get("gender")
 
     execute(
-        "UPDATE users SET name = ?, profile_image = ?, date_of_birth = ?, gender = ? WHERE id = ?",
+        "UPDATE users SET name = %s, profile_image = %s, date_of_birth = %s, gender = %s WHERE id = %s",
         (next_name, next_profile_image, next_date_of_birth, next_gender, g.user_id),
     )
 
     user = query_one(
-        "SELECT id, name, phone, profile_image, date_of_birth, gender FROM users WHERE id = ?",
+        "SELECT id, name, phone, profile_image, date_of_birth, gender FROM users WHERE id = %s",
         (g.user_id,),
     )
     return jsonify(build_user_response(user))
@@ -216,7 +216,7 @@ def change_password():
         return jsonify({"message": "new password must be at least 6 characters"}), 400
 
     user = query_one(
-        "SELECT id, password_hash FROM users WHERE id = ?",
+        "SELECT id, password_hash FROM users WHERE id = %s",
         (g.user_id,),
     )
     if not user:
@@ -226,7 +226,7 @@ def change_password():
         return jsonify({"message": "current password is incorrect"}), 400
 
     execute(
-        "UPDATE users SET password_hash = ? WHERE id = ?",
+        "UPDATE users SET password_hash = %s WHERE id = %s",
         (hash_password(new_password), g.user_id),
     )
 

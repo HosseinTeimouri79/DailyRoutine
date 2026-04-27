@@ -12,10 +12,10 @@ notes_bp = Blueprint("notes", __name__, url_prefix="/api/notes")
 def list_notes():
     query = (request.args.get("q") or "").strip()
     params = [g.user_id]
-    where_clause = "WHERE user_id = ?"
+    where_clause = "WHERE user_id = %s"
 
     if query:
-        where_clause += " AND content LIKE ?"
+        where_clause += " AND content LIKE %s"
         params.append(f"%{query}%")
 
     rows = query_all(
@@ -40,17 +40,18 @@ def create_note():
         return jsonify({"message": "content is required"}), 400
 
     cursor = execute(
-        "INSERT INTO notes(user_id, content) VALUES (?, ?)",
+        "INSERT INTO notes(user_id, content) VALUES (%s, %s) RETURNING id",
         (g.user_id, content),
     )
+    inserted_id = cursor.fetchone()["id"]
 
     row = query_one(
         """
         SELECT id, user_id, content, created_at, updated_at
         FROM notes
-        WHERE id = ?
+        WHERE id = %s
         """,
-        (cursor.lastrowid,),
+        (inserted_id,),
     )
     return jsonify(row), 201
 
@@ -59,7 +60,7 @@ def create_note():
 @auth_required
 def update_note(note_id: int):
     note = query_one(
-        "SELECT id, content FROM notes WHERE id = ? AND user_id = ?",
+        "SELECT id, content FROM notes WHERE id = %s AND user_id = %s",
         (note_id, g.user_id),
     )
     if not note:
@@ -74,8 +75,8 @@ def update_note(note_id: int):
     execute(
         """
         UPDATE notes
-        SET content = ?, updated_at = strftime('%s','now')
-        WHERE id = ? AND user_id = ?
+        SET content = %s, updated_at = EXTRACT(EPOCH FROM NOW())::bigint
+        WHERE id = %s AND user_id = %s
         """,
         (content, note_id, g.user_id),
     )
@@ -84,7 +85,7 @@ def update_note(note_id: int):
         """
         SELECT id, user_id, content, created_at, updated_at
         FROM notes
-        WHERE id = ?
+        WHERE id = %s
         """,
         (note_id,),
     )
@@ -95,11 +96,11 @@ def update_note(note_id: int):
 @auth_required
 def delete_note(note_id: int):
     note = query_one(
-        "SELECT id FROM notes WHERE id = ? AND user_id = ?",
+        "SELECT id FROM notes WHERE id = %s AND user_id = %s",
         (note_id, g.user_id),
     )
     if not note:
         return jsonify({"message": "note not found"}), 404
 
-    execute("DELETE FROM notes WHERE id = ? AND user_id = ?", (note_id, g.user_id))
+    execute("DELETE FROM notes WHERE id = %s AND user_id = %s", (note_id, g.user_id))
     return jsonify({"message": "deleted"})

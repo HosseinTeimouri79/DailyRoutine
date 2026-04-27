@@ -1,4 +1,20 @@
 services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: hadafino
+      POSTGRES_PASSWORD: change-me
+      POSTGRES_DB: hadafino
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hadafino -d hadafino"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   backend:
     build:
       context: ./backend
@@ -6,10 +22,14 @@ services:
       PORT: 4000
       JWT_SECRET: super-secret-change-me
       JWT_EXPIRES_DAYS: 7
-      DATABASE_PATH: /data/hadafino.db
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: hadafino
+      DATABASE_USER: hadafino
+      DATABASE_PASSWORD: change-me
       CORS_ORIGIN: http://localhost:3000,http://127.0.0.1:3000,http://192.168.101.27:3000
-    volumes:
-      - hadafino_data:/data
+    depends_on:
+      - postgres
     ports:
       - "0.0.0.0:4000:4000"
 
@@ -24,4 +44,4 @@ services:
       - "0.0.0.0:3000:80"
 
 volumes:
-  hadafino_data:
+  postgres_data:

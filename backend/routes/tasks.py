@@ -45,10 +45,7 @@ def list_daily_tasks():
     end_date = (request.args.get("endDate") or "").strip()
     select_columns = """
             SELECT id, user_id,
-              COALESCE(
-                strftime('%Y-%m-%d', task_date, 'unixepoch'),
-                strftime('%Y-%m-%d', task_date)
-              ) AS task_date,
+              TO_CHAR(TO_TIMESTAMP(task_date), 'YYYY-MM-DD') AS task_date,
               content, is_done, alarm_enabled, alarm_time, created_at, updated_at
             FROM daily_tasks
         """
@@ -57,12 +54,10 @@ def list_daily_tasks():
         rows = query_all(
             f"""
             {select_columns}
-            WHERE user_id = ? AND (
-              date(task_date, 'unixepoch') = ? OR date(task_date) = ?
-            )
+            WHERE user_id = %s AND TO_TIMESTAMP(task_date)::date = %s::date
             ORDER BY is_done ASC, id DESC
             """,
-            (g.user_id, task_date, task_date),
+            (g.user_id, task_date),
         )
         return jsonify(rows)
 
@@ -70,13 +65,10 @@ def list_daily_tasks():
         rows = query_all(
             f"""
             {select_columns}
-            WHERE user_id = ? AND (
-              date(task_date, 'unixepoch') BETWEEN ? AND ?
-              OR date(task_date) BETWEEN ? AND ?
-            )
+            WHERE user_id = %s AND TO_TIMESTAMP(task_date)::date BETWEEN %s::date AND %s::date
             ORDER BY task_date ASC, is_done ASC, id DESC
             """,
-            (g.user_id, start_date, end_date, start_date, end_date),
+            (g.user_id, start_date, end_date),
         )
         return jsonify(rows)
 
@@ -103,22 +95,20 @@ def create_daily_task():
         return jsonify({"message": str(err)}), 400
 
     cursor = execute(
-        "INSERT INTO daily_tasks(user_id, task_date, content, is_done, alarm_enabled, alarm_time) VALUES (?, ?, ?, 0, ?, ?)",
+        "INSERT INTO daily_tasks(user_id, task_date, content, is_done, alarm_enabled, alarm_time) VALUES (%s, %s, %s, 0, %s, %s) RETURNING id",
         (g.user_id, task_timestamp, content, alarm_enabled, alarm_time),
     )
+    inserted_id = cursor.fetchone()["id"]
 
     row = query_one(
         """
         SELECT id, user_id,
-          COALESCE(
-            strftime('%Y-%m-%d', task_date, 'unixepoch'),
-            strftime('%Y-%m-%d', task_date)
-          ) AS task_date,
+          TO_CHAR(TO_TIMESTAMP(task_date), 'YYYY-MM-DD') AS task_date,
           content, is_done, alarm_enabled, alarm_time, created_at, updated_at
         FROM daily_tasks
-        WHERE id = ?
+        WHERE id = %s
         """,
-        (cursor.lastrowid,),
+        (inserted_id,),
     )
     return jsonify(row), 201
 
@@ -127,7 +117,7 @@ def create_daily_task():
 @auth_required
 def update_daily_task(task_id: int):
     task = query_one(
-        "SELECT id, content, is_done, alarm_enabled, alarm_time FROM daily_tasks WHERE id = ? AND user_id = ?",
+        "SELECT id, content, is_done, alarm_enabled, alarm_time FROM daily_tasks WHERE id = %s AND user_id = %s",
         (task_id, g.user_id),
     )
     if not task:
@@ -159,8 +149,8 @@ def update_daily_task(task_id: int):
     execute(
         """
         UPDATE daily_tasks
-        SET content = ?, is_done = ?, alarm_enabled = ?, alarm_time = ?, updated_at = strftime('%s','now')
-        WHERE id = ? AND user_id = ?
+        SET content = %s, is_done = %s, alarm_enabled = %s, alarm_time = %s, updated_at = EXTRACT(EPOCH FROM NOW())::bigint
+        WHERE id = %s AND user_id = %s
         """,
         (
             next_content,
@@ -175,13 +165,10 @@ def update_daily_task(task_id: int):
     row = query_one(
         """
         SELECT id, user_id,
-          COALESCE(
-            strftime('%Y-%m-%d', task_date, 'unixepoch'),
-            strftime('%Y-%m-%d', task_date)
-          ) AS task_date,
+          TO_CHAR(TO_TIMESTAMP(task_date), 'YYYY-MM-DD') AS task_date,
           content, is_done, alarm_enabled, alarm_time, created_at, updated_at
         FROM daily_tasks
-        WHERE id = ?
+        WHERE id = %s
         """,
         (task_id,),
     )
@@ -192,11 +179,11 @@ def update_daily_task(task_id: int):
 @auth_required
 def delete_daily_task(task_id: int):
     task = query_one(
-        "SELECT id FROM daily_tasks WHERE id = ? AND user_id = ?",
+        "SELECT id FROM daily_tasks WHERE id = %s AND user_id = %s",
         (task_id, g.user_id),
     )
     if not task:
         return jsonify({"message": "task not found"}), 404
 
-    execute("DELETE FROM daily_tasks WHERE id = ? AND user_id = ?", (task_id, g.user_id))
+    execute("DELETE FROM daily_tasks WHERE id = %s AND user_id = %s", (task_id, g.user_id))
     return jsonify({"message": "deleted"})
