@@ -34,35 +34,36 @@ export function getWeekDaysGregorian(weekStartISO) {
   return Array.from({ length: 7 }, (_, idx) => shiftISODate(weekStartISO, idx));
 }
 
-export function formatPersianDateParts(isoDate) {
+export function formatPersianDateParts(isoDate, language = "fa") {
   const date = new Date(`${isoDate}T00:00:00`);
 
+  const locale = language === "en" ? "en-US" : "fa-IR";
   const optionsBase = {
     calendar: "persian",
     numberingSystem: "latn",
   };
 
-  const day = new Intl.DateTimeFormat("fa-IR", {
+  const day = new Intl.DateTimeFormat(locale, {
     ...optionsBase,
     day: "numeric",
   }).format(date);
 
-  const weekdayShort = new Intl.DateTimeFormat("fa-IR", {
+  const weekdayShort = new Intl.DateTimeFormat(locale, {
     ...optionsBase,
     weekday: "short",
   }).format(date);
 
-  const weekdayLong = new Intl.DateTimeFormat("fa-IR", {
+  const weekdayLong = new Intl.DateTimeFormat(locale, {
     ...optionsBase,
     weekday: "long",
   }).format(date);
 
-  const month = new Intl.DateTimeFormat("fa-IR", {
+  const month = new Intl.DateTimeFormat(locale, {
     ...optionsBase,
     month: "long",
   }).format(date);
 
-  const year = new Intl.DateTimeFormat("fa-IR", {
+  const year = new Intl.DateTimeFormat(locale, {
     ...optionsBase,
     year: "numeric",
   }).format(date);
@@ -70,8 +71,8 @@ export function formatPersianDateParts(isoDate) {
   return { day, weekdayShort, weekdayLong, month, year };
 }
 
-export function formatPersianMonthYear(isoDate) {
-  const p = formatPersianDateParts(isoDate);
+export function formatPersianMonthYear(isoDate, language = "fa") {
+  const p = formatPersianDateParts(isoDate, language);
   return `${p.month} ${p.year}`;
 }
 

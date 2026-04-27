@@ -44,8 +44,8 @@ export default function DailyTasks({
       <div className="daily-tasks-toolbar">
         <p className="muted tasks-selected-date">
           {t("dailyTasks.selectedDate", language)}:{" "}
-          {formatPersianDateParts(tasksDate).day}{" "}
-          {formatPersianMonthYear(tasksDate)}
+          {formatPersianDateParts(tasksDate, language).day}{" "}
+          {formatPersianMonthYear(tasksDate, language)}
         </p>
         <Button onClick={onOpenAddTaskModal}>
           {t("dailyTasks.add", language)}

@@ -117,14 +117,14 @@ export default function WeeklyRoutines({
           </button>
         </div>
         <p className="muted week-range-label">
-          {formatPersianDateParts(weekDays[0]).day}{" "}
-          {formatPersianMonthYear(weekDays[0])}
+          {formatPersianDateParts(weekDays[0], language).day}{" "}
+          {formatPersianMonthYear(weekDays[0], language)}
           <i
             className="fa-solid fa-arrows-left-right-to-line app-inline-icon week-range-icon"
             aria-hidden="true"
           />
-          {formatPersianDateParts(weekDays[6]).day}{" "}
-          {formatPersianMonthYear(weekDays[6])}
+          {formatPersianDateParts(weekDays[6], language).day}{" "}
+          {formatPersianMonthYear(weekDays[6], language)}
         </p>
       </div>
 
@@ -134,7 +134,7 @@ export default function WeeklyRoutines({
             <tr>
               <th>{t("weekly.routine", language)}</th>
               {weekDays.map((date) => {
-                const p = formatPersianDateParts(date);
+                const p = formatPersianDateParts(date, language);
                 return (
                   <th key={date} title={p.weekdayLong}>
                     {p.weekdayShort}
@@ -255,7 +255,7 @@ export default function WeeklyRoutines({
 
               <div className="weekly-mobile-weekdays">
                 {weekDays.map((date) => {
-                  const p = formatPersianDateParts(date);
+                  const p = formatPersianDateParts(date, language);
                   return (
                     <span key={`weekday-${routine.id}-${date}`}>
                       {p.weekdayShort}

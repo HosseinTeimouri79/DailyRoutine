@@ -30,7 +30,10 @@ export default function PersianMonthCalendar({
     () => getMonthGridGregorian(monthDays),
     [monthDays],
   );
-  const monthLabel = formatPersianMonthYear(monthDays[0] || getTodayISO());
+  const monthLabel = formatPersianMonthYear(
+    monthDays[0] || getTodayISO(),
+    language,
+  );
 
   return (
     <div className={`monthly-calendar-shell ${className}`.trim()}>
@@ -68,7 +71,7 @@ export default function PersianMonthCalendar({
             );
           }
 
-          const dayParts = formatPersianDateParts(cell.isoDate);
+          const dayParts = formatPersianDateParts(cell.isoDate, language);
           const status = getDayStatus ? getDayStatus(cell.isoDate) : null;
           const badge = getDayBadge ? getDayBadge(cell.isoDate) : null;
           const cellClass = [

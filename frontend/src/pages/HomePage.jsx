@@ -679,6 +679,7 @@ export default function HomePage() {
           <MonthlyCalendar
             subtitle={`${t("weekly.subtitle", language)} ${formatPersianMonthYear(
               monthDays[0] || todayISO,
+              language,
             )}`}
             routines={routines}
             selectedRoutineId={selectedRoutineId}
