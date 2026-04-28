@@ -1,0 +1,31 @@
+.language-switcher {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.language-switcher-label {
+  color: var(--color-text-secondary);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.language-switcher-control {
+  position: relative;
+}
+
+.language-switcher-select.input {
+  appearance: none;
+  padding-inline-end: 36px;
+  cursor: pointer;
+}
+
+.language-switcher-chevron {
+  position: absolute;
+  inset-inline-end: 12px;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-secondary);
+  pointer-events: none;
+  font-size: 0.82rem;
+}

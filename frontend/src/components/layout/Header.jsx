@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { t } from "../../lib/i18n";
 import { motivationalTexts } from "../../data/motivationalTexts";
 import ThemeSwitcher from "../ui/ThemeSwitcher";
+import LanguageSwitcher from "../ui/LanguageSwitcher";
 import "./Header.css";
 
 function getRandomMotivationalText(language) {
@@ -53,11 +54,6 @@ export default function Header({
     setIsMenuOpen(false);
   }
 
-  function toggleLanguageFromMenu() {
-    onChangeLanguage?.();
-    setIsMenuOpen(false);
-  }
-
   function logoutFromMenu() {
     onLogout?.();
     setIsMenuOpen(false);
@@ -104,14 +100,15 @@ export default function Header({
               }}
               aria-label={t("header.theme", language)}
             />
-            <button
-              className="language-toggle-btn"
-              onClick={toggleLanguageFromMenu}
-              title={t("header.language", language)}
+            <LanguageSwitcher
+              className="topbar-language-switcher"
+              value={language}
+              onChange={(nextLanguage) => {
+                onChangeLanguage?.(nextLanguage);
+                setIsMenuOpen(false);
+              }}
               aria-label={t("header.language", language)}
-            >
-              <span>{language === "fa" ? "EN" : "FA"}</span>
-            </button>
+            />
             <button
               className="logout-toggle-btn"
               onClick={logoutFromMenu}

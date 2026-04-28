@@ -4,6 +4,7 @@ import Card from "../components/ui/Card";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import ThemeSwitcher from "../components/ui/ThemeSwitcher";
+import LanguageSwitcher from "../components/ui/LanguageSwitcher";
 import PersianMonthCalendar from "../components/calendar/PersianMonthCalendar";
 import { api, setSession, getToken } from "../lib/api";
 import { useSettings } from "../lib/settings";
@@ -122,16 +123,12 @@ export default function LoginPage() {
             label={t("login.theme", language)}
           />
 
-          <button
-            type="button"
-            className="auth-setting-btn"
-            onClick={() => setLanguage(language === "fa" ? "en" : "fa")}
-            title={t("login.language", language)}
-            aria-label={t("login.language", language)}
-          >
-            <i className="fa-solid fa-language" aria-hidden="true" />
-            <span>{language === "fa" ? "EN" : "FA"}</span>
-          </button>
+          <LanguageSwitcher
+            className="auth-language-switcher"
+            value={language}
+            onChange={setLanguage}
+            label={t("login.language", language)}
+          />
         </div>
 
         <form className="stack" onSubmit={submit}>

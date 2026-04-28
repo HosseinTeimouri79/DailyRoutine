@@ -38,11 +38,8 @@
   margin-bottom: 16px;
 }
 
-.auth-theme-switcher {
-  flex: 1 1 220px;
-}
-
-.auth-theme-switcher .theme-switcher-select {
+.auth-theme-switcher .theme-switcher-select,
+.auth-language-switcher .language-switcher-select {
   width: 100%;
 }
 

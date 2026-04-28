@@ -5,13 +5,10 @@ import {
   normalizeTheme,
   setThemeStorage,
 } from "./themes";
+import { normalizeLanguage } from "./languages";
 
 const LANGUAGE_KEY = "dr_language";
 const CALENDAR_TYPE_KEY = "dr_calendar_type";
-
-function normalizeLanguage(value) {
-  return value === "en" ? "en" : "fa";
-}
 
 function normalizeCalendarType(value) {
   return value === "gregorian" ? "gregorian" : "jalali";

@@ -295,7 +295,7 @@ export default function AppShell({ title, children }) {
         language={language}
         onOpenProfile={openProfile}
         onThemeChange={setTheme}
-        onChangeLanguage={() => setLanguage(language === "fa" ? "en" : "fa")}
+        onChangeLanguage={setLanguage}
         onLogout={logout}
       />
 

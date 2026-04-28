@@ -1,4 +1,5 @@
 import { getThemeLabel as getThemeLabelFromThemes } from "./themes";
+import { getLanguageLabel as getLanguageLabelFromLanguages } from "./languages";
 
 const translations = {
   fa: {
@@ -443,7 +444,7 @@ export function t(key, language = "fa", replacements = {}) {
 }
 
 export function getLanguageLabel(language) {
-  return language === "en" ? "English" : "فارسی";
+  return getLanguageLabelFromLanguages(language);
 }
 
 export function getThemeLabel(theme, language) {
