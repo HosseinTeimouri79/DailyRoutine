@@ -21,15 +21,27 @@ import {
   shiftMonthCursor,
   shiftISODate,
 } from "../lib/date";
+import {
+  ALL_WEEKDAYS,
+  RECURRENCE_MODES,
+  isRoutineScheduledOnDate,
+  normalizeRoutineRecurrence,
+} from "../lib/recurrence";
 import "./HomePage.css";
 
 function buildStatsForDays(days, routines, logsMap) {
-  const total = days.length * routines.length;
+  const total = routines.reduce(
+    (count, routine) =>
+      count +
+      days.filter((day) => isRoutineScheduledOnDate(routine, day)).length,
+    0,
+  );
   let done = 0;
   let missed = 0;
 
   routines.forEach((routine) => {
     days.forEach((day) => {
+      if (!isRoutineScheduledOnDate(routine, day)) return;
       const status = logsMap.get(`${routine.id}-${day}`);
       if (status === "done") done += 1;
       if (status === "missed") missed += 1;
@@ -48,8 +60,11 @@ function buildRoutineStatsForDays(days, routines, logsMap) {
   return routines.map((routine) => {
     let done = 0;
     let missed = 0;
+    let scheduled = 0;
 
     days.forEach((day) => {
+      if (!isRoutineScheduledOnDate(routine, day)) return;
+      scheduled += 1;
       const status = logsMap.get(`${routine.id}-${day}`);
       if (status === "done") done += 1;
       if (status === "missed") missed += 1;
@@ -60,7 +75,7 @@ function buildRoutineStatsForDays(days, routines, logsMap) {
       title: routine.title,
       done,
       missed,
-      remaining: Math.max(days.length - done - missed, 0),
+      remaining: Math.max(scheduled - done - missed, 0),
     };
   });
 }
@@ -105,6 +120,14 @@ export default function HomePage() {
   );
   const [newRoutineAlarmEnabled, setNewRoutineAlarmEnabled] = useState(false);
   const [newRoutineAlarmTime, setNewRoutineAlarmTime] = useState("09:00");
+  const [newRoutineRecurrenceMode, setNewRoutineRecurrenceMode] = useState(
+    RECURRENCE_MODES.SPECIFIC_WEEKDAYS,
+  );
+  const [newRoutineWeekdays, setNewRoutineWeekdays] = useState([
+    ...ALL_WEEKDAYS,
+  ]);
+  const [newRoutineDayOfWeek, setNewRoutineDayOfWeek] = useState(0);
+  const [newRoutineDayOfMonth, setNewRoutineDayOfMonth] = useState(1);
   const [selectedMonthlyDate, setSelectedMonthlyDate] = useState(getTodayISO());
   const [tasksDate, setTasksDate] = useState(getTodayISO());
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -137,6 +160,18 @@ export default function HomePage() {
     [month],
   );
   const weekDays = useMemo(() => getWeekDaysGregorian(weekStart), [weekStart]);
+  const recurrenceWeekdayOptions = useMemo(
+    () => [
+      { value: 0, label: t("weekly.weekdayMonday", language) },
+      { value: 1, label: t("weekly.weekdayTuesday", language) },
+      { value: 2, label: t("weekly.weekdayWednesday", language) },
+      { value: 3, label: t("weekly.weekdayThursday", language) },
+      { value: 4, label: t("weekly.weekdayFriday", language) },
+      { value: 5, label: t("weekly.weekdaySaturday", language) },
+      { value: 6, label: t("weekly.weekdaySunday", language) },
+    ],
+    [language],
+  );
   const todayWeekStart = useMemo(() => getWeekStartISO(getTodayISO()), []);
   const canGoNextWeek = weekStart < todayWeekStart;
 
@@ -313,6 +348,7 @@ export default function HomePage() {
           (routine) =>
             routine.is_active &&
             routine.alarm_enabled &&
+            isRoutineScheduledOnDate(routine, todayISODate) &&
             routine.alarm_time === hhmm,
         )
         .forEach((routine) => {
@@ -353,6 +389,12 @@ export default function HomePage() {
       return;
     }
 
+    const routine = routines.find((item) => item.id === routineId);
+    if (!routine || !isRoutineScheduledOnDate(routine, date)) {
+      notify(t("weekly.cannotSetUnscheduled", language), "warn");
+      return;
+    }
+
     try {
       const key = `${routineId}-${date}`;
       const next = getNextStatus(logsMap.get(key));
@@ -365,29 +407,72 @@ export default function HomePage() {
     }
   }
 
+  function toggleRoutineWeekdaySelection(weekday) {
+    setNewRoutineWeekdays((prev) => {
+      const exists = prev.includes(weekday);
+      if (exists) {
+        if (prev.length === 1) return prev;
+        return prev.filter((item) => item !== weekday);
+      }
+
+      return [...prev, weekday].sort((a, b) => a - b);
+    });
+  }
+
+  function resetRoutineForm() {
+    setNewRoutineTitle("");
+    setNewRoutineColor(getDefaultRoutineColor());
+    setNewRoutineAlarmEnabled(false);
+    setNewRoutineAlarmTime("09:00");
+    setNewRoutineRecurrenceMode(RECURRENCE_MODES.SPECIFIC_WEEKDAYS);
+    setNewRoutineWeekdays([...ALL_WEEKDAYS]);
+    setNewRoutineDayOfWeek(0);
+    setNewRoutineDayOfMonth(1);
+  }
+
+  function buildRoutinePayload() {
+    const payload = {
+      title: newRoutineTitle.trim(),
+      color: newRoutineColor,
+      alarm_enabled: newRoutineAlarmEnabled,
+      alarm_time: newRoutineAlarmEnabled ? newRoutineAlarmTime : null,
+      recurrence_mode: newRoutineRecurrenceMode,
+    };
+
+    if (newRoutineRecurrenceMode === RECURRENCE_MODES.SPECIFIC_WEEKDAYS) {
+      payload.recurrence_weekdays = [...newRoutineWeekdays].sort(
+        (a, b) => a - b,
+      );
+    } else if (newRoutineRecurrenceMode === RECURRENCE_MODES.WEEKLY_DAY) {
+      payload.recurrence_day_of_week = Number(newRoutineDayOfWeek);
+    } else {
+      payload.recurrence_day_of_month = Number(newRoutineDayOfMonth);
+    }
+
+    return payload;
+  }
+
   async function createRoutine(event) {
     event.preventDefault();
     if (!newRoutineTitle.trim()) return;
+
+    if (
+      newRoutineRecurrenceMode === RECURRENCE_MODES.SPECIFIC_WEEKDAYS &&
+      newRoutineWeekdays.length === 0
+    ) {
+      notify(t("weekly.recurrenceSelectAtLeastOneDay", language), "warn");
+      return;
+    }
+
     try {
+      const payload = buildRoutinePayload();
+
       if (editingRoutineId) {
-        await api.updateRoutine(editingRoutineId, {
-          title: newRoutineTitle.trim(),
-          color: newRoutineColor,
-          alarm_enabled: newRoutineAlarmEnabled,
-          alarm_time: newRoutineAlarmEnabled ? newRoutineAlarmTime : null,
-        });
+        await api.updateRoutine(editingRoutineId, payload);
       } else {
-        await api.createRoutine({
-          title: newRoutineTitle.trim(),
-          color: newRoutineColor,
-          alarm_enabled: newRoutineAlarmEnabled,
-          alarm_time: newRoutineAlarmEnabled ? newRoutineAlarmTime : null,
-        });
+        await api.createRoutine(payload);
       }
-      setNewRoutineTitle("");
-      setNewRoutineColor(getDefaultRoutineColor());
-      setNewRoutineAlarmEnabled(false);
-      setNewRoutineAlarmTime("09:00");
+      resetRoutineForm();
       setEditingRoutineId(null);
       setIsAddModalOpen(false);
       notify(
@@ -416,19 +501,22 @@ export default function HomePage() {
 
   function openAddModal() {
     setEditingRoutineId(null);
-    setNewRoutineTitle("");
-    setNewRoutineColor(getDefaultRoutineColor());
-    setNewRoutineAlarmEnabled(false);
-    setNewRoutineAlarmTime("09:00");
+    resetRoutineForm();
     setIsAddModalOpen(true);
   }
 
   function openEditModal(routine) {
+    const recurrence = normalizeRoutineRecurrence(routine);
+
     setEditingRoutineId(routine.id);
     setNewRoutineTitle(routine.title || "");
     setNewRoutineColor(routine.color || getDefaultRoutineColor());
     setNewRoutineAlarmEnabled(Boolean(routine.alarm_enabled));
     setNewRoutineAlarmTime(routine.alarm_time || "09:00");
+    setNewRoutineRecurrenceMode(recurrence.mode);
+    setNewRoutineWeekdays(recurrence.weekdays);
+    setNewRoutineDayOfWeek(recurrence.dayOfWeek ?? 0);
+    setNewRoutineDayOfMonth(recurrence.dayOfMonth ?? 1);
     setIsAddModalOpen(true);
   }
 
@@ -485,6 +573,15 @@ export default function HomePage() {
 
   function getSelectedRoutineDayStatus(isoDate) {
     if (!selectedRoutineId) return null;
+    const selectedRoutine = routines.find(
+      (routine) => routine.id === selectedRoutineId,
+    );
+    if (
+      !selectedRoutine ||
+      !isRoutineScheduledOnDate(selectedRoutine, isoDate)
+    ) {
+      return null;
+    }
     return logsMap.get(`${selectedRoutineId}-${isoDate}`) || null;
   }
 
@@ -702,6 +799,8 @@ export default function HomePage() {
             openEditModal={openEditModal}
             onRequestRoutineDelete={setRoutineToDelete}
             toggleStatus={toggleStatus}
+            isRoutineScheduledOnDate={isRoutineScheduledOnDate}
+            recurrenceWeekdayOptions={recurrenceWeekdayOptions}
             language={language}
             calendarType={calendarType}
           />
@@ -771,8 +870,7 @@ export default function HomePage() {
         onClose={() => {
           setIsAddModalOpen(false);
           setEditingRoutineId(null);
-          setNewRoutineAlarmEnabled(false);
-          setNewRoutineAlarmTime("09:00");
+          resetRoutineForm();
         }}
         title={
           editingRoutineId
@@ -798,6 +896,102 @@ export default function HomePage() {
               onChange={(e) => setNewRoutineColor(e.target.value)}
             />
           </div>
+
+          <label
+            className="routine-field-label"
+            htmlFor="routineRecurrenceMode"
+          >
+            {t("weekly.recurrenceMode", language)}
+          </label>
+          <select
+            id="routineRecurrenceMode"
+            className="input"
+            value={newRoutineRecurrenceMode}
+            onChange={(e) => setNewRoutineRecurrenceMode(e.target.value)}
+          >
+            <option value={RECURRENCE_MODES.SPECIFIC_WEEKDAYS}>
+              {t("weekly.recurrenceSpecificWeekdays", language)}
+            </option>
+            <option value={RECURRENCE_MODES.WEEKLY_DAY}>
+              {t("weekly.recurrenceWeeklyDay", language)}
+            </option>
+            <option value={RECURRENCE_MODES.MONTHLY_DAY}>
+              {t("weekly.recurrenceMonthlyDay", language)}
+            </option>
+          </select>
+
+          {newRoutineRecurrenceMode === RECURRENCE_MODES.SPECIFIC_WEEKDAYS ? (
+            <div className="stack stack-tight">
+              <span className="routine-field-label">
+                {t("weekly.recurrenceDaysOfWeek", language)}
+              </span>
+              <div className="weekday-chip-grid">
+                {recurrenceWeekdayOptions.map((option) => (
+                  <label
+                    key={`routine-weekday-${option.value}`}
+                    className={`weekday-chip ${newRoutineWeekdays.includes(option.value) ? "active" : ""}`.trim()}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={newRoutineWeekdays.includes(option.value)}
+                      onChange={() =>
+                        toggleRoutineWeekdaySelection(option.value)
+                      }
+                    />
+                    <span>{option.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {newRoutineRecurrenceMode === RECURRENCE_MODES.WEEKLY_DAY ? (
+            <div className="stack stack-tight">
+              <label className="routine-field-label" htmlFor="routineDayOfWeek">
+                {t("weekly.recurrenceDayOfWeek", language)}
+              </label>
+              <select
+                id="routineDayOfWeek"
+                className="input"
+                value={newRoutineDayOfWeek}
+                onChange={(e) => setNewRoutineDayOfWeek(Number(e.target.value))}
+              >
+                {recurrenceWeekdayOptions.map((option) => (
+                  <option
+                    key={`routine-weekly-day-${option.value}`}
+                    value={option.value}
+                  >
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
+
+          {newRoutineRecurrenceMode === RECURRENCE_MODES.MONTHLY_DAY ? (
+            <div className="stack stack-tight">
+              <label
+                className="routine-field-label"
+                htmlFor="routineDayOfMonth"
+              >
+                {t("weekly.recurrenceDayOfMonth", language)}
+              </label>
+              <input
+                id="routineDayOfMonth"
+                type="number"
+                min={1}
+                max={31}
+                className="input"
+                value={newRoutineDayOfMonth}
+                onChange={(e) => {
+                  const next = Number(e.target.value);
+                  if (Number.isNaN(next)) return;
+                  setNewRoutineDayOfMonth(Math.min(31, Math.max(1, next)));
+                }}
+              />
+            </div>
+          ) : null}
+
           <label className="routine-alarm-toggle">
             <input
               type="checkbox"
@@ -821,8 +1015,7 @@ export default function HomePage() {
               onClick={() => {
                 setIsAddModalOpen(false);
                 setEditingRoutineId(null);
-                setNewRoutineAlarmEnabled(false);
-                setNewRoutineAlarmTime("09:00");
+                resetRoutineForm();
               }}
             >
               {t("common.cancel", language)}

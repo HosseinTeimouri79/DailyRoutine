@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify, request, g
 from core.auth import auth_required
 from core.db import execute, query_all, query_one
 from core.date_utils import parse_iso_date_to_timestamp
+from core.recurrence import is_routine_due_on_timestamp
 
 
 logs_bp = Blueprint("logs", __name__, url_prefix="/api/routine-logs")
@@ -24,11 +25,18 @@ def upsert_log():
         return jsonify({"message": "date must be a valid YYYY-MM-DD date"}), 400
 
     routine = query_one(
-        "SELECT id FROM routines WHERE id = %s AND user_id = %s",
+        """
+        SELECT id, recurrence_mode, recurrence_weekdays, recurrence_day_of_week, recurrence_day_of_month
+        FROM routines
+        WHERE id = %s AND user_id = %s
+        """,
         (routine_id, g.user_id),
     )
     if not routine:
         return jsonify({"message": "routine not found"}), 404
+
+    if not is_routine_due_on_timestamp(routine, log_timestamp):
+        return jsonify({"message": "routine is not scheduled for the provided date"}), 400
 
     execute(
         """

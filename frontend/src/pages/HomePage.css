@@ -63,6 +63,47 @@
   font-size: 0.9rem;
 }
 
+.routine-field-label {
+  font-size: 0.86rem;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.stack-tight {
+  gap: 8px;
+}
+
+.weekday-chip-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.weekday-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-surface-soft);
+  color: var(--color-text-secondary);
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  user-select: none;
+}
+
+.weekday-chip input {
+  display: none;
+}
+
+.weekday-chip.active {
+  color: var(--color-primary);
+  border: var(--border-accent);
+  background: color-mix(in srgb, var(--color-primary-soft) 65%, transparent);
+}
+
 .delete-confirm-modal {
   width: min(420px, calc(100vw - 24px));
 }
@@ -87,5 +128,9 @@
     padding: 8px 6px;
     font-size: 0.82rem;
     line-height: 1.35;
+  }
+
+  .weekday-chip-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

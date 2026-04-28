@@ -1,6 +1,7 @@
 import Card from "../ui/Card";
 import ProgressRing from "../ui/ProgressRing";
 import { formatDateParts, formatMonthYear } from "../../lib/date";
+import { getRoutineRecurrenceSummary } from "../../lib/recurrence";
 import { t } from "../../lib/i18n";
 import "./WeeklyRoutines.css";
 
@@ -17,25 +18,32 @@ export default function WeeklyRoutines({
   openEditModal,
   onRequestRoutineDelete,
   toggleStatus,
+  isRoutineScheduledOnDate,
+  recurrenceWeekdayOptions,
   language,
   calendarType,
 }) {
-  function getRoutineWeekProgress(routineId) {
+  function getRoutineWeekProgress(routine) {
     const doneCount = weekDays.reduce((count, day) => {
-      const status = logsMap.get(`${routineId}-${day}`);
+      if (!isRoutineScheduledOnDate(routine, day)) return count;
+      const status = logsMap.get(`${routine.id}-${day}`);
       return status === "done" ? count + 1 : count;
     }, 0);
 
-    const totalDays = weekDays.length || 1;
+    const totalDays =
+      weekDays.filter((day) => isRoutineScheduledOnDate(routine, day)).length ||
+      1;
     const percent = Math.round((doneCount / totalDays) * 100);
 
     return { doneCount, totalDays, percent };
   }
 
-  function renderStatusButton(routineId, day, mobile = false) {
-    const key = `${routineId}-${day}`;
+  function renderStatusButton(routine, day, mobile = false) {
+    const key = `${routine.id}-${day}`;
     const status = logsMap.get(key);
     const isFutureDay = day > todayISO;
+    const isScheduled = isRoutineScheduledOnDate(routine, day);
+    const isDisabled = isFutureDay || !isScheduled;
     const cls =
       status === "done"
         ? "status-btn done"
@@ -45,18 +53,26 @@ export default function WeeklyRoutines({
 
     return (
       <button
-        className={`${cls} ${mobile ? "status-btn-mobile" : ""} ${isFutureDay ? "disabled" : ""}`.trim()}
-        disabled={isFutureDay}
-        title={isFutureDay ? t("weekly.cannotSetFuture", language) : ""}
-        onClick={() => toggleStatus(routineId, day)}
+        className={`${cls} ${mobile ? "status-btn-mobile" : ""} ${isDisabled ? "disabled" : ""}`.trim()}
+        disabled={isDisabled}
+        title={
+          isFutureDay
+            ? t("weekly.cannotSetFuture", language)
+            : !isScheduled
+              ? t("weekly.cannotSetUnscheduled", language)
+              : ""
+        }
+        onClick={() => toggleStatus(routine.id, day)}
       >
         <i
           className={
-            status === "done"
-              ? "fa-solid fa-check"
-              : status === "missed"
-                ? "fa-solid fa-xmark"
-                : "fa-solid fa-minus"
+            !isScheduled
+              ? "fa-solid fa-ban"
+              : status === "done"
+                ? "fa-solid fa-check"
+                : status === "missed"
+                  ? "fa-solid fa-xmark"
+                  : "fa-solid fa-minus"
           }
           aria-hidden="true"
         />
@@ -148,7 +164,11 @@ export default function WeeklyRoutines({
           </thead>
           <tbody>
             {routines.map((routine) => {
-              const progress = getRoutineWeekProgress(routine.id);
+              const progress = getRoutineWeekProgress(routine);
+              const recurrenceSummary = getRoutineRecurrenceSummary(
+                routine,
+                recurrenceWeekdayOptions.map((option) => option.label),
+              );
 
               return (
                 <tr key={routine.id}>
@@ -179,6 +199,10 @@ export default function WeeklyRoutines({
                         <i className="fa-solid fa-trash" aria-hidden="true" />
                       </button>
                       <span>{routine.title}</span>
+                      <span className="routine-recurrence-chip">
+                        {t("weekly.recurrenceSummaryPrefix", language)}{" "}
+                        {recurrenceSummary.text}
+                      </span>
                       {routine.alarm_enabled && routine.alarm_time ? (
                         <span
                           className="routine-alarm-chip"
@@ -197,7 +221,7 @@ export default function WeeklyRoutines({
                     const key = `${routine.id}-${day}`;
 
                     return (
-                      <td key={key}>{renderStatusButton(routine.id, day)}</td>
+                      <td key={key}>{renderStatusButton(routine, day)}</td>
                     );
                   })}
                 </tr>
@@ -209,7 +233,11 @@ export default function WeeklyRoutines({
 
       <div className="weekly-mobile-list">
         {routines.map((routine) => {
-          const progress = getRoutineWeekProgress(routine.id);
+          const progress = getRoutineWeekProgress(routine);
+          const recurrenceSummary = getRoutineRecurrenceSummary(
+            routine,
+            recurrenceWeekdayOptions.map((option) => option.label),
+          );
 
           return (
             <div key={`mobile-${routine.id}`} className="weekly-mobile-row">
@@ -226,6 +254,10 @@ export default function WeeklyRoutines({
                     })}
                   />
                   <span className="routine-title-cell">{routine.title}</span>
+                  <span className="routine-recurrence-chip">
+                    {t("weekly.recurrenceSummaryPrefix", language)}{" "}
+                    {recurrenceSummary.text}
+                  </span>
                   {routine.alarm_enabled && routine.alarm_time ? (
                     <span
                       className="routine-alarm-chip"
@@ -271,7 +303,7 @@ export default function WeeklyRoutines({
                     key={`mobile-status-${routine.id}-${day}`}
                     className="week-mobile-status-cell"
                   >
-                    {renderStatusButton(routine.id, day, true)}
+                    {renderStatusButton(routine, day, true)}
                   </div>
                 ))}
               </div>

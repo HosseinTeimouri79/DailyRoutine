@@ -72,6 +72,17 @@
   font-size: 0.78rem;
 }
 
+.routine-recurrence-chip {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  background: color-mix(in srgb, var(--color-bg-surface) 70%, transparent);
+  border: var(--border-default);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
 .status-btn {
   width: 34px;
   height: 28px;
