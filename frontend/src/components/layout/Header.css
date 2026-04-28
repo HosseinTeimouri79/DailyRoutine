@@ -34,6 +34,10 @@
   gap: 8px;
 }
 
+.topbar-actions .topbar-theme-switcher {
+  min-width: 210px;
+}
+
 .topbar-menu {
   position: relative;
 }
@@ -146,5 +150,9 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .topbar-actions.open .topbar-theme-switcher {
+    width: 100%;
   }
 }

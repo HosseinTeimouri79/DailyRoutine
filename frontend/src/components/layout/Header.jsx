@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { t } from "../../lib/i18n";
 import { motivationalTexts } from "../../data/motivationalTexts";
+import ThemeSwitcher from "../ui/ThemeSwitcher";
 import "./Header.css";
 
 function getRandomMotivationalText(language) {
@@ -14,7 +15,7 @@ export default function Header({
   theme,
   language,
   onOpenProfile,
-  onToggleTheme,
+  onThemeChange,
   onChangeLanguage,
   onLogout,
 }) {
@@ -49,11 +50,6 @@ export default function Header({
 
   function openProfileFromMenu() {
     onOpenProfile?.();
-    setIsMenuOpen(false);
-  }
-
-  function toggleThemeFromMenu() {
-    onToggleTheme?.();
     setIsMenuOpen(false);
   }
 
@@ -99,19 +95,15 @@ export default function Header({
             >
               <i className="fa-solid fa-user" aria-hidden="true" />
             </button>
-            <button
-              className="theme-toggle-btn"
-              onClick={toggleThemeFromMenu}
-              title={t("header.theme", language)}
+            <ThemeSwitcher
+              className="topbar-theme-switcher"
+              value={theme}
+              onChange={(nextTheme) => {
+                onThemeChange?.(nextTheme);
+                setIsMenuOpen(false);
+              }}
               aria-label={t("header.theme", language)}
-            >
-              <i
-                className={
-                  theme === "dark" ? "fa-solid fa-sun" : "fa-solid fa-moon"
-                }
-                aria-hidden="true"
-              />
-            </button>
+            />
             <button
               className="language-toggle-btn"
               onClick={toggleLanguageFromMenu}

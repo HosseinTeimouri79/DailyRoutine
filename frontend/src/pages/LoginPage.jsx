@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Card from "../components/ui/Card";
 import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
+import ThemeSwitcher from "../components/ui/ThemeSwitcher";
 import PersianMonthCalendar from "../components/calendar/PersianMonthCalendar";
 import { api, setSession, getToken } from "../lib/api";
 import { useSettings } from "../lib/settings";
@@ -114,25 +115,12 @@ export default function LoginPage() {
         subtitle={t("login.subtitle", language)}
       >
         <div className="auth-settings-row">
-          <button
-            type="button"
-            className="auth-setting-btn"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            title={t("login.theme", language)}
-            aria-label={t("login.theme", language)}
-          >
-            <i
-              className={
-                theme === "dark" ? "fa-solid fa-sun" : "fa-solid fa-moon"
-              }
-              aria-hidden="true"
-            />
-            <span>
-              {theme === "dark"
-                ? t("login.themeDark", language)
-                : t("login.themeLight", language)}
-            </span>
-          </button>
+          <ThemeSwitcher
+            className="auth-theme-switcher"
+            value={theme}
+            onChange={setTheme}
+            label={t("login.theme", language)}
+          />
 
           <button
             type="button"

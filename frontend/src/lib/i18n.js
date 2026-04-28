@@ -1,3 +1,5 @@
+import { getThemeLabel as getThemeLabelFromThemes } from "./themes";
+
 const translations = {
   fa: {
     login: {
@@ -445,8 +447,9 @@ export function getLanguageLabel(language) {
 }
 
 export function getThemeLabel(theme, language) {
-  if (theme === "dark") {
-    return language === "en" ? "Dark" : "تیره";
+  if (language === "fa") {
+    return getThemeLabelFromThemes(theme);
   }
-  return language === "en" ? "Light" : "روشن";
+
+  return getThemeLabelFromThemes(theme);
 }

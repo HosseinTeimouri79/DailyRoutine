@@ -38,6 +38,14 @@
   margin-bottom: 16px;
 }
 
+.auth-theme-switcher {
+  flex: 1 1 220px;
+}
+
+.auth-theme-switcher .theme-switcher-select {
+  width: 100%;
+}
+
 .auth-dob-calendar .monthly-calendar-navigation {
   gap: 6px;
 }

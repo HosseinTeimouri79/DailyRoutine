@@ -294,9 +294,7 @@ export default function AppShell({ title, children }) {
         theme={theme}
         language={language}
         onOpenProfile={openProfile}
-        onToggleTheme={() =>
-          setTheme((prev) => (prev === "dark" ? "light" : "dark"))
-        }
+        onThemeChange={setTheme}
         onChangeLanguage={() => setLanguage(language === "fa" ? "en" : "fa")}
         onLogout={logout}
       />

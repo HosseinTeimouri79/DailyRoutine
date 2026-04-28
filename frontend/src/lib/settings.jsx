@@ -1,12 +1,13 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import {
+  applyThemeToDocument,
+  getSavedTheme,
+  normalizeTheme,
+  setThemeStorage,
+} from "./themes";
 
-const THEME_KEY = "dr_theme";
 const LANGUAGE_KEY = "dr_language";
 const CALENDAR_TYPE_KEY = "dr_calendar_type";
-
-function normalizeTheme(value) {
-  return value === "dark" ? "dark" : "light";
-}
 
 function normalizeLanguage(value) {
   return value === "en" ? "en" : "fa";
@@ -14,20 +15,6 @@ function normalizeLanguage(value) {
 
 function normalizeCalendarType(value) {
   return value === "gregorian" ? "gregorian" : "jalali";
-}
-
-export function getSavedTheme() {
-  if (typeof window === "undefined") return "light";
-  const saved = sessionStorage.getItem(THEME_KEY);
-  if (saved === "dark" || saved === "light") return saved;
-  return window.matchMedia?.("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
-}
-
-export function setThemeStorage(theme) {
-  if (typeof window === "undefined") return;
-  sessionStorage.setItem(THEME_KEY, normalizeTheme(theme));
 }
 
 export function getSavedLanguage() {
@@ -70,7 +57,7 @@ export function setCalendarTypeStorage(calendarType) {
 
 export function applyAppSettings({ theme, language, calendarType }) {
   if (typeof document === "undefined") return;
-  document.documentElement.setAttribute("data-theme", normalizeTheme(theme));
+  applyThemeToDocument(normalizeTheme(theme));
   document.documentElement.lang = normalizeLanguage(language);
   document.documentElement.dir =
     normalizeLanguage(language) === "fa" ? "rtl" : "ltr";

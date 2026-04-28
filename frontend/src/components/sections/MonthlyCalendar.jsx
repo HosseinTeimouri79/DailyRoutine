@@ -19,19 +19,19 @@ function SelectedRoutinePieReport({ data, language, selectedRoutineStreaks }) {
       key: "done",
       label: t("monthly.done", language),
       value: done,
-      fill: "var(--color-success-border)",
+      fill: "var(--color-success)",
     },
     {
       key: "missed",
       label: t("monthly.missed", language),
       value: missed,
-      fill: "var(--color-danger-border)",
+      fill: "var(--color-danger)",
     },
     {
       key: "remaining",
       label: t("monthly.remaining", language),
       value: remaining,
-      fill: "color-mix(in srgb, var(--color-primary) 35%, var(--color-bg-surface))",
+      fill: "var(--color-accent)",
     },
   ];
 
@@ -41,7 +41,7 @@ function SelectedRoutinePieReport({ data, language, selectedRoutineStreaks }) {
       key: "empty",
       label: t("monthly.noData", language),
       value: 1,
-      fill: "var(--border-default)",
+      fill: "var(--color-bg-control)",
     },
   ];
   const renderData = chartData.length ? chartData : fallbackData;
@@ -66,7 +66,7 @@ function SelectedRoutinePieReport({ data, language, selectedRoutineStreaks }) {
             <div className="monthly-pie-legend-item">
               <i
                 className="fa-solid fa-trophy-star fa-beat-fade"
-                style={{ color: "rgb(255, 212, 59)" }}
+                style={{ color: "var(--color-warn)" }}
               ></i>
               <span>{t("monthly.maxStreak", language)}</span>
               <strong>{selectedRoutineStreaks.maxStreak}</strong>
@@ -74,7 +74,7 @@ function SelectedRoutinePieReport({ data, language, selectedRoutineStreaks }) {
             <div className="monthly-pie-legend-item">
               <i
                 className="fa-sharp fa-solid fa-fire fa-fade"
-                style={{ color: "#F78C03" }}
+                style={{ color: "var(--color-accent)" }}
               ></i>
               <span>{t("monthly.currentStreak", language)}</span>
               <strong>{selectedRoutineStreaks.currentStreak}</strong>
