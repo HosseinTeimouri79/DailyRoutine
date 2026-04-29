@@ -93,4 +93,7 @@ export const api = {
       auth: true,
     }),
   deleteNote: (id) => request(`/notes/${id}`, { method: "DELETE", auth: true }),
+  getImportantDays: () => request("/important-days", { auth: true }),
+  createImportantDay: (payload) =>
+    request("/important-days", { method: "POST", body: payload, auth: true }),
 };

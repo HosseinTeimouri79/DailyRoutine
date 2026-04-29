@@ -11,6 +11,109 @@
   margin: 0;
 }
 
+.calendar-important-day {
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-soft);
+  padding: 18px;
+  display: grid;
+  gap: 18px;
+}
+
+.calendar-important-day-section {
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-soft);
+  padding: 18px;
+  display: grid;
+  gap: 18px;
+}
+
+.calendar-important-day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.calendar-important-day-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.calendar-important-day-header div {
+  flex: 1;
+}
+
+.calendar-important-day-header .btn {
+  flex-shrink: 0;
+}
+
+.calendar-important-day-form {
+  display: grid;
+  gap: 16px;
+}
+
+.calendar-important-day-row {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.calendar-important-day-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.important-day-summary {
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-surface);
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.important-day-summary-title {
+  font-weight: 700;
+}
+
+.important-day-summary-desc {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.important-day-summary-meta {
+  display: grid;
+  gap: 6px;
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+}
+
+.important-day-message {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.important-day-message.success {
+  color: var(--color-success);
+}
+
+.important-day-message.error {
+  color: var(--color-danger);
+}
+
+textarea.input {
+  min-height: 100px;
+  resize: vertical;
+}
+
+@media (max-width: 720px) {
+  .calendar-important-day-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .calendar-events-list {
   list-style: none;
   padding: 0;
@@ -66,4 +169,20 @@
   .calendar-event {
     align-items: flex-start;
   }
+}
+
+.modal-form {
+  display: grid;
+  gap: 16px;
+}
+
+.modal-form .field {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+}
+
+.modal-form textarea {
+  min-height: 80px;
+  resize: vertical;
 }

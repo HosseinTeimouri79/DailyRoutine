@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Card from "../ui/Card";
+import Button from "../ui/Button";
+import Modal from "../ui/Modal";
 import PersianMonthCalendar from "../calendar/PersianMonthCalendar";
 import holidays from "../../data/holidays.json";
 import {
@@ -10,6 +12,7 @@ import {
   getTodayISO,
   shiftMonthCursor,
 } from "../../lib/date";
+import { api } from "../../lib/api";
 import { t } from "../../lib/i18n";
 import "./CalendarTab.css";
 
@@ -48,6 +51,150 @@ export default function CalendarTab({ language, calendarType }) {
   const [month, setMonth] = useState(() =>
     getMonthCursorFromISO(todayISO, calendarType),
   );
+  const [isImportantDayModalOpen, setIsImportantDayModalOpen] = useState(false);
+  const [importantModalMonth, setImportantModalMonth] = useState(() =>
+    getMonthCursorFromISO(todayISO, calendarType),
+  );
+  const [importantTitle, setImportantTitle] = useState("");
+  const [importantDescription, setImportantDescription] = useState("");
+  const [importantDate, setImportantDate] = useState(todayISO);
+  const [importantTime, setImportantTime] = useState(() => {
+    const now = new Date();
+    return `${String(now.getHours()).padStart(2, "0")}:${String(
+      now.getMinutes(),
+    ).padStart(2, "0")}`;
+  });
+  const [importantSaved, setImportantSaved] = useState(null);
+  const [formMessage, setFormMessage] = useState({ type: "", text: "" });
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadImportantDays() {
+      try {
+        const rows = await api.getImportantDays();
+        if (cancelled) return;
+        if (rows?.length) {
+          const [saved] = rows;
+          setImportantSaved(saved);
+          setImportantTitle(saved.title || "");
+          setImportantDescription(saved.description || "");
+          setImportantDate(saved.date || todayISO);
+          setImportantTime(saved.time || importantTime);
+        }
+      } catch {
+        // ignore backend load failure for now
+      }
+    }
+
+    loadImportantDays();
+    return () => {
+      cancelled = true;
+    };
+  }, [todayISO, importantTime]);
+
+  useEffect(() => {
+    setImportantModalMonth(getMonthCursorFromISO(importantDate, calendarType));
+  }, [calendarType, importantDate]);
+
+  function openImportantDayModal() {
+    setImportantTitle("");
+    setImportantDescription("");
+    setImportantDate(todayISO);
+    setImportantModalMonth(getMonthCursorFromISO(todayISO, calendarType));
+    setImportantTime(
+      `${String(new Date().getHours()).padStart(2, "0")}:${String(
+        new Date().getMinutes(),
+      ).padStart(2, "0")}`,
+    );
+    setFormMessage({ type: "", text: "" });
+    setIsImportantDayModalOpen(true);
+  }
+
+  function closeImportantDayModal() {
+    setIsImportantDayModalOpen(false);
+    setFormMessage({ type: "", text: "" });
+  }
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const importantCountdown = useMemo(() => {
+    const target = new Date(`${importantDate}T${importantTime || "00:00"}:00`);
+    if (Number.isNaN(target.getTime())) {
+      return { label: "", expired: false };
+    }
+
+    const diffSeconds = Math.floor((target.getTime() - now) / 1000);
+    if (diffSeconds <= 0) {
+      return {
+        label: t("calendarTab.importantDayExpired", language),
+        expired: true,
+      };
+    }
+
+    const days = Math.floor(diffSeconds / 86400);
+    const hours = Math.floor((diffSeconds % 86400) / 3600);
+    const minutes = Math.floor((diffSeconds % 3600) / 60);
+    const seconds = diffSeconds % 60;
+
+    if (days >= 1) {
+      return {
+        label: t("calendarTab.importantDayCountdownDays", language, {
+          days,
+          hours,
+        }),
+        expired: false,
+      };
+    }
+
+    return {
+      label: t("calendarTab.importantDayCountdownHours", language, {
+        hours: String(hours).padStart(2, "0"),
+        minutes: String(minutes).padStart(2, "0"),
+        seconds: String(seconds).padStart(2, "0"),
+      }),
+      expired: false,
+    };
+  }, [importantDate, importantTime, language, now]);
+
+  async function handleSaveImportantDay(event) {
+    event.preventDefault();
+    const title = importantTitle.trim();
+    if (!title) {
+      setFormMessage({
+        type: "error",
+        text: t("calendarTab.importantDayNoTitleError", language),
+      });
+      return;
+    }
+
+    try {
+      const payload = {
+        title,
+        description: importantDescription.trim(),
+        date: importantDate,
+        time: importantTime,
+      };
+      const saved = await api.createImportantDay(payload);
+      setImportantSaved(saved);
+      setFormMessage({
+        type: "success",
+        text: t("calendarTab.importantDaySavedMessage", language),
+      });
+      setTimeout(() => {
+        closeImportantDayModal();
+      }, 1500);
+    } catch (error) {
+      setFormMessage({
+        type: "error",
+        text: error.message || t("calendarTab.importantDaySaveError", language),
+      });
+    }
+  }
 
   const holidayMaps = useMemo(
     () => ({
@@ -144,6 +291,141 @@ export default function CalendarTab({ language, calendarType }) {
           </ul>
         )}
       </div>
+
+      <div className="calendar-important-day-section">
+        <div className="calendar-important-day-header">
+          <div>
+            <h3>{t("calendarTab.importantDaySectionTitle", language)}</h3>
+            <p className="muted">
+              {t("calendarTab.importantDaySectionDescription", language)}
+            </p>
+          </div>
+          <Button onClick={openImportantDayModal}>
+            {t("calendarTab.importantDayAdd", language)}
+          </Button>
+        </div>
+
+        {importantSaved ? (
+          <div className="important-day-summary">
+            <span className="important-day-summary-title">
+              {importantSaved.title}
+            </span>
+            {importantSaved.description ? (
+              <p className="important-day-summary-desc">
+                {importantSaved.description}
+              </p>
+            ) : null}
+            <div className="important-day-summary-meta">
+              <span>
+                {t("calendarTab.importantDayDateLabel", language)}:{" "}
+                {importantSaved.date}
+              </span>
+              <span>
+                {t("calendarTab.importantDayTimeLabel", language)}:{" "}
+                {importantSaved.time}
+              </span>
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      <Modal
+        isOpen={isImportantDayModalOpen}
+        onClose={closeImportantDayModal}
+        title={t("calendarTab.importantDayModalTitle", language)}
+      >
+        <form onSubmit={handleSaveImportantDay} className="modal-form">
+          <div className="field">
+            <label htmlFor="modal-important-title">
+              {t("calendarTab.importantDayTitleLabel", language)}
+            </label>
+            <input
+              id="modal-important-title"
+              className="input"
+              value={importantTitle}
+              onChange={(event) => setImportantTitle(event.target.value)}
+              placeholder={t(
+                "calendarTab.importantDayTitlePlaceholder",
+                language,
+              )}
+              autoFocus
+            />
+          </div>
+
+          <div className="field">
+            <label>{t("calendarTab.importantDayDateLabel", language)}</label>
+            <PersianMonthCalendar
+              month={importantModalMonth}
+              calendarType={calendarType}
+              onPrevMonth={() =>
+                setImportantModalMonth((prev) => shiftMonthCursor(prev, -1))
+              }
+              onNextMonth={() =>
+                setImportantModalMonth((prev) => shiftMonthCursor(prev, 1))
+              }
+              onSetMonth={setImportantModalMonth}
+              onGoToday={() => {
+                setImportantModalMonth(
+                  getMonthCursorFromISO(todayISO, calendarType),
+                );
+                setImportantDate(todayISO);
+              }}
+              selectedDate={importantDate}
+              onSelectDay={setImportantDate}
+              language={language}
+            />
+          </div>
+
+          <div className="field">
+            <label htmlFor="modal-important-time">
+              {t("calendarTab.importantDayTimeLabel", language)}
+            </label>
+            <input
+              id="modal-important-time"
+              className="input"
+              type="time"
+              value={importantTime}
+              onChange={(event) => setImportantTime(event.target.value)}
+            />
+          </div>
+
+          <div className="field">
+            <label htmlFor="modal-important-description">
+              {t("calendarTab.importantDayDescriptionLabel", language)}
+            </label>
+            <textarea
+              id="modal-important-description"
+              className="input"
+              value={importantDescription}
+              onChange={(event) => setImportantDescription(event.target.value)}
+              placeholder={t(
+                "calendarTab.importantDayDescriptionPlaceholder",
+                language,
+              )}
+              rows="3"
+            />
+          </div>
+
+          {formMessage.text ? (
+            <p className={`important-day-message ${formMessage.type}`.trim()}>
+              {formMessage.text}
+            </p>
+          ) : null}
+
+          <div className="modal-actions">
+            <Button
+              variant="secondary"
+              onClick={closeImportantDayModal}
+              type="button"
+            >
+              {t("common.cancel", language)}
+            </Button>
+            <Button type="submit">
+              {t("calendarTab.importantDaySave", language)}
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </Card>
   );
 }

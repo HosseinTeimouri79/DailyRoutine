@@ -58,6 +58,20 @@ CREATE TABLE IF NOT EXISTS notes (
   updated_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::bigint)
 );
 
+CREATE TABLE IF NOT EXISTS important_days (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT,
+  event_date BIGINT NOT NULL,
+  event_time TEXT NOT NULL,
+  created_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::bigint),
+  updated_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::bigint)
+);
+
+CREATE INDEX IF NOT EXISTS idx_important_days_user_id ON important_days(user_id);
+CREATE INDEX IF NOT EXISTS idx_important_days_event_date ON important_days(event_date);
+
 CREATE INDEX IF NOT EXISTS idx_routines_user_id ON routines(user_id);
 CREATE INDEX IF NOT EXISTS idx_logs_routine_id ON routine_logs(routine_id);
 CREATE INDEX IF NOT EXISTS idx_logs_date ON routine_logs(date);
