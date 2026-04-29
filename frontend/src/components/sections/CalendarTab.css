@@ -26,6 +26,7 @@
   background: var(--color-bg-surface-soft);
   padding: 18px;
   display: grid;
+  margin-top: 8px;
   gap: 18px;
 }
 
@@ -119,13 +120,6 @@ textarea.input {
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 10px;
-}
-
-.calendar-event {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 12px;
   border: var(--border-default);
   border-radius: var(--radius-md);
@@ -134,35 +128,11 @@ textarea.input {
 }
 
 .calendar-event.holiday {
-  border-color: var(--color-danger-border);
-  background: color-mix(
-    in srgb,
-    var(--color-danger-soft) 70%,
-    var(--color-bg-surface)
-  );
+  color: var(--color-danger-border);
 }
 
 .calendar-event-title {
   font-weight: 600;
-}
-
-.calendar-event-badge {
-  font-size: 0.78rem;
-  font-weight: 700;
-  border-radius: 999px;
-  padding: 4px 8px;
-}
-
-.calendar-event-badge.holiday {
-  color: var(--color-danger);
-  background: var(--color-danger-soft);
-  border: 1px solid var(--color-danger-border);
-}
-
-.calendar-event-badge.event {
-  color: var(--color-primary-strong);
-  background: var(--color-accent-soft);
-  border: 1px solid var(--color-accent-border);
 }
 
 @media (max-width: 720px) {

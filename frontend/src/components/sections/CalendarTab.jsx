@@ -279,13 +279,6 @@ export default function CalendarTab({ language, calendarType }) {
                 className={`calendar-event ${event.isHoliday ? "holiday" : ""}`.trim()}
               >
                 <span className="calendar-event-title">{event.name}</span>
-                <span
-                  className={`calendar-event-badge ${event.isHoliday ? "holiday" : "event"}`.trim()}
-                >
-                  {event.isHoliday
-                    ? t("calendarTab.holidayBadge", language)
-                    : t("calendarTab.eventBadge", language)}
-                </span>
               </li>
             ))}
           </ul>
@@ -318,13 +311,24 @@ export default function CalendarTab({ language, calendarType }) {
             <div className="important-day-summary-meta">
               <span>
                 {t("calendarTab.importantDayDateLabel", language)}:{" "}
-                {importantSaved.date}
+                {
+                  formatDateParts(importantSaved.date, language, calendarType)
+                    .day
+                }{" "}
+                {formatMonthYear(importantSaved.date, language, calendarType)}
               </span>
               <span>
                 {t("calendarTab.importantDayTimeLabel", language)}:{" "}
                 {importantSaved.time}
               </span>
             </div>
+            {importantCountdown.label && (
+              <p
+                className={`important-day-countdown ${importantCountdown.expired ? "expired" : ""}`.trim()}
+              >
+                {importantCountdown.label}
+              </p>
+            )}
           </div>
         ) : null}
       </div>
