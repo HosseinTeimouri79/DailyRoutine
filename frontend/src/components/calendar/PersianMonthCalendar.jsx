@@ -172,6 +172,7 @@ export default function PersianMonthCalendar({
             "monthly-day",
             status === "done" ? "task-day-done" : "",
             status === "missed" ? "task-day-missed" : "",
+            status === "holiday" ? "holiday" : "",
             badge ? `task-day-badge-${badge}` : "",
             selectedDate === cell.isoDate ? "selected" : "",
           ]

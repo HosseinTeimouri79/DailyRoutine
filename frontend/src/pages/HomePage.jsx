@@ -7,6 +7,7 @@ import WeeklyRoutines from "../components/sections/WeeklyRoutines";
 import MonthlyCalendar from "../components/sections/MonthlyCalendar";
 import DailyTasks from "../components/sections/DailyTasks";
 import Notes from "../components/sections/Notes";
+import CalendarTab from "../components/sections/CalendarTab";
 import { api } from "../lib/api";
 import { useSnackbar } from "../hooks/useSnackbar";
 import { useSettings } from "../lib/settings";
@@ -113,7 +114,7 @@ export default function HomePage() {
   const [weekStart, setWeekStart] = useState(getWeekStartISO(getTodayISO()));
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [routineToDelete, setRoutineToDelete] = useState(null);
-  const [activeTab, setActiveTab] = useState("weekly");
+  const [activeTab, setActiveTab] = useState("calendar");
   const [editingRoutineId, setEditingRoutineId] = useState(null);
   const [newRoutineTitle, setNewRoutineTitle] = useState("");
   const [newRoutineColor, setNewRoutineColor] = useState(() =>
@@ -771,6 +772,13 @@ export default function HomePage() {
       <div className="nav-tabs page-tabs">
         <button
           type="button"
+          className={`tab tab-btn ${activeTab === "calendar" ? "active" : ""}`.trim()}
+          onClick={() => changeTab("calendar")}
+        >
+          {t("calendarTab.title", language)}
+        </button>
+        <button
+          type="button"
           className={`tab tab-btn ${activeTab === "weekly" ? "active" : ""}`.trim()}
           onClick={() => changeTab("weekly")}
         >
@@ -791,6 +799,10 @@ export default function HomePage() {
           {t("notes.title", language)}
         </button>
       </div>
+
+      {activeTab === "calendar" ? (
+        <CalendarTab language={language} calendarType={calendarType} />
+      ) : null}
 
       {activeTab === "weekly" ? (
         <>

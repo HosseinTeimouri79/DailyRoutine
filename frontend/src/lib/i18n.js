@@ -185,6 +185,14 @@ const translations = {
       confirmDeleteTaskTitle: "تأیید حذف کار",
       confirmDeleteTaskMessage: "آیا از حذف کار «{{content}}» مطمئن هستید؟",
     },
+    calendarTab: {
+      title: "تقویم",
+      subtitle: "مناسبت‌ها و تعطیلات هر روز را ببین",
+      selectedDate: "تاریخ انتخاب‌شده",
+      noEvents: "برای این روز مناسبتی ثبت نشده است.",
+      holidayBadge: "تعطیل",
+      eventBadge: "مناسبت",
+    },
     notes: {
       title: "یادداشت‌ها",
       subtitle: "یادداشت‌های شخصی را جستجو، ویرایش و حذف کن",
@@ -435,6 +443,14 @@ const translations = {
       confirmDeleteTaskTitle: "Confirm task deletion",
       confirmDeleteTaskMessage:
         'Are you sure you want to delete the task "{{content}}"?',
+    },
+    calendarTab: {
+      title: "Calendar",
+      subtitle: "See daily observances and holidays",
+      selectedDate: "Selected date",
+      noEvents: "No events recorded for this day.",
+      holidayBadge: "Holiday",
+      eventBadge: "Event",
     },
     notes: {
       title: "Notes",
