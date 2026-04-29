@@ -254,10 +254,6 @@ export default function WeeklyRoutines({
                     })}
                   />
                   <span className="routine-title-cell">{routine.title}</span>
-                  <span className="routine-recurrence-chip">
-                    {t("weekly.recurrenceSummaryPrefix", language)}{" "}
-                    {recurrenceSummary.text}
-                  </span>
                   {routine.alarm_enabled && routine.alarm_time ? (
                     <span
                       className="routine-alarm-chip"
@@ -285,6 +281,11 @@ export default function WeeklyRoutines({
                   </button>
                 </div>
               </div>
+
+              <span className="routine-recurrence-chip week-mobile-recurrence">
+                {t("weekly.recurrenceSummaryPrefix", language)}{" "}
+                {recurrenceSummary.text}
+              </span>
 
               <div className="weekly-mobile-weekdays">
                 {weekDays.map((date) => {

@@ -14,6 +14,13 @@ import { t } from "../../lib/i18n";
 import Header from "./Header";
 import Button from "../ui/Button";
 import Modal from "../ui/Modal";
+import ThemeSwitcher from "../ui/ThemeSwitcher";
+import LanguageSwitcher from "../ui/LanguageSwitcher";
+import {
+  CONFETTI_MODE_OPTIONS,
+  getSavedConfettiSettings,
+  setConfettiSettings,
+} from "../../lib/confetti";
 import "./AppShell.css";
 
 export default function AppShell({ title, children }) {
@@ -21,6 +28,7 @@ export default function AppShell({ title, children }) {
   const navigate = useNavigate();
   const [user, setUser] = useState(initialUser);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileName, setProfileName] = useState(initialUser?.name || "");
@@ -38,6 +46,9 @@ export default function AppShell({ title, children }) {
     initialUser?.calendar_type || "jalali",
   );
   const [profileGender, setProfileGender] = useState(initialUser?.gender || "");
+  const [confettiSettings, setConfettiSettingsState] = useState(() =>
+    getSavedConfettiSettings(),
+  );
   const [passwordForm, setPasswordForm] = useState({
     current: "",
     next: "",
@@ -81,6 +92,15 @@ export default function AppShell({ title, children }) {
     setProfileMessage({ type: "", text: "" });
   }
 
+  function openSettings() {
+    setConfettiSettingsState(getSavedConfettiSettings());
+    setIsSettingsOpen(true);
+  }
+
+  function closeSettings() {
+    setIsSettingsOpen(false);
+  }
+
   function openPasswordModal() {
     setPasswordMessage({ type: "", text: "" });
     setPasswordForm({ current: "", next: "", confirm: "" });
@@ -97,6 +117,17 @@ export default function AppShell({ title, children }) {
 
   function togglePasswordVisibility(field) {
     setPasswordVisibility((prev) => ({ ...prev, [field]: !prev[field] }));
+  }
+
+  function updateConfettiSettings(next) {
+    setConfettiSettingsState((prev) => {
+      const merged = {
+        ...prev,
+        ...next,
+      };
+      setConfettiSettings(merged);
+      return merged;
+    });
   }
 
   async function syncProfile() {
@@ -294,8 +325,7 @@ export default function AppShell({ title, children }) {
         theme={theme}
         language={language}
         onOpenProfile={openProfile}
-        onThemeChange={setTheme}
-        onChangeLanguage={setLanguage}
+        onOpenSettings={openSettings}
         onLogout={logout}
       />
 
@@ -482,6 +512,72 @@ export default function AppShell({ title, children }) {
         {profileLoading ? (
           <p className="muted">{t("appShell.updatingProfile", language)}</p>
         ) : null}
+      </Modal>
+
+      <Modal
+        isOpen={isSettingsOpen}
+        onClose={closeSettings}
+        title={t("login.settingsTitle", language)}
+        className="settings-modal"
+      >
+        <div className="settings-stack">
+          <div className="profile-settings-grid">
+            <ThemeSwitcher
+              label={t("login.theme", language)}
+              value={theme}
+              onChange={setTheme}
+            />
+            <LanguageSwitcher
+              label={t("login.language", language)}
+              value={language}
+              onChange={setLanguage}
+            />
+          </div>
+          <div className="profile-toggle-row">
+            <span>{t("confetti.enable", language)}</span>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={confettiSettings.enabled}
+                onChange={(event) =>
+                  updateConfettiSettings({
+                    enabled: event.target.checked,
+                  })
+                }
+              />
+              <span className="toggle-slider" aria-hidden="true" />
+            </label>
+          </div>
+          <div className="field">
+            <label htmlFor="confettiMode">{t("confetti.mode", language)}</label>
+            <div className="select-wrap">
+              <select
+                id="confettiMode"
+                className="input"
+                value={confettiSettings.mode}
+                onChange={(event) =>
+                  updateConfettiSettings({ mode: event.target.value })
+                }
+                disabled={!confettiSettings.enabled}
+              >
+                {CONFETTI_MODE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {t(`confetti.modes.${option.value}`, language)}
+                  </option>
+                ))}
+              </select>
+              <i
+                className="fa-solid fa-chevron-down select-chevron"
+                aria-hidden="true"
+              />
+            </div>
+          </div>
+          <div className="modal-actions">
+            <Button type="button" variant="secondary" onClick={closeSettings}>
+              {t("common.close", language)}
+            </Button>
+          </div>
+        </div>
       </Modal>
 
       <Modal

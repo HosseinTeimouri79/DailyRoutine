@@ -144,6 +144,10 @@
   gap: 10px;
 }
 
+.week-mobile-recurrence {
+  justify-self: flex-start;
+}
+
 .week-mobile-header {
   display: flex;
   align-items: center;

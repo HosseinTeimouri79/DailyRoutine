@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { t } from "../../lib/i18n";
 import { motivationalTexts } from "../../data/motivationalTexts";
-import ThemeSwitcher from "../ui/ThemeSwitcher";
-import LanguageSwitcher from "../ui/LanguageSwitcher";
 import "./Header.css";
 
 function getRandomMotivationalText(language) {
@@ -16,8 +14,7 @@ export default function Header({
   theme,
   language,
   onOpenProfile,
-  onThemeChange,
-  onChangeLanguage,
+  onOpenSettings,
   onLogout,
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -84,6 +81,17 @@ export default function Header({
 
           <div className={`topbar-actions ${isMenuOpen ? "open" : ""}`.trim()}>
             <button
+              className="settings-toggle-btn"
+              onClick={() => {
+                onOpenSettings?.();
+                setIsMenuOpen(false);
+              }}
+              title={t("header.settings", language)}
+              aria-label={t("header.settings", language)}
+            >
+              <i className="fa-solid fa-gear" aria-hidden="true" />
+            </button>
+            <button
               className="profile-toggle-btn"
               onClick={openProfileFromMenu}
               title={t("header.profile", language)}
@@ -91,24 +99,6 @@ export default function Header({
             >
               <i className="fa-solid fa-user" aria-hidden="true" />
             </button>
-            <ThemeSwitcher
-              className="topbar-theme-switcher"
-              value={theme}
-              onChange={(nextTheme) => {
-                onThemeChange?.(nextTheme);
-                setIsMenuOpen(false);
-              }}
-              aria-label={t("header.theme", language)}
-            />
-            <LanguageSwitcher
-              className="topbar-language-switcher"
-              value={language}
-              onChange={(nextLanguage) => {
-                onChangeLanguage?.(nextLanguage);
-                setIsMenuOpen(false);
-              }}
-              aria-label={t("header.language", language)}
-            />
             <button
               className="logout-toggle-btn"
               onClick={logoutFromMenu}

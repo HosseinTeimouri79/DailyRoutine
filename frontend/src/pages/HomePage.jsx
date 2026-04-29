@@ -11,6 +11,7 @@ import { api } from "../lib/api";
 import { useSnackbar } from "../hooks/useSnackbar";
 import { useSettings } from "../lib/settings";
 import { t } from "../lib/i18n";
+import { triggerConfetti } from "../lib/confetti";
 import {
   formatMonthYear,
   getGregorianDatesForCalendarMonth,
@@ -399,6 +400,9 @@ export default function HomePage() {
       const key = `${routineId}-${date}`;
       const next = getNextStatus(logsMap.get(key));
       await api.upsertLog({ routine_id: routineId, date, status: next });
+      if (next === "done") {
+        triggerConfetti();
+      }
       notify(t("notifications.routineStatusSaved", language), "success");
       await load();
     } catch (err) {
@@ -661,12 +665,16 @@ export default function HomePage() {
 
   async function toggleTaskDone(task) {
     try {
+      const shouldCelebrate = !task.is_done;
       await api.updateDailyTask(task.id, { is_done: !task.is_done });
       await loadTasks();
       await loadTaskDatesForMonth(tasksMonth);
       if (task.task_date === getTodayISO()) {
         const rows = await api.getDailyTasks(getTodayISO());
         setAlarmTasks(rows);
+      }
+      if (shouldCelebrate) {
+        triggerConfetti();
       }
     } catch (err) {
       notify(err.message, "error");
