@@ -548,87 +548,90 @@ export default function AppShell({ title, children }) {
               onChange={setLanguage}
             />
           </div>
-          <div className="profile-toggle-row">
-            <span>{t("confetti.enable", language)}</span>
-            <label className="toggle-switch">
-              <input
-                type="checkbox"
-                checked={confettiSettings.enabled}
-                onChange={(event) =>
-                  updateConfettiSettings({
-                    enabled: event.target.checked,
-                  })
-                }
-              />
-              <span className="toggle-slider" aria-hidden="true" />
-            </label>
-          </div>
-          <div className="field">
-            <label htmlFor="confettiMode">{t("confetti.mode", language)}</label>
-            <div className="select-wrap">
-              <select
-                id="confettiMode"
-                className="input"
-                value={confettiSettings.mode}
-                onChange={(event) =>
-                  updateConfettiSettings({ mode: event.target.value })
-                }
-                disabled={!confettiSettings.enabled}
-              >
-                {CONFETTI_MODE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {t(`confetti.modes.${option.value}`, language)}
-                  </option>
-                ))}
-              </select>
-              <i
-                className="fa-solid fa-chevron-down select-chevron"
-                aria-hidden="true"
-              />
+          <div className="setting-box">
+            <div className="profile-toggle-row">
+              <span>{t("confetti.enable", language)}</span>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={confettiSettings.enabled}
+                  onChange={(event) =>
+                    updateConfettiSettings({
+                      enabled: event.target.checked,
+                    })
+                  }
+                />
+                <span className="toggle-slider" aria-hidden="true" />
+              </label>
+            </div>
+            <div className="field">
+              <label htmlFor="confettiMode">
+                {t("confetti.mode", language)}
+              </label>
+              <div className="select-wrap">
+                <select
+                  id="confettiMode"
+                  className="input"
+                  value={confettiSettings.mode}
+                  onChange={(event) =>
+                    updateConfettiSettings({ mode: event.target.value })
+                  }
+                  disabled={!confettiSettings.enabled}
+                >
+                  {CONFETTI_MODE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {t(`confetti.modes.${option.value}`, language)}
+                    </option>
+                  ))}
+                </select>
+                <i
+                  className="fa-solid fa-chevron-down select-chevron"
+                  aria-hidden="true"
+                />
+              </div>
             </div>
           </div>
-          <div className="profile-section-title">
-            {t("pageTransition.title", language)}
-          </div>
-          <div className="profile-toggle-row">
-            <span>{t("pageTransition.enable", language)}</span>
-            <label className="toggle-switch">
-              <input
-                type="checkbox"
-                checked={pageTransitionSettings.enabled}
-                onChange={(event) =>
-                  updatePageTransitionSettings({
-                    enabled: event.target.checked,
-                  })
-                }
-              />
-              <span className="toggle-slider" aria-hidden="true" />
-            </label>
-          </div>
-          <div className="field">
-            <label htmlFor="pageTransitionMode">
-              {t("pageTransition.mode", language)}
-            </label>
-            <div className="select-wrap">
-              <select
-                id="pageTransitionMode"
-                className="input"
-                value={pageTransitionSettings.mode}
-                onChange={(event) =>
-                  updatePageTransitionSettings({ mode: event.target.value })
-                }
-                disabled={!pageTransitionSettings.enabled}
-              >
-                {PAGE_TRANSITION_MODE_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {t(`pageTransition.modes.${option.value}`, language)}
-                  </option>
-                ))}
-              </select>
-              <i
-                className="fa-solid fa-chevron-down select-chevron"
-                aria-hidden="true"
-              />
+          <div className="setting-box">
+            <div className="profile-toggle-row">
+              <span>{t("pageTransition.enable", language)}</span>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={pageTransitionSettings.enabled}
+                  onChange={(event) =>
+                    updatePageTransitionSettings({
+                      enabled: event.target.checked,
+                    })
+                  }
+                />
+                <span className="toggle-slider" aria-hidden="true" />
+              </label>
+            </div>
+            <div className="field">
+              <label htmlFor="pageTransitionMode">
+                {t("pageTransition.mode", language)}
+              </label>
+              <div className="select-wrap">
+                <select
+                  id="pageTransitionMode"
+                  className="input"
+                  value={pageTransitionSettings.mode}
+                  onChange={(event) =>
+                    updatePageTransitionSettings({ mode: event.target.value })
+                  }
+                  disabled={!pageTransitionSettings.enabled}
+                >
+                  {PAGE_TRANSITION_MODE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {t(`pageTransition.modes.${option.value}`, language)}
+                    </option>
+                  ))}
+                </select>
+                <i
+                  className="fa-solid fa-chevron-down select-chevron"
+                  aria-hidden="true"
+                />
+              </div>
             </div>
           </div>
           <div className="modal-actions">

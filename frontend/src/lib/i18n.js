@@ -110,7 +110,6 @@ const translations = {
       },
     },
     pageTransition: {
-      title: "تنظیمات انیمیشن صفحات",
       enable: "فعال‌سازی انیمیشن بین صفحات",
       mode: "حالت انتقال صفحه",
       modes: {
@@ -416,7 +415,6 @@ const translations = {
       },
     },
     pageTransition: {
-      title: "Page transition settings",
       enable: "Enable page transitions",
       mode: "Transition style",
       modes: {
