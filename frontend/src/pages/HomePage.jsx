@@ -108,7 +108,7 @@ function requestNotificationPermissionIfNeeded() {
 }
 
 export default function HomePage() {
-  const { language, calendarType } = useSettings();
+  const { language, calendarType, pageTransitionSettings } = useSettings();
   const todayISO = useMemo(() => getTodayISO(), []);
   const [month, setMonth] = useState(() =>
     getMonthCursorFromISO(todayISO, calendarType),
@@ -120,6 +120,8 @@ export default function HomePage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [routineToDelete, setRoutineToDelete] = useState(null);
   const [activeTab, setActiveTab] = useState("calendar");
+  const [isTabVisible, setIsTabVisible] = useState(true);
+  const tabTransitionTimeoutRef = useRef(null);
   const [editingRoutineId, setEditingRoutineId] = useState(null);
   const [newRoutineTitle, setNewRoutineTitle] = useState("");
   const [newRoutineColor, setNewRoutineColor] = useState(() =>
@@ -771,11 +773,35 @@ export default function HomePage() {
   }
 
   function changeTab(nextTab) {
-    setActiveTab(nextTab);
+    if (nextTab === activeTab) {
+      closeTaskModal();
+      setTaskToDelete(null);
+      setNoteToDelete(null);
+      return;
+    }
+
     closeTaskModal();
     setTaskToDelete(null);
     setNoteToDelete(null);
+
+    if (!pageTransitionSettings.enabled) {
+      setActiveTab(nextTab);
+      return;
+    }
+
+    window.clearTimeout(tabTransitionTimeoutRef.current);
+    setIsTabVisible(false);
+    tabTransitionTimeoutRef.current = window.setTimeout(() => {
+      setActiveTab(nextTab);
+      setIsTabVisible(true);
+    }, 240);
   }
+
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(tabTransitionTimeoutRef.current);
+    };
+  }, []);
 
   return (
     <AppShell title={t("header.title", language)}>
@@ -810,90 +836,96 @@ export default function HomePage() {
         </button>
       </div>
 
-      {activeTab === "calendar" ? (
-        <CalendarTab language={language} calendarType={calendarType} />
-      ) : null}
+      <div
+        className={`page-transition page-transition-${pageTransitionSettings.mode} ${
+          isTabVisible ? "page-transition-visible" : "page-transition-hidden"
+        }`}
+      >
+        {activeTab === "calendar" ? (
+          <CalendarTab language={language} calendarType={calendarType} />
+        ) : null}
 
-      {activeTab === "weekly" ? (
-        <>
-          <WeeklyRoutines
-            error={error}
-            openAddModal={openAddModal}
-            goToPreviousWeek={goToPreviousWeek}
-            goToNextWeek={goToNextWeek}
-            canGoNextWeek={canGoNextWeek}
-            weekDays={weekDays}
-            routines={routines}
-            logsMap={logsMap}
-            todayISO={todayISO}
-            openEditModal={openEditModal}
-            onRequestRoutineDelete={setRoutineToDelete}
-            toggleStatus={toggleStatus}
-            isRoutineScheduledOnDate={isRoutineScheduledOnDate}
-            recurrenceWeekdayOptions={recurrenceWeekdayOptions}
+        {activeTab === "weekly" ? (
+          <>
+            <WeeklyRoutines
+              error={error}
+              openAddModal={openAddModal}
+              goToPreviousWeek={goToPreviousWeek}
+              goToNextWeek={goToNextWeek}
+              canGoNextWeek={canGoNextWeek}
+              weekDays={weekDays}
+              routines={routines}
+              logsMap={logsMap}
+              todayISO={todayISO}
+              openEditModal={openEditModal}
+              onRequestRoutineDelete={setRoutineToDelete}
+              toggleStatus={toggleStatus}
+              isRoutineScheduledOnDate={isRoutineScheduledOnDate}
+              recurrenceWeekdayOptions={recurrenceWeekdayOptions}
+              language={language}
+              calendarType={calendarType}
+            />
+            <MonthlyCalendar
+              subtitle={`${t("weekly.subtitle", language)} ${formatMonthYear(
+                monthDays[0] || todayISO,
+                language,
+                calendarType,
+              )}`}
+              routines={routines}
+              selectedRoutineId={selectedRoutineId}
+              setSelectedRoutineId={setSelectedRoutineId}
+              month={month}
+              setMonth={setMonth}
+              goToPreviousMonth={goToPreviousMonth}
+              goToNextMonth={goToNextMonth}
+              goToTodayMonthly={goToTodayMonthly}
+              selectedMonthlyDate={selectedMonthlyDate}
+              setSelectedMonthlyDate={setSelectedMonthlyDate}
+              getSelectedRoutineDayStatus={getSelectedRoutineDayStatus}
+              monthlyReport={monthlyReport}
+              monthlyRoutineReport={monthlyRoutineReport}
+              monthDays={monthDays}
+              logsMap={logsMap}
+              selectedRoutineLogs={selectedRoutineLogs}
+              language={language}
+              calendarType={calendarType}
+            />
+          </>
+        ) : null}
+
+        {activeTab === "tasks" ? (
+          <DailyTasks
+            tasksMonth={tasksMonth}
+            setTasksMonth={setTasksMonth}
+            goToTodayTasks={goToTodayTasks}
+            tasksDate={tasksDate}
+            setTasksDate={setTasksDate}
+            onOpenAddTaskModal={openCreateTaskModal}
+            onOpenEditTaskModal={openEditTaskModal}
+            tasksLoading={tasksLoading}
+            tasks={tasks}
+            getTaskDayBadge={getTaskDayBadge}
+            toggleTaskDone={toggleTaskDone}
+            onRequestTaskDelete={setTaskToDelete}
             language={language}
             calendarType={calendarType}
           />
-          <MonthlyCalendar
-            subtitle={`${t("weekly.subtitle", language)} ${formatMonthYear(
-              monthDays[0] || todayISO,
-              language,
-              calendarType,
-            )}`}
-            routines={routines}
-            selectedRoutineId={selectedRoutineId}
-            setSelectedRoutineId={setSelectedRoutineId}
-            month={month}
-            setMonth={setMonth}
-            goToPreviousMonth={goToPreviousMonth}
-            goToNextMonth={goToNextMonth}
-            goToTodayMonthly={goToTodayMonthly}
-            selectedMonthlyDate={selectedMonthlyDate}
-            setSelectedMonthlyDate={setSelectedMonthlyDate}
-            getSelectedRoutineDayStatus={getSelectedRoutineDayStatus}
-            monthlyReport={monthlyReport}
-            monthlyRoutineReport={monthlyRoutineReport}
-            monthDays={monthDays}
-            logsMap={logsMap}
-            selectedRoutineLogs={selectedRoutineLogs}
+        ) : null}
+
+        {activeTab === "notes" ? (
+          <Notes
+            notes={notes}
+            notesLoading={notesLoading}
+            notesSearch={notesSearch}
+            setNotesSearch={setNotesSearch}
+            onOpenAdd={openCreateNoteModal}
+            onOpenEdit={openEditNoteModal}
+            onRequestDelete={setNoteToDelete}
             language={language}
             calendarType={calendarType}
           />
-        </>
-      ) : null}
-
-      {activeTab === "tasks" ? (
-        <DailyTasks
-          tasksMonth={tasksMonth}
-          setTasksMonth={setTasksMonth}
-          goToTodayTasks={goToTodayTasks}
-          tasksDate={tasksDate}
-          setTasksDate={setTasksDate}
-          onOpenAddTaskModal={openCreateTaskModal}
-          onOpenEditTaskModal={openEditTaskModal}
-          tasksLoading={tasksLoading}
-          tasks={tasks}
-          getTaskDayBadge={getTaskDayBadge}
-          toggleTaskDone={toggleTaskDone}
-          onRequestTaskDelete={setTaskToDelete}
-          language={language}
-          calendarType={calendarType}
-        />
-      ) : null}
-
-      {activeTab === "notes" ? (
-        <Notes
-          notes={notes}
-          notesLoading={notesLoading}
-          notesSearch={notesSearch}
-          setNotesSearch={setNotesSearch}
-          onOpenAdd={openCreateNoteModal}
-          onOpenEdit={openEditNoteModal}
-          onRequestDelete={setNoteToDelete}
-          language={language}
-          calendarType={calendarType}
-        />
-      ) : null}
+        ) : null}
+      </div>
 
       <Modal
         isOpen={isAddModalOpen}

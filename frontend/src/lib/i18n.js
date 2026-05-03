@@ -109,6 +109,18 @@ const translations = {
         random: "تصادفی",
       },
     },
+    pageTransition: {
+      title: "تنظیمات انیمیشن صفحات",
+      enable: "فعال‌سازی انیمیشن بین صفحات",
+      mode: "حالت انتقال صفحه",
+      modes: {
+        fade: "محو",
+        slide: "لغزش",
+        zoom: "بزرگ‌نمایی",
+        sparkle: "درخشش",
+        swirl: "چرخش",
+      },
+    },
     weekly: {
       title: "روتین‌های من",
       subtitle: "وضعیت هر روتین در روزهای هفته",
@@ -401,6 +413,18 @@ const translations = {
         schoolPride: "School pride",
         customShapes: "Custom shapes",
         random: "Random",
+      },
+    },
+    pageTransition: {
+      title: "Page transition settings",
+      enable: "Enable page transitions",
+      mode: "Transition style",
+      modes: {
+        fade: "Fade",
+        slide: "Slide",
+        zoom: "Zoom",
+        sparkle: "Sparkle",
+        swirl: "Swirl",
       },
     },
     weekly: {

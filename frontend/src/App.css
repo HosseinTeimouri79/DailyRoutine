@@ -1,0 +1,31 @@
+.page-transition {
+  transition:
+    opacity 240ms ease,
+    transform 240ms ease;
+}
+
+.page-transition-hidden {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-transition-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-transition-slide.page-transition-hidden {
+  transform: translateX(12px);
+}
+
+.page-transition-zoom.page-transition-hidden {
+  transform: scale(0.98);
+}
+
+.page-transition-sparkle.page-transition-hidden {
+  transform: translateY(10px) scale(0.98);
+}
+
+.page-transition-swirl.page-transition-hidden {
+  transform: rotate(-4deg) scale(0.96);
+}

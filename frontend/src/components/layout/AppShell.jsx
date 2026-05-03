@@ -21,6 +21,7 @@ import {
   getSavedConfettiSettings,
   setConfettiSettings,
 } from "../../lib/confetti";
+import { PAGE_TRANSITION_MODE_OPTIONS } from "../../lib/pageTransition";
 import "./AppShell.css";
 
 export default function AppShell({ title, children }) {
@@ -66,8 +67,15 @@ export default function AppShell({ title, children }) {
     text: "",
   });
   const profileFileInputRef = useRef(null);
-  const { theme, language, setTheme, setLanguage, setCalendarType } =
-    useSettings();
+  const {
+    theme,
+    language,
+    setTheme,
+    setLanguage,
+    setCalendarType,
+    pageTransitionSettings,
+    setPageTransitionSettings,
+  } = useSettings();
 
   function openProfile() {
     setProfileMessage({ type: "", text: "" });
@@ -95,6 +103,13 @@ export default function AppShell({ title, children }) {
   function openSettings() {
     setConfettiSettingsState(getSavedConfettiSettings());
     setIsSettingsOpen(true);
+  }
+
+  function updatePageTransitionSettings(next) {
+    setPageTransitionSettings((prev) => ({
+      ...prev,
+      ...next,
+    }));
   }
 
   function closeSettings() {
@@ -563,6 +578,50 @@ export default function AppShell({ title, children }) {
                 {CONFETTI_MODE_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {t(`confetti.modes.${option.value}`, language)}
+                  </option>
+                ))}
+              </select>
+              <i
+                className="fa-solid fa-chevron-down select-chevron"
+                aria-hidden="true"
+              />
+            </div>
+          </div>
+          <div className="profile-section-title">
+            {t("pageTransition.title", language)}
+          </div>
+          <div className="profile-toggle-row">
+            <span>{t("pageTransition.enable", language)}</span>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={pageTransitionSettings.enabled}
+                onChange={(event) =>
+                  updatePageTransitionSettings({
+                    enabled: event.target.checked,
+                  })
+                }
+              />
+              <span className="toggle-slider" aria-hidden="true" />
+            </label>
+          </div>
+          <div className="field">
+            <label htmlFor="pageTransitionMode">
+              {t("pageTransition.mode", language)}
+            </label>
+            <div className="select-wrap">
+              <select
+                id="pageTransitionMode"
+                className="input"
+                value={pageTransitionSettings.mode}
+                onChange={(event) =>
+                  updatePageTransitionSettings({ mode: event.target.value })
+                }
+                disabled={!pageTransitionSettings.enabled}
+              >
+                {PAGE_TRANSITION_MODE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {t(`pageTransition.modes.${option.value}`, language)}
                   </option>
                 ))}
               </select>

@@ -6,6 +6,10 @@ import {
   setThemeStorage,
 } from "./themes";
 import { normalizeLanguage } from "./languages";
+import {
+  getSavedPageTransitionSettings,
+  setPageTransitionSettings as setPageTransitionStorage,
+} from "./pageTransition";
 
 const LANGUAGE_KEY = "dr_language";
 const CALENDAR_TYPE_KEY = "dr_calendar_type";
@@ -85,6 +89,9 @@ export function SettingsProvider({ children }) {
   const [theme, setThemeState] = useState(getSavedTheme());
   const [language, setLanguageState] = useState(getSavedLanguage());
   const [calendarType, setCalendarTypeState] = useState(getSavedCalendarType());
+  const [pageTransitionSettings, setPageTransitionSettingsState] = useState(
+    getSavedPageTransitionSettings(),
+  );
 
   useEffect(() => {
     applyAppSettings({ theme, language, calendarType });
@@ -93,15 +100,27 @@ export function SettingsProvider({ children }) {
     setCalendarTypeStorage(calendarType);
   }, [theme, language, calendarType]);
 
+  useEffect(() => {
+    setPageTransitionStorage(pageTransitionSettings);
+    if (typeof document === "undefined") return;
+
+    document.documentElement.dataset.pageTransitionEnabled =
+      pageTransitionSettings.enabled ? "true" : "false";
+    document.documentElement.dataset.pageTransitionMode =
+      pageTransitionSettings.mode;
+  }, [pageTransitionSettings]);
+
   return (
     <SettingsContext.Provider
       value={{
         theme,
         language,
         calendarType,
+        pageTransitionSettings,
         setTheme: setThemeState,
         setLanguage: setLanguageState,
         setCalendarType: setCalendarTypeState,
+        setPageTransitionSettings: setPageTransitionSettingsState,
       }}
     >
       {children}
