@@ -84,6 +84,7 @@ export default function CalendarTab({ language, calendarType }) {
   const [importantIconColor, setImportantIconColor] = useState("#ffbe0b");
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
   const [importantDays, setImportantDays] = useState([]);
+  const [editingImportantDayId, setEditingImportantDayId] = useState(null);
   const [formMessage, setFormMessage] = useState({ type: "", text: "" });
   const [now, setNow] = useState(Date.now());
 
@@ -128,7 +129,44 @@ export default function CalendarTab({ language, calendarType }) {
 
   function closeImportantDayModal() {
     setIsImportantDayModalOpen(false);
+    setEditingImportantDayId(null);
     setFormMessage({ type: "", text: "" });
+  }
+
+  function openEditImportantDay(item) {
+    setEditingImportantDayId(item.id);
+    setImportantTitle(item.title || "");
+    setImportantDescription(item.description || "");
+    setImportantDate(item.date || todayISO);
+    setImportantTime(item.time || "09:00");
+    setImportantIcon(item.icon || IMPORTANT_DAY_ICON_OPTIONS[0].value);
+    setImportantIconColor(item.icon_color || "#ffbe0b");
+    setImportantModalMonth(
+      getMonthCursorFromISO(item.date || todayISO, calendarType),
+    );
+    setFormMessage({ type: "", text: "" });
+    setIsImportantDayModalOpen(true);
+  }
+
+  async function handleDeleteImportantDay(id) {
+    if (
+      !window.confirm(
+        t("calendarTab.importantDayDeleteConfirmMessage", language),
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await api.deleteImportantDay(id);
+      setImportantDays((prev) => prev.filter((item) => item.id !== id));
+    } catch (error) {
+      setFormMessage({
+        type: "error",
+        text:
+          error.message || t("calendarTab.importantDayDeleteError", language),
+      });
+    }
   }
 
   useEffect(() => {
@@ -195,11 +233,23 @@ export default function CalendarTab({ language, calendarType }) {
         icon: importantIcon,
         icon_color: importantIconColor,
       };
-      const saved = await api.createImportantDay(payload);
-      setImportantDays((prev) => [saved, ...prev]);
+
+      let saved;
+      if (editingImportantDayId) {
+        saved = await api.updateImportantDay(editingImportantDayId, payload);
+        setImportantDays((prev) =>
+          prev.map((item) => (item.id === saved.id ? saved : item)),
+        );
+      } else {
+        saved = await api.createImportantDay(payload);
+        setImportantDays((prev) => [saved, ...prev]);
+      }
+
       setFormMessage({
         type: "success",
-        text: t("calendarTab.importantDaySavedMessage", language),
+        text: editingImportantDayId
+          ? t("calendarTab.importantDayUpdatedMessage", language)
+          : t("calendarTab.importantDaySavedMessage", language),
       });
       setTimeout(() => {
         closeImportantDayModal();
@@ -369,6 +419,24 @@ export default function CalendarTab({ language, calendarType }) {
                       {countdown.label}
                     </p>
                   )}
+                  <div className="calendar-important-day-actions">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => openEditImportantDay(item)}
+                    >
+                      <i className="fa-solid fa-pen" aria-hidden="true" />{" "}
+                      {t("calendarTab.importantDayEdit", language)}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="danger"
+                      onClick={() => handleDeleteImportantDay(item.id)}
+                    >
+                      <i className="fa-solid fa-trash" aria-hidden="true" />{" "}
+                      {t("calendarTab.importantDayDelete", language)}
+                    </Button>
+                  </div>
                 </div>
               );
             })}
@@ -383,7 +451,11 @@ export default function CalendarTab({ language, calendarType }) {
       <Modal
         isOpen={isImportantDayModalOpen}
         onClose={closeImportantDayModal}
-        title={t("calendarTab.importantDayModalTitle", language)}
+        title={
+          editingImportantDayId
+            ? t("calendarTab.importantDayEditModalTitle", language)
+            : t("calendarTab.importantDayModalTitle", language)
+        }
       >
         <form onSubmit={handleSaveImportantDay} className="modal-form">
           <div className="field">

@@ -84,3 +84,87 @@ def create_important_day():
     )
 
     return jsonify(row[0]), 201
+
+
+@important_days_bp.put("/<int:important_day_id>")
+@auth_required
+def update_important_day(important_day_id):
+    data = request.get_json(silent=True) or {}
+    title = (data.get("title") or "").strip()
+    description = (data.get("description") or "").strip()
+    date_value = (data.get("date") or "").strip()
+    time_value = (data.get("time") or "").strip()
+    icon_value = (data.get("icon") or "").strip()
+    icon_color_value = (data.get("icon_color") or "").strip()
+
+    if not title or not date_value or not time_value:
+        return jsonify({"message": "title, date and time are required"}), 400
+
+    event_timestamp = parse_iso_date_to_timestamp(date_value)
+    if event_timestamp is None:
+        return jsonify({"message": "date must be a valid YYYY-MM-DD date"}), 400
+
+    if not TIME_PATTERN.match(time_value):
+        return jsonify({"message": "time must be in HH:MM format"}), 400
+
+    cursor = execute(
+        """
+        UPDATE important_days
+        SET title = %s,
+            description = %s,
+            event_date = %s,
+            event_time = %s,
+            icon = %s,
+            icon_color = %s,
+            updated_at = (EXTRACT(EPOCH FROM NOW())::bigint)
+        WHERE id = %s AND user_id = %s
+        RETURNING id
+        """,
+        (
+            title,
+            description or None,
+            event_timestamp,
+            time_value,
+            icon_value or None,
+            icon_color_value or None,
+            important_day_id,
+            g.user_id,
+        ),
+    )
+
+    result = cursor.fetchone()
+    if not result:
+        return jsonify({"message": "important day not found"}), 404
+
+    row = query_all(
+        """
+        SELECT id, title, description,
+          TO_CHAR(TO_TIMESTAMP(event_date), 'YYYY-MM-DD') AS date,
+          event_time AS time,
+          icon,
+          icon_color,
+          created_at, updated_at
+        FROM important_days
+        WHERE id = %s
+        """,
+        (important_day_id,),
+    )
+
+    return jsonify(row[0])
+
+
+@important_days_bp.delete("/<int:important_day_id>")
+@auth_required
+def delete_important_day(important_day_id):
+    cursor = execute(
+        """
+        DELETE FROM important_days
+        WHERE id = %s AND user_id = %s
+        """,
+        (important_day_id, g.user_id),
+    )
+
+    if cursor.rowcount == 0:
+        return jsonify({"message": "important day not found"}), 404
+
+    return jsonify({}), 204

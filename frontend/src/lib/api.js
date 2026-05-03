@@ -96,4 +96,12 @@ export const api = {
   getImportantDays: () => request("/important-days", { auth: true }),
   createImportantDay: (payload) =>
     request("/important-days", { method: "POST", body: payload, auth: true }),
+  updateImportantDay: (id, payload) =>
+    request(`/important-days/${id}`, {
+      method: "PUT",
+      body: payload,
+      auth: true,
+    }),
+  deleteImportantDay: (id) =>
+    request(`/important-days/${id}`, { method: "DELETE", auth: true }),
 };
