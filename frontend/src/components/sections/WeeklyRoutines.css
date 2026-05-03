@@ -64,6 +64,21 @@
   gap: 6px;
 }
 
+.routine-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-bg-surface) 90%, transparent);
+  border: var(--border-default);
+}
+
+.routine-item-icon i {
+  font-size: 0.9rem;
+}
+
 .routine-alarm-chip {
   display: inline-flex;
   align-items: center;

@@ -85,6 +85,8 @@ ALTER TABLE important_days
   ADD COLUMN IF NOT EXISTS icon_color TEXT;
 
 ALTER TABLE routines
+  ADD COLUMN IF NOT EXISTS color TEXT,
+  ADD COLUMN IF NOT EXISTS icon TEXT,
   ADD COLUMN IF NOT EXISTS recurrence_mode TEXT NOT NULL DEFAULT 'specific_weekdays',
   ADD COLUMN IF NOT EXISTS recurrence_weekdays SMALLINT[] NOT NULL DEFAULT ARRAY[0,1,2,3,4,5,6]::smallint[],
   ADD COLUMN IF NOT EXISTS recurrence_day_of_week SMALLINT,

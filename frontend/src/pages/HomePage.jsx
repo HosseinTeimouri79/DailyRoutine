@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import AppShell from "../components/layout/AppShell";
 import Button from "../components/ui/Button";
 import Modal from "../components/ui/Modal";
+import IconPickerModal from "../components/ui/IconPickerModal";
 import Snackbar from "../components/ui/Snackbar";
 import WeeklyRoutines from "../components/sections/WeeklyRoutines";
 import MonthlyCalendar from "../components/sections/MonthlyCalendar";
@@ -95,6 +96,10 @@ function getDefaultRoutineColor() {
     .trim();
 }
 
+function getDefaultRoutineIcon() {
+  return "fa-solid fa-star";
+}
+
 function requestNotificationPermissionIfNeeded() {
   if (typeof window === "undefined" || !("Notification" in window)) return;
   if (Notification.permission === "default") {
@@ -120,6 +125,8 @@ export default function HomePage() {
   const [newRoutineColor, setNewRoutineColor] = useState(() =>
     getDefaultRoutineColor(),
   );
+  const [newRoutineIcon, setNewRoutineIcon] = useState(getDefaultRoutineIcon());
+  const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
   const [newRoutineAlarmEnabled, setNewRoutineAlarmEnabled] = useState(false);
   const [newRoutineAlarmTime, setNewRoutineAlarmTime] = useState("09:00");
   const [newRoutineRecurrenceMode, setNewRoutineRecurrenceMode] = useState(
@@ -427,6 +434,7 @@ export default function HomePage() {
   function resetRoutineForm() {
     setNewRoutineTitle("");
     setNewRoutineColor(getDefaultRoutineColor());
+    setNewRoutineIcon(getDefaultRoutineIcon());
     setNewRoutineAlarmEnabled(false);
     setNewRoutineAlarmTime("09:00");
     setNewRoutineRecurrenceMode(RECURRENCE_MODES.SPECIFIC_WEEKDAYS);
@@ -439,6 +447,7 @@ export default function HomePage() {
     const payload = {
       title: newRoutineTitle.trim(),
       color: newRoutineColor,
+      icon: newRoutineIcon,
       alarm_enabled: newRoutineAlarmEnabled,
       alarm_time: newRoutineAlarmEnabled ? newRoutineAlarmTime : null,
       recurrence_mode: newRoutineRecurrenceMode,
@@ -516,6 +525,7 @@ export default function HomePage() {
     setEditingRoutineId(routine.id);
     setNewRoutineTitle(routine.title || "");
     setNewRoutineColor(routine.color || getDefaultRoutineColor());
+    setNewRoutineIcon(routine.icon || getDefaultRoutineIcon());
     setNewRoutineAlarmEnabled(Boolean(routine.alarm_enabled));
     setNewRoutineAlarmTime(routine.alarm_time || "09:00");
     setNewRoutineRecurrenceMode(recurrence.mode);
@@ -899,23 +909,27 @@ export default function HomePage() {
         }
       >
         <form className="stack" onSubmit={createRoutine}>
-          <div className="routine-form-row">
-            <input
-              id="newRoutineTitle"
-              className="input routine-title-input"
-              placeholder={t("weekly.routineNamePlaceholder", language)}
-              value={newRoutineTitle}
-              onChange={(e) => setNewRoutineTitle(e.target.value)}
-              required
-            />
-            <input
-              id="newRoutineColor"
-              type="color"
-              className="input routine-color-input routine-color-inline"
-              value={newRoutineColor}
-              onChange={(e) => setNewRoutineColor(e.target.value)}
-            />
-          </div>
+          <input
+            id="newRoutineTitle"
+            className="input routine-title-input"
+            placeholder={t("weekly.routineNamePlaceholder", language)}
+            value={newRoutineTitle}
+            onChange={(e) => setNewRoutineTitle(e.target.value)}
+            required
+          />
+          <button
+            type="button"
+            className="btn btn-secondary routine-icon-picker-btn"
+            onClick={() => setIsIconPickerOpen(true)}
+          >
+            <span
+              className="routine-icon-picker-preview"
+              style={{ color: newRoutineColor }}
+            >
+              <i className={newRoutineIcon} aria-hidden="true" />
+            </span>
+            {t("calendarTab.importantDayIconSelect", language)}
+          </button>
 
           <label
             className="routine-field-label"
@@ -1048,6 +1062,18 @@ export default function HomePage() {
           </div>
         </form>
       </Modal>
+
+      <IconPickerModal
+        isOpen={isIconPickerOpen}
+        onClose={() => setIsIconPickerOpen(false)}
+        title={t("calendarTab.importantDayIconPickerTitle", language)}
+        selectedIcon={newRoutineIcon}
+        selectedColor={newRoutineColor}
+        onSelectIcon={setNewRoutineIcon}
+        onSelectColor={setNewRoutineColor}
+        onConfirm={() => setIsIconPickerOpen(false)}
+        language={language}
+      />
 
       <Modal
         isOpen={Boolean(routineToDelete)}

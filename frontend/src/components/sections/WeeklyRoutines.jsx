@@ -198,6 +198,15 @@ export default function WeeklyRoutines({
                       >
                         <i className="fa-solid fa-trash" aria-hidden="true" />
                       </button>
+                      <span
+                        className="routine-item-icon"
+                        style={{ color: routine.color || "inherit" }}
+                      >
+                        <i
+                          className={routine.icon || "fa-solid fa-star"}
+                          aria-hidden="true"
+                        />
+                      </span>
                       <span>{routine.title}</span>
                       <span className="routine-recurrence-chip">
                         {t("weekly.recurrenceSummaryPrefix", language)}{" "}
@@ -253,6 +262,15 @@ export default function WeeklyRoutines({
                       total: progress.totalDays,
                     })}
                   />
+                  <span
+                    className="routine-item-icon"
+                    style={{ color: routine.color || "inherit" }}
+                  >
+                    <i
+                      className={routine.icon || "fa-solid fa-star"}
+                      aria-hidden="true"
+                    />
+                  </span>
                   <span className="routine-title-cell">{routine.title}</span>
                   {routine.alarm_enabled && routine.alarm_time ? (
                     <span

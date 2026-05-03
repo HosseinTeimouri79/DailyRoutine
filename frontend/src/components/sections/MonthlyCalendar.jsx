@@ -268,12 +268,13 @@ export default function MonthlyCalendar({
                     percent,
                   })}
                 />
-                <span
-                  className="routine-color-dot"
-                  style={{
-                    backgroundColor: routine.color,
-                  }}
-                />
+                <span className="routine-icon-badge">
+                  <i
+                    className={routine.icon || "fa-solid fa-star"}
+                    aria-hidden="true"
+                    style={{ color: routine.color || "var(--color-primary)" }}
+                  />
+                </span>
                 {routine.title}
               </button>
             );

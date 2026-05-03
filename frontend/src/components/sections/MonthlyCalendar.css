@@ -35,12 +35,20 @@
   flex-shrink: 0;
 }
 
-.routine-color-dot {
-  width: 10px;
-  height: 10px;
+.routine-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
   border-radius: 999px;
-  display: inline-block;
-  flex: 0 0 10px;
+  background: color-mix(in srgb, var(--color-bg-surface) 90%, transparent);
+  border: var(--border-default);
+  flex: 0 0 24px;
+}
+
+.routine-icon-badge i {
+  font-size: 0.95rem;
 }
 
 .routine-badge.active {

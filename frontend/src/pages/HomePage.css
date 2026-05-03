@@ -35,14 +35,25 @@
   margin-bottom: 2px;
 }
 
-.routine-form-row {
-  display: flex;
+.routine-icon-picker-btn {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  min-width: 140px;
 }
 
-.routine-title-input {
-  width: 90%;
+.routine-icon-picker-preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: color-mix(in srgb, var(--color-bg-surface) 80%, transparent);
+  border-radius: 50%;
+}
+
+.routine-icon-picker-preview i {
+  font-size: 1rem;
 }
 
 .routine-color-inline {
