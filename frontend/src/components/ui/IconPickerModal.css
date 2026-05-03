@@ -1,0 +1,122 @@
+.icon-picker-modal {
+  display: grid;
+  gap: 16px;
+}
+
+.icon-picker-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.icon-picker-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon-picker-preview-label {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+}
+
+.icon-picker-preview-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--color-bg-surface-soft);
+  border: var(--border-default);
+}
+
+.icon-picker-categories {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.icon-picker-category-button {
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-surface);
+  padding: 10px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.icon-picker-category-button.selected {
+  background: var(--color-bg-surface-soft);
+  border-color: var(--color-primary);
+}
+
+.icon-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.icon-picker-icon-option {
+  border: var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  padding: 16px;
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.icon-picker-icon-option.selected,
+.icon-picker-icon-option:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.icon-picker-icon-option i {
+  font-size: 1.2rem;
+}
+
+.icon-picker-colors {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.icon-picker-color-swatch {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.icon-picker-color-swatch.selected {
+  border-color: var(--color-primary);
+}
+
+.icon-picker-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+@media (max-width: 720px) {
+  .icon-picker-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .icon-picker-categories {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

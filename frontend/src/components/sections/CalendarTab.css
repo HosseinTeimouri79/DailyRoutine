@@ -24,10 +24,10 @@
   border: var(--border-default);
   border-radius: var(--radius-md);
   background: var(--color-bg-surface-soft);
-  padding: 18px;
+  padding: 14px;
   display: grid;
   margin-top: 8px;
-  gap: 18px;
+  gap: 14px;
 }
 
 .calendar-important-day-header {
@@ -66,13 +66,81 @@
   justify-content: flex-end;
 }
 
+.important-day-list {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: 12px;
+}
+
 .important-day-summary {
   border: var(--border-default);
   border-radius: var(--radius-sm);
   background: var(--color-bg-surface);
-  padding: 14px;
+  padding: 12px;
   display: grid;
+  gap: 8px;
+}
+
+.important-day-summary-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--color-bg-surface-soft);
+  color: var(--color-text-primary);
+  margin-bottom: 4px;
+}
+
+.important-day-icon-picker-button {
+  display: inline-flex;
+  align-items: center;
   gap: 10px;
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.important-day-icon-picker-button i {
+  font-size: 1rem;
+}
+
+.important-day-icon-picker-button span {
+  white-space: nowrap;
+}
+
+.important-day-icon-selection {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.important-day-icon-option {
+  border: var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.important-day-icon-option.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.important-day-icon-option i {
+  font-size: 1rem;
 }
 
 .important-day-summary-title {
@@ -86,8 +154,8 @@
 
 .important-day-summary-meta {
   display: grid;
-  gap: 6px;
-  font-size: 0.95rem;
+  gap: 4px;
+  font-size: 0.92rem;
   color: var(--color-text-secondary);
 }
 

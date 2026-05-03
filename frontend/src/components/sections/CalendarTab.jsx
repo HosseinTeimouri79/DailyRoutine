@@ -14,7 +14,21 @@ import {
 } from "../../lib/date";
 import { api } from "../../lib/api";
 import { t } from "../../lib/i18n";
+import IconPickerModal from "../ui/IconPickerModal";
 import "./CalendarTab.css";
+
+const IMPORTANT_DAY_ICON_OPTIONS = [
+  { label: "Star", value: "fa-solid fa-star" },
+  { label: "Heart", value: "fa-solid fa-heart" },
+  { label: "Gift", value: "fa-solid fa-gift" },
+  { label: "Cake", value: "fa-solid fa-cake-candles" },
+  { label: "Calendar", value: "fa-solid fa-calendar-days" },
+  { label: "Flag", value: "fa-solid fa-flag" },
+  { label: "Bell", value: "fa-solid fa-bell" },
+  { label: "Trophy", value: "fa-solid fa-trophy" },
+  { label: "Rocket", value: "fa-solid fa-rocket" },
+  { label: "Sparkles", value: "fa-solid fa-sparkles" },
+];
 
 function buildHolidayMap(entries) {
   const map = new Map();
@@ -64,7 +78,12 @@ export default function CalendarTab({ language, calendarType }) {
       now.getMinutes(),
     ).padStart(2, "0")}`;
   });
-  const [importantSaved, setImportantSaved] = useState(null);
+  const [importantIcon, setImportantIcon] = useState(
+    IMPORTANT_DAY_ICON_OPTIONS[0].value,
+  );
+  const [importantIconColor, setImportantIconColor] = useState("#ffbe0b");
+  const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
+  const [importantDays, setImportantDays] = useState([]);
   const [formMessage, setFormMessage] = useState({ type: "", text: "" });
   const [now, setNow] = useState(Date.now());
 
@@ -75,14 +94,7 @@ export default function CalendarTab({ language, calendarType }) {
       try {
         const rows = await api.getImportantDays();
         if (cancelled) return;
-        if (rows?.length) {
-          const [saved] = rows;
-          setImportantSaved(saved);
-          setImportantTitle(saved.title || "");
-          setImportantDescription(saved.description || "");
-          setImportantDate(saved.date || todayISO);
-          setImportantTime(saved.time || importantTime);
-        }
+        setImportantDays(rows || []);
       } catch {
         // ignore backend load failure for now
       }
@@ -92,7 +104,7 @@ export default function CalendarTab({ language, calendarType }) {
     return () => {
       cancelled = true;
     };
-  }, [todayISO, importantTime]);
+  }, [todayISO]);
 
   useEffect(() => {
     setImportantModalMonth(getMonthCursorFromISO(importantDate, calendarType));
@@ -102,6 +114,8 @@ export default function CalendarTab({ language, calendarType }) {
     setImportantTitle("");
     setImportantDescription("");
     setImportantDate(todayISO);
+    setImportantIcon(IMPORTANT_DAY_ICON_OPTIONS[0].value);
+    setImportantIconColor("#ffbe0b");
     setImportantModalMonth(getMonthCursorFromISO(todayISO, calendarType));
     setImportantTime(
       `${String(new Date().getHours()).padStart(2, "0")}:${String(
@@ -122,8 +136,8 @@ export default function CalendarTab({ language, calendarType }) {
     return () => window.clearInterval(timer);
   }, []);
 
-  const importantCountdown = useMemo(() => {
-    const target = new Date(`${importantDate}T${importantTime || "00:00"}:00`);
+  function getCountdownLabel(date, time) {
+    const target = new Date(`${date}T${time || "00:00"}:00`);
     if (Number.isNaN(target.getTime())) {
       return { label: "", expired: false };
     }
@@ -159,7 +173,7 @@ export default function CalendarTab({ language, calendarType }) {
       }),
       expired: false,
     };
-  }, [importantDate, importantTime, language, now]);
+  }
 
   async function handleSaveImportantDay(event) {
     event.preventDefault();
@@ -178,9 +192,11 @@ export default function CalendarTab({ language, calendarType }) {
         description: importantDescription.trim(),
         date: importantDate,
         time: importantTime,
+        icon: importantIcon,
+        icon_color: importantIconColor,
       };
       const saved = await api.createImportantDay(payload);
-      setImportantSaved(saved);
+      setImportantDays((prev) => [saved, ...prev]);
       setFormMessage({
         type: "success",
         text: t("calendarTab.importantDaySavedMessage", language),
@@ -232,6 +248,19 @@ export default function CalendarTab({ language, calendarType }) {
     return events.length ? "has-events" : null;
   }
 
+  const importantDayIcons = useMemo(() => {
+    const map = new Map();
+    importantDays.forEach((item) => {
+      if (item.date) {
+        map.set(item.date, {
+          icon: item.icon || IMPORTANT_DAY_ICON_OPTIONS[0].value,
+          color: item.icon_color || "#ffbe0b",
+        });
+      }
+    });
+    return map;
+  }, [importantDays]);
+
   const selectedEvents = useMemo(
     () => getHolidayEvents(selectedDate),
     [selectedDate, calendarType, holidayMaps],
@@ -257,6 +286,7 @@ export default function CalendarTab({ language, calendarType }) {
         onSelectDay={setSelectedDate}
         getDayStatus={getHolidayDayStatus}
         getDayBadge={getDayBadge}
+        getDayIcon={(isoDate) => importantDayIcons.get(isoDate)}
         language={language}
       />
 
@@ -298,39 +328,56 @@ export default function CalendarTab({ language, calendarType }) {
           </Button>
         </div>
 
-        {importantSaved ? (
-          <div className="important-day-summary">
-            <span className="important-day-summary-title">
-              {importantSaved.title}
-            </span>
-            {importantSaved.description ? (
-              <p className="important-day-summary-desc">
-                {importantSaved.description}
-              </p>
-            ) : null}
-            <div className="important-day-summary-meta">
-              <span>
-                {t("calendarTab.importantDayDateLabel", language)}:{" "}
-                {
-                  formatDateParts(importantSaved.date, language, calendarType)
-                    .day
-                }{" "}
-                {formatMonthYear(importantSaved.date, language, calendarType)}
-              </span>
-              <span>
-                {t("calendarTab.importantDayTimeLabel", language)}:{" "}
-                {importantSaved.time}
-              </span>
-            </div>
-            {importantCountdown.label && (
-              <p
-                className={`important-day-countdown ${importantCountdown.expired ? "expired" : ""}`.trim()}
-              >
-                {importantCountdown.label}
-              </p>
-            )}
+        {importantDays.length ? (
+          <div className="important-day-list">
+            {importantDays.map((item) => {
+              const countdown = getCountdownLabel(item.date, item.time);
+              return (
+                <div key={item.id} className="important-day-summary">
+                  <span className="important-day-summary-icon">
+                    <i
+                      className={
+                        item.icon || IMPORTANT_DAY_ICON_OPTIONS[0].value
+                      }
+                      style={{ color: item.icon_color || "#ffbe0b" }}
+                      aria-hidden="true"
+                    />
+                  </span>
+                  <span className="important-day-summary-title">
+                    {item.title}
+                  </span>
+                  {item.description ? (
+                    <p className="important-day-summary-desc">
+                      {item.description}
+                    </p>
+                  ) : null}
+                  <div className="important-day-summary-meta">
+                    <span>
+                      {t("calendarTab.importantDayDateLabel", language)}:{" "}
+                      {formatDateParts(item.date, language, calendarType).day}{" "}
+                      {formatMonthYear(item.date, language, calendarType)}
+                    </span>
+                    <span>
+                      {t("calendarTab.importantDayTimeLabel", language)}:{" "}
+                      {item.time}
+                    </span>
+                  </div>
+                  {countdown.label && (
+                    <p
+                      className={`important-day-countdown ${countdown.expired ? "expired" : ""}`.trim()}
+                    >
+                      {countdown.label}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
           </div>
-        ) : null}
+        ) : (
+          <p className="empty-state-message">
+            {t("calendarTab.importantDaysEmptyMessage", language)}
+          </p>
+        )}
       </div>
 
       <Modal
@@ -361,12 +408,7 @@ export default function CalendarTab({ language, calendarType }) {
             <PersianMonthCalendar
               month={importantModalMonth}
               calendarType={calendarType}
-              onPrevMonth={() =>
-                setImportantModalMonth((prev) => shiftMonthCursor(prev, -1))
-              }
-              onNextMonth={() =>
-                setImportantModalMonth((prev) => shiftMonthCursor(prev, 1))
-              }
+              showMonthSwitchButtons={false}
               onSetMonth={setImportantModalMonth}
               onGoToday={() => {
                 setImportantModalMonth(
@@ -392,6 +434,34 @@ export default function CalendarTab({ language, calendarType }) {
               onChange={(event) => setImportantTime(event.target.value)}
             />
           </div>
+
+          <div className="field">
+            <label>{t("calendarTab.importantDayIconLabel", language)}</label>
+            <button
+              type="button"
+              className="important-day-icon-picker-button"
+              onClick={() => setIsIconPickerOpen(true)}
+            >
+              <i
+                className={importantIcon}
+                style={{ color: importantIconColor }}
+                aria-hidden="true"
+              />
+              <span>{t("calendarTab.importantDayIconSelect", language)}</span>
+            </button>
+          </div>
+
+          <IconPickerModal
+            isOpen={isIconPickerOpen}
+            onClose={() => setIsIconPickerOpen(false)}
+            title={t("calendarTab.importantDayIconPickerTitle", language)}
+            selectedIcon={importantIcon}
+            selectedColor={importantIconColor}
+            onSelectIcon={setImportantIcon}
+            onSelectColor={setImportantIconColor}
+            onConfirm={() => setIsIconPickerOpen(false)}
+            language={language}
+          />
 
           <div className="field">
             <label htmlFor="modal-important-description">

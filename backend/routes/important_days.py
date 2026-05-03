@@ -18,6 +18,8 @@ def list_important_days():
         SELECT id, title, description,
           TO_CHAR(TO_TIMESTAMP(event_date), 'YYYY-MM-DD') AS date,
           event_time AS time,
+          icon,
+          icon_color,
           created_at, updated_at
         FROM important_days
         WHERE user_id = %s
@@ -36,6 +38,8 @@ def create_important_day():
     description = (data.get("description") or "").strip()
     date_value = (data.get("date") or "").strip()
     time_value = (data.get("time") or "").strip()
+    icon_value = (data.get("icon") or "").strip()
+    icon_color_value = (data.get("icon_color") or "").strip()
 
     if not title or not date_value or not time_value:
         return jsonify({"message": "title, date and time are required"}), 400
@@ -49,11 +53,19 @@ def create_important_day():
 
     cursor = execute(
         """
-        INSERT INTO important_days(user_id, title, description, event_date, event_time)
-        VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO important_days(user_id, title, description, event_date, event_time, icon, icon_color)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         RETURNING id
         """,
-        (g.user_id, title, description or None, event_timestamp, time_value),
+        (
+            g.user_id,
+            title,
+            description or None,
+            event_timestamp,
+            time_value,
+            icon_value or None,
+            icon_color_value or None,
+        ),
     )
     inserted_id = cursor.fetchone()["id"]
 
@@ -62,6 +74,8 @@ def create_important_day():
         SELECT id, title, description,
           TO_CHAR(TO_TIMESTAMP(event_date), 'YYYY-MM-DD') AS date,
           event_time AS time,
+          icon,
+          icon_color,
           created_at, updated_at
         FROM important_days
         WHERE id = %s

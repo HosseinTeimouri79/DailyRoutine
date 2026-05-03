@@ -21,6 +21,7 @@ export default function PersianMonthCalendar({
   selectedDate,
   getDayStatus,
   getDayBadge,
+  getDayIcon,
   language = "fa",
   className = "",
 }) {
@@ -85,17 +86,29 @@ export default function PersianMonthCalendar({
       <div className="monthly-calendar-header">
         <div className="monthly-calendar-navigation">
           {showMonthSwitchButtons ? (
-            <button className="btn btn-secondary" onClick={onPrevMonth}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={onPrevMonth}
+            >
               {t("calendar.previousMonth", language)}
             </button>
           ) : null}
           {onGoToday ? (
-            <button className="btn btn-secondary" onClick={onGoToday}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={onGoToday}
+            >
               {t("calendar.goToToday", language)}
             </button>
           ) : null}
           {showMonthSwitchButtons ? (
-            <button className="btn btn-secondary" onClick={onNextMonth}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={onNextMonth}
+            >
               {t("calendar.nextMonth", language)}
             </button>
           ) : null}
@@ -168,6 +181,9 @@ export default function PersianMonthCalendar({
           );
           const status = getDayStatus ? getDayStatus(cell.isoDate) : null;
           const badge = getDayBadge ? getDayBadge(cell.isoDate) : null;
+          const iconData = getDayIcon ? getDayIcon(cell.isoDate) : null;
+          const iconClass = iconData?.icon || iconData?.className || null;
+          const iconColor = iconData?.color || null;
           const cellClass = [
             "monthly-day",
             status === "done" ? "task-day-done" : "",
@@ -181,11 +197,19 @@ export default function PersianMonthCalendar({
 
           return (
             <button
+              type="button"
               key={cell.isoDate}
               className={cellClass}
               onClick={() => onSelectDay?.(cell.isoDate)}
             >
               <span>{dayParts.day}</span>
+              {iconClass ? (
+                <i
+                  className={`monthly-day-icon ${iconClass}`}
+                  style={iconColor ? { color: iconColor } : undefined}
+                  aria-hidden="true"
+                />
+              ) : null}
             </button>
           );
         })}

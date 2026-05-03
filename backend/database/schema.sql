@@ -65,6 +65,8 @@ CREATE TABLE IF NOT EXISTS important_days (
   description TEXT,
   event_date BIGINT NOT NULL,
   event_time TEXT NOT NULL,
+  icon TEXT,
+  icon_color TEXT,
   created_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::bigint),
   updated_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::bigint)
 );
@@ -77,6 +79,10 @@ CREATE INDEX IF NOT EXISTS idx_logs_routine_id ON routine_logs(routine_id);
 CREATE INDEX IF NOT EXISTS idx_logs_date ON routine_logs(date);
 CREATE INDEX IF NOT EXISTS idx_daily_tasks_user_date ON daily_tasks(user_id, task_date);
 CREATE INDEX IF NOT EXISTS idx_notes_user_updated_at ON notes(user_id, updated_at DESC);
+
+ALTER TABLE important_days
+  ADD COLUMN IF NOT EXISTS icon TEXT,
+  ADD COLUMN IF NOT EXISTS icon_color TEXT;
 
 ALTER TABLE routines
   ADD COLUMN IF NOT EXISTS recurrence_mode TEXT NOT NULL DEFAULT 'specific_weekdays',
