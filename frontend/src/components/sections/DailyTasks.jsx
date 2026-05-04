@@ -1,5 +1,7 @@
+import { memo } from "react";
 import Card from "../ui/Card";
 import Button from "../ui/Button";
+import IconButton from "../ui/IconButton";
 import PersianMonthCalendar from "../calendar/PersianMonthCalendar";
 import {
   formatDateParts,
@@ -9,7 +11,59 @@ import {
 import { t } from "../../lib/i18n";
 import "./DailyTasks.css";
 
-export default function DailyTasks({
+const TaskListItem = memo(function TaskListItem({
+  task,
+  onEdit,
+  onDelete,
+  onToggle,
+  language,
+}) {
+  return (
+    <li className="daily-task-item">
+      <IconButton
+        icon="fa-solid fa-pen"
+        label={t("dailyTasks.editTask", language)}
+        onClick={() => onEdit(task)}
+      />
+      <IconButton
+        icon="fa-solid fa-trash"
+        label={t("dailyTasks.deleteTask", language)}
+        className="delete"
+        onClick={() => onDelete(task)}
+      />
+      <button
+        className={`daily-task-check ${task.is_done ? "done" : ""}`.trim()}
+        onClick={() => onToggle(task)}
+        title={
+          task.is_done
+            ? t("dailyTasks.markUndone", language)
+            : t("dailyTasks.markDone", language)
+        }
+      >
+        <i
+          className={
+            task.is_done ? "fa-solid fa-check" : "fa-regular fa-circle"
+          }
+          aria-hidden="true"
+        />
+      </button>
+      <span className={`daily-task-text ${task.is_done ? "done" : ""}`.trim()}>
+        {task.content}
+      </span>
+      {task.alarm_enabled && task.alarm_time ? (
+        <span
+          className="daily-task-alarm-badge"
+          title={t("common.alarmTime", language)}
+        >
+          <i className="fa-regular fa-clock" aria-hidden="true" />
+          {task.alarm_time}
+        </span>
+      ) : null}
+    </li>
+  );
+});
+
+function DailyTasks({
   tasksMonth,
   setTasksMonth,
   goToTodayTasks,
@@ -50,7 +104,7 @@ export default function DailyTasks({
           {formatDateParts(tasksDate, language, calendarType).day}{" "}
           {formatMonthYear(tasksDate, language, calendarType)}
         </p>
-        <Button onClick={onOpenAddTaskModal}>
+        <Button icon="fa-solid fa-plus" onClick={onOpenAddTaskModal}>
           {t("dailyTasks.add", language)}
         </Button>
       </div>
@@ -67,54 +121,18 @@ export default function DailyTasks({
 
       <ul className="daily-tasks-list">
         {tasks.map((task) => (
-          <li key={task.id} className="daily-task-item">
-            <button
-              className="icon-btn"
-              onClick={() => onOpenEditTaskModal(task)}
-              title={t("dailyTasks.editTask", language)}
-            >
-              <i className="fa-solid fa-pen" aria-hidden="true" />
-            </button>
-            <button
-              className="icon-btn delete"
-              onClick={() => onRequestTaskDelete(task)}
-              title={t("dailyTasks.deleteTask", language)}
-            >
-              <i className="fa-solid fa-trash" aria-hidden="true" />
-            </button>
-            <button
-              className={`daily-task-check ${task.is_done ? "done" : ""}`.trim()}
-              onClick={() => toggleTaskDone(task)}
-              title={
-                task.is_done
-                  ? t("dailyTasks.markUndone", language)
-                  : t("dailyTasks.markDone", language)
-              }
-            >
-              <i
-                className={
-                  task.is_done ? "fa-solid fa-check" : "fa-regular fa-circle"
-                }
-                aria-hidden="true"
-              />
-            </button>
-            <span
-              className={`daily-task-text ${task.is_done ? "done" : ""}`.trim()}
-            >
-              {task.content}
-            </span>
-            {task.alarm_enabled && task.alarm_time ? (
-              <span
-                className="daily-task-alarm-badge"
-                title={t("common.alarmTime", language)}
-              >
-                <i className="fa-regular fa-clock" aria-hidden="true" />
-                {task.alarm_time}
-              </span>
-            ) : null}
-          </li>
+          <TaskListItem
+            key={task.id}
+            task={task}
+            onEdit={onOpenEditTaskModal}
+            onDelete={onRequestTaskDelete}
+            onToggle={toggleTaskDone}
+            language={language}
+          />
         ))}
       </ul>
     </Card>
   );
 }
+
+export default memo(DailyTasks);

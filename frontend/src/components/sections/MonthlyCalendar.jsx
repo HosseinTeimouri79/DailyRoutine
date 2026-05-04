@@ -1,3 +1,4 @@
+import { memo } from "react";
 import Card from "../ui/Card";
 import ProgressRing from "../ui/ProgressRing";
 import PersianMonthCalendar from "../calendar/PersianMonthCalendar";
@@ -134,7 +135,7 @@ function SelectedRoutinePieReport({ data, language, selectedRoutineStreaks }) {
   );
 }
 
-export default function MonthlyCalendar({
+function MonthlyCalendar({
   subtitle,
   routines,
   selectedRoutineId,
@@ -306,3 +307,5 @@ export default function MonthlyCalendar({
     </Card>
   );
 }
+
+export default memo(MonthlyCalendar);

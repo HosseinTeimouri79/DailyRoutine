@@ -3,6 +3,8 @@ import "./Button.css";
 export default function Button({
   children,
   variant = "primary",
+  icon,
+  iconPosition = "start",
   className = "",
   ...props
 }) {
@@ -14,8 +16,23 @@ export default function Button({
         : "btn btn-primary";
 
   return (
-    <button className={`${classes} ${className}`.trim()} {...props}>
-      {children}
+    <button
+      className={`${classes} ${icon ? "btn-with-icon" : ""} ${className}`.trim()}
+      {...props}
+    >
+      {icon ? (
+        <span className="btn-content">
+          {iconPosition === "start" ? (
+            <i className={`btn-icon ${icon}`} aria-hidden="true" />
+          ) : null}
+          <span>{children}</span>
+          {iconPosition === "end" ? (
+            <i className={`btn-icon ${icon}`} aria-hidden="true" />
+          ) : null}
+        </span>
+      ) : (
+        children
+      )}
     </button>
   );
 }

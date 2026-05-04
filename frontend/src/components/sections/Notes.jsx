@@ -1,5 +1,7 @@
+import { memo } from "react";
 import Card from "../ui/Card";
 import Button from "../ui/Button";
+import IconButton from "../ui/IconButton";
 import { formatDateTimeFromSql } from "../../lib/date";
 import { t } from "../../lib/i18n";
 import "./Notes.css";
@@ -19,7 +21,41 @@ function getNoteDisplayDate(note, language, calendarType) {
   };
 }
 
-export default function Notes({
+const NoteListItem = memo(function NoteListItem({
+  note,
+  onEdit,
+  onDelete,
+  language,
+  calendarType,
+}) {
+  const displayDate = getNoteDisplayDate(note, language, calendarType);
+
+  return (
+    <li className="note-item">
+      <p className="note-content">{note.content}</p>
+      <div className="note-meta-row">
+        <span className="note-date muted">
+          {displayDate.label}: {displayDate.value}
+        </span>
+        <div className="note-actions">
+          <IconButton
+            icon="fa-solid fa-pen"
+            label={t("notes.edit", language)}
+            onClick={() => onEdit(note)}
+          />
+          <IconButton
+            icon="fa-solid fa-trash"
+            label={t("notes.delete", language)}
+            className="delete"
+            onClick={() => onDelete(note)}
+          />
+        </div>
+      </div>
+    </li>
+  );
+});
+
+function Notes({
   notes,
   notesLoading,
   notesSearch,
@@ -42,7 +78,9 @@ export default function Notes({
           value={notesSearch}
           onChange={(event) => setNotesSearch(event.target.value)}
         />
-        <Button onClick={onOpenAdd}>{t("notes.add", language)}</Button>
+        <Button icon="fa-solid fa-plus" onClick={onOpenAdd}>
+          {t("notes.add", language)}
+        </Button>
       </div>
 
       {notesLoading ? (
@@ -54,36 +92,19 @@ export default function Notes({
       ) : null}
 
       <ul className="notes-list">
-        {notes.map((note) => {
-          const displayDate = getNoteDisplayDate(note, language, calendarType);
-          return (
-            <li className="note-item" key={note.id}>
-              <p className="note-content">{note.content}</p>
-              <div className="note-meta-row">
-                <span className="note-date muted">
-                  {displayDate.label}: {displayDate.value}
-                </span>
-                <div className="note-actions">
-                  <button
-                    className="icon-btn"
-                    onClick={() => onOpenEdit(note)}
-                    title={t("notes.edit", language)}
-                  >
-                    <i className="fa-solid fa-pen" aria-hidden="true" />
-                  </button>
-                  <button
-                    className="icon-btn delete"
-                    onClick={() => onRequestDelete(note)}
-                    title={t("notes.delete", language)}
-                  >
-                    <i className="fa-solid fa-trash" aria-hidden="true" />
-                  </button>
-                </div>
-              </div>
-            </li>
-          );
-        })}
+        {notes.map((note) => (
+          <NoteListItem
+            key={note.id}
+            note={note}
+            onEdit={onOpenEdit}
+            onDelete={onRequestDelete}
+            language={language}
+            calendarType={calendarType}
+          />
+        ))}
       </ul>
     </Card>
   );
 }
+
+export default memo(Notes);

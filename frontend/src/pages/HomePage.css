@@ -14,6 +14,13 @@
   max-width: 100%;
   white-space: normal;
   overflow-wrap: anywhere;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab-icon {
+  font-size: 0.9rem;
 }
 
 .tab.active {
@@ -113,18 +120,6 @@
   color: var(--color-primary);
   border: var(--border-accent);
   background: color-mix(in srgb, var(--color-primary-soft) 65%, transparent);
-}
-
-.delete-confirm-modal {
-  width: min(420px, calc(100vw - 24px));
-}
-
-.delete-confirm-text {
-  margin: 4px 0 14px;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-  line-height: 1.7;
 }
 
 @media (max-width: 720px) {

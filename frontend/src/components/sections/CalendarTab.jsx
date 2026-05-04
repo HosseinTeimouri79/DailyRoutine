@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import Card from "../ui/Card";
 import Button from "../ui/Button";
 import Modal from "../ui/Modal";
+import ConfirmModal from "../ui/ConfirmModal";
+import IconButton from "../ui/IconButton";
 import PersianMonthCalendar from "../calendar/PersianMonthCalendar";
 import holidays from "../../data/holidays.json";
 import {
@@ -60,7 +62,7 @@ function getJalaliKey(isoDate) {
   return `${parts.month}-${parts.day}`;
 }
 
-export default function CalendarTab({ language, calendarType }) {
+function CalendarTab({ language, calendarType }) {
   const todayISO = useMemo(() => getTodayISO(), []);
   const isAdmin = Boolean(getUser()?.is_admin);
   const [selectedDate, setSelectedDate] = useState(todayISO);
@@ -429,7 +431,10 @@ export default function CalendarTab({ language, calendarType }) {
               {t("calendarTab.importantDaySectionDescription", language)}
             </p>
           </div>
-          <Button onClick={openImportantDayModal}>
+          <Button
+            icon="fa-solid fa-calendar-plus"
+            onClick={openImportantDayModal}
+          >
             {t("calendarTab.importantDayAdd", language)}
           </Button>
         </div>
@@ -455,26 +460,20 @@ export default function CalendarTab({ language, calendarType }) {
                       </span>
                       {canManage ? (
                         <>
-                          <button
-                            className="icon-btn"
+                          <IconButton
+                            icon="fa-solid fa-pen"
+                            label={t("calendarTab.importantDayEdit", language)}
                             onClick={() => openEditImportantDay(item)}
-                            title={t("calendarTab.importantDayEdit", language)}
-                          >
-                            <i className="fa-solid fa-pen" aria-hidden="true" />
-                          </button>
-                          <button
-                            className="icon-btn delete"
-                            onClick={() => handleDeleteImportantDay(item)}
-                            title={t(
+                          />
+                          <IconButton
+                            icon="fa-solid fa-trash"
+                            label={t(
                               "calendarTab.importantDayDelete",
                               language,
                             )}
-                          >
-                            <i
-                              className="fa-solid fa-trash"
-                              aria-hidden="true"
-                            />
-                          </button>
+                            className="delete"
+                            onClick={() => handleDeleteImportantDay(item)}
+                          />
                         </>
                       ) : null}
                     </div>
@@ -680,25 +679,18 @@ export default function CalendarTab({ language, calendarType }) {
         />
       </Modal>
 
-      <Modal
+      <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         title={t("common.confirmDelete", language)}
-      >
-        <p>{t("calendarTab.importantDayDeleteConfirmMessage", language)}</p>
-        <div className="modal-actions">
-          <Button
-            variant="secondary"
-            onClick={() => setIsDeleteModalOpen(false)}
-            type="button"
-          >
-            {t("common.cancel", language)}
-          </Button>
-          <Button variant="danger" onClick={confirmDeleteImportantDay}>
-            {t("calendarTab.importantDayDelete", language)}
-          </Button>
-        </div>
-      </Modal>
+        message={t("calendarTab.importantDayDeleteConfirmMessage", language)}
+        confirmLabel={t("calendarTab.importantDayDelete", language)}
+        cancelLabel={t("common.cancel", language)}
+        onConfirm={confirmDeleteImportantDay}
+        confirmVariant="danger"
+      />
     </Card>
   );
 }
+
+export default memo(CalendarTab);

@@ -1,17 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import AppShell from "../components/layout/AppShell";
-import Button from "../components/ui/Button";
-import Modal from "../components/ui/Modal";
-import IconPickerModal from "../components/ui/IconPickerModal";
+import ConfirmModal from "../components/ui/ConfirmModal";
 import Snackbar from "../components/ui/Snackbar";
-import TimePicker from "../components/ui/TimePicker";
-import WeeklyRoutines from "../components/sections/WeeklyRoutines";
-import MonthlyCalendar from "../components/sections/MonthlyCalendar";
-import DailyTasks from "../components/sections/DailyTasks";
-import Notes from "../components/sections/Notes";
-import CalendarTab from "../components/sections/CalendarTab";
+import HomeTabs from "../features/home/HomeTabs";
+import RoutineFormModal from "../features/home/RoutineFormModal";
+import TaskFormModal from "../features/home/TaskFormModal";
+import NoteFormModal from "../features/home/NoteFormModal";
 import { api } from "../lib/api";
 import { useSnackbar } from "../hooks/useSnackbar";
+import useAlarmNotifications from "../hooks/useAlarmNotifications";
 import { useSettings } from "../lib/settings";
 import { t } from "../lib/i18n";
 import { triggerConfetti } from "../lib/confetti";
@@ -32,6 +29,16 @@ import {
   normalizeRoutineRecurrence,
 } from "../lib/recurrence";
 import "./HomePage.css";
+
+const WeeklyRoutines = lazy(
+  () => import("../components/sections/WeeklyRoutines"),
+);
+const MonthlyCalendar = lazy(
+  () => import("../components/sections/MonthlyCalendar"),
+);
+const DailyTasks = lazy(() => import("../components/sections/DailyTasks"));
+const Notes = lazy(() => import("../components/sections/Notes"));
+const CalendarTab = lazy(() => import("../components/sections/CalendarTab"));
 
 function buildStatsForDays(days, routines, logsMap) {
   const total = routines.reduce(
@@ -129,7 +136,6 @@ export default function HomePage() {
     getDefaultRoutineColor(),
   );
   const [newRoutineIcon, setNewRoutineIcon] = useState(getDefaultRoutineIcon());
-  const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
   const [newRoutineAlarmEnabled, setNewRoutineAlarmEnabled] = useState(false);
   const [newRoutineAlarmTime, setNewRoutineAlarmTime] = useState("09:00");
   const [newRoutineRecurrenceMode, setNewRoutineRecurrenceMode] = useState(
@@ -164,7 +170,6 @@ export default function HomePage() {
   const [logsMap, setLogsMap] = useState(new Map());
   const [selectedRoutineLogs, setSelectedRoutineLogs] = useState([]);
   const [error, setError] = useState("");
-  const firedAlarmKeysRef = useRef(new Set());
   const { snackbar, notify } = useSnackbar();
 
   const monthDays = useMemo(
@@ -333,67 +338,13 @@ export default function HomePage() {
     };
   }, []);
 
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      const now = new Date();
-      const todayISODate = getTodayISO();
-      const hhmm = now.toTimeString().slice(0, 5);
-
-      const notifyAlarm = (key, title, body) => {
-        if (firedAlarmKeysRef.current.has(key)) return;
-        firedAlarmKeysRef.current.add(key);
-
-        if (
-          typeof window !== "undefined" &&
-          "Notification" in window &&
-          Notification.permission === "granted"
-        ) {
-          new Notification(title, { body });
-          return;
-        }
-
-        notify(`${title}: ${body}`, "warn");
-      };
-
-      routines
-        .filter(
-          (routine) =>
-            routine.is_active &&
-            routine.alarm_enabled &&
-            isRoutineScheduledOnDate(routine, todayISODate) &&
-            routine.alarm_time === hhmm,
-        )
-        .forEach((routine) => {
-          notifyAlarm(
-            `routine-${routine.id}-${todayISODate}-${hhmm}`,
-            t("notifications.routineAlarmTitle", language),
-            t("notifications.routineAlarmBody", language, {
-              title: routine.title,
-            }),
-          );
-        });
-
-      alarmTasks
-        .filter(
-          (task) =>
-            task.task_date === todayISODate &&
-            !task.is_done &&
-            task.alarm_enabled &&
-            task.alarm_time === hhmm,
-        )
-        .forEach((task) => {
-          notifyAlarm(
-            `task-${task.id}-${todayISODate}-${hhmm}`,
-            t("notifications.taskAlarmTitle", language),
-            t("notifications.taskAlarmBody", language, {
-              content: task.content,
-            }),
-          );
-        });
-    }, 15_000);
-
-    return () => clearInterval(intervalId);
-  }, [routines, alarmTasks, notify]);
+  useAlarmNotifications({
+    routines,
+    alarmTasks,
+    notify,
+    language,
+    isRoutineScheduledOnDate,
+  });
 
   async function toggleStatus(routineId, date) {
     if (date > todayISO) {
@@ -520,6 +471,12 @@ export default function HomePage() {
     setEditingRoutineId(null);
     resetRoutineForm();
     setIsAddModalOpen(true);
+  }
+
+  function closeRoutineModal() {
+    setIsAddModalOpen(false);
+    setEditingRoutineId(null);
+    resetRoutineForm();
   }
 
   function openEditModal(routine) {
@@ -806,458 +763,209 @@ export default function HomePage() {
 
   return (
     <AppShell title={t("header.title", language)}>
-      <div className="nav-tabs page-tabs">
-        <button
-          type="button"
-          className={`tab tab-btn ${activeTab === "calendar" ? "active" : ""}`.trim()}
-          onClick={() => changeTab("calendar")}
-        >
-          {t("calendarTab.title", language)}
-        </button>
-        <button
-          type="button"
-          className={`tab tab-btn ${activeTab === "weekly" ? "active" : ""}`.trim()}
-          onClick={() => changeTab("weekly")}
-        >
-          {t("weekly.title", language)}
-        </button>
-        <button
-          type="button"
-          className={`tab tab-btn ${activeTab === "tasks" ? "active" : ""}`.trim()}
-          onClick={() => changeTab("tasks")}
-        >
-          {t("dailyTasks.title", language)}
-        </button>
-        <button
-          type="button"
-          className={`tab tab-btn ${activeTab === "notes" ? "active" : ""}`.trim()}
-          onClick={() => changeTab("notes")}
-        >
-          {t("notes.title", language)}
-        </button>
-      </div>
+      <HomeTabs
+        activeTab={activeTab}
+        onChange={changeTab}
+        language={language}
+      />
 
       <div
         className={`page-transition page-transition-${pageTransitionSettings.mode} ${
           isTabVisible ? "page-transition-visible" : "page-transition-hidden"
         }`}
       >
-        {activeTab === "calendar" ? (
-          <CalendarTab language={language} calendarType={calendarType} />
-        ) : null}
+        <Suspense
+          fallback={
+            <p className="muted">{t("dailyTasks.loading", language)}</p>
+          }
+        >
+          {activeTab === "calendar" ? (
+            <CalendarTab language={language} calendarType={calendarType} />
+          ) : null}
 
-        {activeTab === "weekly" ? (
-          <>
-            <WeeklyRoutines
-              error={error}
-              openAddModal={openAddModal}
-              goToPreviousWeek={goToPreviousWeek}
-              goToNextWeek={goToNextWeek}
-              canGoNextWeek={canGoNextWeek}
-              weekDays={weekDays}
-              routines={routines}
-              logsMap={logsMap}
-              todayISO={todayISO}
-              openEditModal={openEditModal}
-              onRequestRoutineDelete={setRoutineToDelete}
-              toggleStatus={toggleStatus}
-              isRoutineScheduledOnDate={isRoutineScheduledOnDate}
-              recurrenceWeekdayOptions={recurrenceWeekdayOptions}
+          {activeTab === "weekly" ? (
+            <>
+              <WeeklyRoutines
+                error={error}
+                openAddModal={openAddModal}
+                goToPreviousWeek={goToPreviousWeek}
+                goToNextWeek={goToNextWeek}
+                canGoNextWeek={canGoNextWeek}
+                weekDays={weekDays}
+                routines={routines}
+                logsMap={logsMap}
+                todayISO={todayISO}
+                openEditModal={openEditModal}
+                onRequestRoutineDelete={setRoutineToDelete}
+                toggleStatus={toggleStatus}
+                isRoutineScheduledOnDate={isRoutineScheduledOnDate}
+                recurrenceWeekdayOptions={recurrenceWeekdayOptions}
+                language={language}
+                calendarType={calendarType}
+              />
+              <MonthlyCalendar
+                subtitle={`${t("weekly.subtitle", language)} ${formatMonthYear(
+                  monthDays[0] || todayISO,
+                  language,
+                  calendarType,
+                )}`}
+                routines={routines}
+                selectedRoutineId={selectedRoutineId}
+                setSelectedRoutineId={setSelectedRoutineId}
+                month={month}
+                setMonth={setMonth}
+                goToPreviousMonth={goToPreviousMonth}
+                goToNextMonth={goToNextMonth}
+                goToTodayMonthly={goToTodayMonthly}
+                selectedMonthlyDate={selectedMonthlyDate}
+                setSelectedMonthlyDate={setSelectedMonthlyDate}
+                getSelectedRoutineDayStatus={getSelectedRoutineDayStatus}
+                monthlyReport={monthlyReport}
+                monthlyRoutineReport={monthlyRoutineReport}
+                monthDays={monthDays}
+                logsMap={logsMap}
+                selectedRoutineLogs={selectedRoutineLogs}
+                language={language}
+                calendarType={calendarType}
+              />
+            </>
+          ) : null}
+
+          {activeTab === "tasks" ? (
+            <DailyTasks
+              tasksMonth={tasksMonth}
+              setTasksMonth={setTasksMonth}
+              goToTodayTasks={goToTodayTasks}
+              tasksDate={tasksDate}
+              setTasksDate={setTasksDate}
+              onOpenAddTaskModal={openCreateTaskModal}
+              onOpenEditTaskModal={openEditTaskModal}
+              tasksLoading={tasksLoading}
+              tasks={tasks}
+              getTaskDayBadge={getTaskDayBadge}
+              toggleTaskDone={toggleTaskDone}
+              onRequestTaskDelete={setTaskToDelete}
               language={language}
               calendarType={calendarType}
             />
-            <MonthlyCalendar
-              subtitle={`${t("weekly.subtitle", language)} ${formatMonthYear(
-                monthDays[0] || todayISO,
-                language,
-                calendarType,
-              )}`}
-              routines={routines}
-              selectedRoutineId={selectedRoutineId}
-              setSelectedRoutineId={setSelectedRoutineId}
-              month={month}
-              setMonth={setMonth}
-              goToPreviousMonth={goToPreviousMonth}
-              goToNextMonth={goToNextMonth}
-              goToTodayMonthly={goToTodayMonthly}
-              selectedMonthlyDate={selectedMonthlyDate}
-              setSelectedMonthlyDate={setSelectedMonthlyDate}
-              getSelectedRoutineDayStatus={getSelectedRoutineDayStatus}
-              monthlyReport={monthlyReport}
-              monthlyRoutineReport={monthlyRoutineReport}
-              monthDays={monthDays}
-              logsMap={logsMap}
-              selectedRoutineLogs={selectedRoutineLogs}
+          ) : null}
+
+          {activeTab === "notes" ? (
+            <Notes
+              notes={notes}
+              notesLoading={notesLoading}
+              notesSearch={notesSearch}
+              setNotesSearch={setNotesSearch}
+              onOpenAdd={openCreateNoteModal}
+              onOpenEdit={openEditNoteModal}
+              onRequestDelete={setNoteToDelete}
               language={language}
               calendarType={calendarType}
             />
-          </>
-        ) : null}
-
-        {activeTab === "tasks" ? (
-          <DailyTasks
-            tasksMonth={tasksMonth}
-            setTasksMonth={setTasksMonth}
-            goToTodayTasks={goToTodayTasks}
-            tasksDate={tasksDate}
-            setTasksDate={setTasksDate}
-            onOpenAddTaskModal={openCreateTaskModal}
-            onOpenEditTaskModal={openEditTaskModal}
-            tasksLoading={tasksLoading}
-            tasks={tasks}
-            getTaskDayBadge={getTaskDayBadge}
-            toggleTaskDone={toggleTaskDone}
-            onRequestTaskDelete={setTaskToDelete}
-            language={language}
-            calendarType={calendarType}
-          />
-        ) : null}
-
-        {activeTab === "notes" ? (
-          <Notes
-            notes={notes}
-            notesLoading={notesLoading}
-            notesSearch={notesSearch}
-            setNotesSearch={setNotesSearch}
-            onOpenAdd={openCreateNoteModal}
-            onOpenEdit={openEditNoteModal}
-            onRequestDelete={setNoteToDelete}
-            language={language}
-            calendarType={calendarType}
-          />
-        ) : null}
+          ) : null}
+        </Suspense>
       </div>
 
-      <Modal
+      <RoutineFormModal
         isOpen={isAddModalOpen}
-        onClose={() => {
-          setIsAddModalOpen(false);
-          setEditingRoutineId(null);
-          resetRoutineForm();
-        }}
-        title={
-          editingRoutineId
-            ? t("weekly.editRoutine", language)
-            : t("weekly.addRoutine", language)
-        }
-      >
-        <form className="stack" onSubmit={createRoutine}>
-          <input
-            id="newRoutineTitle"
-            className="input routine-title-input"
-            placeholder={t("weekly.routineNamePlaceholder", language)}
-            value={newRoutineTitle}
-            onChange={(e) => setNewRoutineTitle(e.target.value)}
-            required
-          />
-          <button
-            type="button"
-            className="btn btn-secondary routine-icon-picker-btn"
-            onClick={() => setIsIconPickerOpen(true)}
-          >
-            <span
-              className="routine-icon-picker-preview"
-              style={{ color: newRoutineColor }}
-            >
-              <i className={newRoutineIcon} aria-hidden="true" />
-            </span>
-            {t("calendarTab.importantDayIconSelect", language)}
-          </button>
-
-          <label
-            className="routine-field-label"
-            htmlFor="routineRecurrenceMode"
-          >
-            {t("weekly.recurrenceMode", language)}
-          </label>
-          <select
-            id="routineRecurrenceMode"
-            className="input"
-            value={newRoutineRecurrenceMode}
-            onChange={(e) => setNewRoutineRecurrenceMode(e.target.value)}
-          >
-            <option value={RECURRENCE_MODES.SPECIFIC_WEEKDAYS}>
-              {t("weekly.recurrenceSpecificWeekdays", language)}
-            </option>
-            <option value={RECURRENCE_MODES.WEEKLY_DAY}>
-              {t("weekly.recurrenceWeeklyDay", language)}
-            </option>
-            <option value={RECURRENCE_MODES.MONTHLY_DAY}>
-              {t("weekly.recurrenceMonthlyDay", language)}
-            </option>
-          </select>
-
-          {newRoutineRecurrenceMode === RECURRENCE_MODES.SPECIFIC_WEEKDAYS ? (
-            <div className="stack stack-tight">
-              <span className="routine-field-label">
-                {t("weekly.recurrenceDaysOfWeek", language)}
-              </span>
-              <div className="weekday-chip-grid">
-                {recurrenceWeekdayOptions.map((option) => (
-                  <label
-                    key={`routine-weekday-${option.value}`}
-                    className={`weekday-chip ${newRoutineWeekdays.includes(option.value) ? "active" : ""}`.trim()}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={newRoutineWeekdays.includes(option.value)}
-                      onChange={() =>
-                        toggleRoutineWeekdaySelection(option.value)
-                      }
-                    />
-                    <span>{option.label}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          {newRoutineRecurrenceMode === RECURRENCE_MODES.WEEKLY_DAY ? (
-            <div className="stack stack-tight">
-              <label className="routine-field-label" htmlFor="routineDayOfWeek">
-                {t("weekly.recurrenceDayOfWeek", language)}
-              </label>
-              <select
-                id="routineDayOfWeek"
-                className="input"
-                value={newRoutineDayOfWeek}
-                onChange={(e) => setNewRoutineDayOfWeek(Number(e.target.value))}
-              >
-                {recurrenceWeekdayOptions.map((option) => (
-                  <option
-                    key={`routine-weekly-day-${option.value}`}
-                    value={option.value}
-                  >
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : null}
-
-          {newRoutineRecurrenceMode === RECURRENCE_MODES.MONTHLY_DAY ? (
-            <div className="stack stack-tight">
-              <label
-                className="routine-field-label"
-                htmlFor="routineDayOfMonth"
-              >
-                {t("weekly.recurrenceDayOfMonth", language)}
-              </label>
-              <input
-                id="routineDayOfMonth"
-                type="number"
-                min={1}
-                max={31}
-                className="input"
-                value={newRoutineDayOfMonth}
-                onChange={(e) => {
-                  const next = Number(e.target.value);
-                  if (Number.isNaN(next)) return;
-                  setNewRoutineDayOfMonth(Math.min(31, Math.max(1, next)));
-                }}
-              />
-            </div>
-          ) : null}
-
-          <label className="routine-alarm-toggle">
-            <input
-              type="checkbox"
-              checked={newRoutineAlarmEnabled}
-              onChange={(e) => setNewRoutineAlarmEnabled(e.target.checked)}
-            />
-            {t("weekly.enableAlarm", language)}
-          </label>
-          <TimePicker
-            value={newRoutineAlarmTime}
-            onChange={setNewRoutineAlarmTime}
-            disabled={!newRoutineAlarmEnabled}
-            ariaLabel={t("common.alarmTime", language)}
-            language={language}
-            defaultFormat="24"
-          />
-          <div className="modal-actions">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => {
-                setIsAddModalOpen(false);
-                setEditingRoutineId(null);
-                resetRoutineForm();
-              }}
-            >
-              {t("common.cancel", language)}
-            </Button>
-            <Button type="submit">
-              {editingRoutineId
-                ? t("weekly.saveRoutineChanges", language)
-                : t("weekly.createRoutine", language)}
-            </Button>
-          </div>
-        </form>
-      </Modal>
-
-      <IconPickerModal
-        isOpen={isIconPickerOpen}
-        onClose={() => setIsIconPickerOpen(false)}
-        title={t("calendarTab.importantDayIconPickerTitle", language)}
-        selectedIcon={newRoutineIcon}
-        selectedColor={newRoutineColor}
-        onSelectIcon={setNewRoutineIcon}
-        onSelectColor={setNewRoutineColor}
-        onConfirm={() => setIsIconPickerOpen(false)}
+        onClose={closeRoutineModal}
+        onSubmit={createRoutine}
+        isEditing={Boolean(editingRoutineId)}
+        titleValue={newRoutineTitle}
+        onTitleChange={setNewRoutineTitle}
+        iconValue={newRoutineIcon}
+        colorValue={newRoutineColor}
+        onChangeIcon={setNewRoutineIcon}
+        onChangeColor={setNewRoutineColor}
+        recurrenceMode={newRoutineRecurrenceMode}
+        onChangeRecurrenceMode={setNewRoutineRecurrenceMode}
+        recurrenceWeekdayOptions={recurrenceWeekdayOptions}
+        selectedWeekdays={newRoutineWeekdays}
+        onToggleWeekday={toggleRoutineWeekdaySelection}
+        dayOfWeek={newRoutineDayOfWeek}
+        onChangeDayOfWeek={setNewRoutineDayOfWeek}
+        dayOfMonth={newRoutineDayOfMonth}
+        onChangeDayOfMonth={setNewRoutineDayOfMonth}
+        alarmEnabled={newRoutineAlarmEnabled}
+        onToggleAlarm={setNewRoutineAlarmEnabled}
+        alarmTime={newRoutineAlarmTime}
+        onChangeAlarmTime={setNewRoutineAlarmTime}
         language={language}
       />
 
-      <Modal
+      <ConfirmModal
         isOpen={Boolean(routineToDelete)}
         onClose={() => setRoutineToDelete(null)}
         title={t("weekly.confirmDeleteRoutineTitle", language)}
-        className="delete-confirm-modal"
-      >
-        <p className="muted delete-confirm-text">
-          {t("weekly.confirmDeleteRoutineMessage", language, {
-            title: routineToDelete?.title || "",
-          })}
-        </p>
-        <div className="modal-actions">
-          <Button variant="secondary" onClick={() => setRoutineToDelete(null)}>
-            {t("common.cancel", language)}
-          </Button>
-          <Button
-            variant="danger"
-            onClick={async () => {
-              await removeRoutine(routineToDelete.id);
-              setRoutineToDelete(null);
-            }}
-          >
-            {t("weekly.deleteRoutine", language)}
-          </Button>
-        </div>
-      </Modal>
+        message={t("weekly.confirmDeleteRoutineMessage", language, {
+          title: routineToDelete?.title || "",
+        })}
+        confirmLabel={t("weekly.deleteRoutine", language)}
+        cancelLabel={t("common.cancel", language)}
+        onConfirm={async () => {
+          if (!routineToDelete) return;
+          await removeRoutine(routineToDelete.id);
+          setRoutineToDelete(null);
+        }}
+        confirmVariant="danger"
+      />
 
-      <Modal
+      <TaskFormModal
         isOpen={isTaskModalOpen}
         onClose={closeTaskModal}
-        title={
-          editingTask
-            ? t("dailyTasks.editTask", language)
-            : t("dailyTasks.add", language)
-        }
-      >
-        <form className="stack" onSubmit={submitTask}>
-          <input
-            className="input"
-            placeholder={t("dailyTasks.taskPlaceholder", language)}
-            value={newTaskText}
-            onChange={(event) => setNewTaskText(event.target.value)}
-            required
-          />
-          <label className="routine-alarm-toggle">
-            <input
-              type="checkbox"
-              checked={newTaskAlarmEnabled}
-              onChange={(event) => setNewTaskAlarmEnabled(event.target.checked)}
-            />
-            {t("dailyTasks.enableAlarm", language)}
-          </label>
-          <TimePicker
-            value={newTaskAlarmTime}
-            onChange={setNewTaskAlarmTime}
-            disabled={!newTaskAlarmEnabled}
-            ariaLabel={t("common.alarmTime", language)}
-            language={language}
-            defaultFormat="24"
-          />
-          <div className="modal-actions">
-            <Button type="button" variant="secondary" onClick={closeTaskModal}>
-              {t("common.cancel", language)}
-            </Button>
-            <Button type="submit">
-              {editingTask
-                ? t("dailyTasks.saveTaskChanges", language)
-                : t("dailyTasks.createTask", language)}
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        onSubmit={submitTask}
+        isEditing={Boolean(editingTask)}
+        textValue={newTaskText}
+        onTextChange={setNewTaskText}
+        alarmEnabled={newTaskAlarmEnabled}
+        onToggleAlarm={setNewTaskAlarmEnabled}
+        alarmTime={newTaskAlarmTime}
+        onChangeAlarmTime={setNewTaskAlarmTime}
+        language={language}
+      />
 
-      <Modal
+      <ConfirmModal
         isOpen={Boolean(taskToDelete)}
         onClose={() => setTaskToDelete(null)}
         title={t("dailyTasks.confirmDeleteTaskTitle", language)}
-        className="delete-confirm-modal"
-      >
-        <p className="muted delete-confirm-text">
-          {t("dailyTasks.confirmDeleteTaskMessage", language, {
-            content: taskToDelete?.content || "",
-          })}
-        </p>
-        <div className="modal-actions">
-          <Button variant="secondary" onClick={() => setTaskToDelete(null)}>
-            {t("common.cancel", language)}
-          </Button>
-          <Button variant="danger" onClick={() => deleteTask(taskToDelete.id)}>
-            {t("dailyTasks.deleteTask", language)}
-          </Button>
-        </div>
-      </Modal>
+        message={t("dailyTasks.confirmDeleteTaskMessage", language, {
+          content: taskToDelete?.content || "",
+        })}
+        confirmLabel={t("dailyTasks.deleteTask", language)}
+        cancelLabel={t("common.cancel", language)}
+        onConfirm={() => {
+          if (!taskToDelete) return;
+          deleteTask(taskToDelete.id);
+        }}
+        confirmVariant="danger"
+      />
 
-      <Modal
+      <NoteFormModal
         isOpen={isNoteModalOpen}
         onClose={() => {
           setIsNoteModalOpen(false);
           setEditingNote(null);
         }}
-        title={
-          editingNote ? t("notes.edit", language) : t("notes.add", language)
-        }
-      >
-        <form className="stack" onSubmit={submitNote}>
-          <textarea
-            className="input note-form-textarea"
-            placeholder={t("notes.notePlaceholder", language)}
-            value={noteText}
-            onChange={(event) => setNoteText(event.target.value)}
-            required
-          />
-          <div className="modal-actions">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => {
-                setIsNoteModalOpen(false);
-                setEditingNote(null);
-              }}
-            >
-              {t("common.cancel", language)}
-            </Button>
-            <Button type="submit">
-              {editingNote
-                ? t("notes.edit", language)
-                : t("notes.add", language)}
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        onSubmit={submitNote}
+        isEditing={Boolean(editingNote)}
+        textValue={noteText}
+        onTextChange={setNoteText}
+        language={language}
+      />
 
-      <Modal
+      <ConfirmModal
         isOpen={Boolean(noteToDelete)}
         onClose={() => setNoteToDelete(null)}
         title={t("notes.confirmDeleteTitle", language)}
-        className="delete-confirm-modal"
-      >
-        <p className="muted delete-confirm-text">
-          {t("notes.confirmDeleteMessage", language)}
-        </p>
-        <div className="modal-actions">
-          <Button variant="secondary" onClick={() => setNoteToDelete(null)}>
-            {t("common.cancel", language)}
-          </Button>
-          <Button variant="danger" onClick={() => deleteNote(noteToDelete.id)}>
-            {t("notes.delete", language)}
-          </Button>
-        </div>
-      </Modal>
+        message={t("notes.confirmDeleteMessage", language)}
+        confirmLabel={t("notes.delete", language)}
+        cancelLabel={t("common.cancel", language)}
+        onConfirm={() => {
+          if (!noteToDelete) return;
+          deleteNote(noteToDelete.id);
+        }}
+        confirmVariant="danger"
+      />
 
       <Snackbar
         open={snackbar.open}

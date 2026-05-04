@@ -1,11 +1,14 @@
+import { memo } from "react";
 import Card from "../ui/Card";
+import Button from "../ui/Button";
+import IconButton from "../ui/IconButton";
 import ProgressRing from "../ui/ProgressRing";
 import { formatDateParts, formatMonthYear } from "../../lib/date";
 import { getRoutineRecurrenceSummary } from "../../lib/recurrence";
 import { t } from "../../lib/i18n";
 import "./WeeklyRoutines.css";
 
-export default function WeeklyRoutines({
+function WeeklyRoutines({
   error,
   openAddModal,
   goToPreviousWeek,
@@ -86,14 +89,14 @@ export default function WeeklyRoutines({
         title={t("weekly.title", language)}
         subtitle={t("weekly.subtitle", language)}
         actions={
-          <button
-            className="btn btn-primary"
+          <Button
+            icon="fa-solid fa-plus"
             onClick={openAddModal}
             title={t("weekly.add", language)}
             aria-label={t("weekly.add", language)}
           >
             {t("weekly.add", language)}
-          </button>
+          </Button>
         }
       >
         {error ? <p className="error-text">{error}</p> : null}
@@ -109,29 +112,29 @@ export default function WeeklyRoutines({
       title={t("weekly.title", language)}
       subtitle={t("weekly.subtitle", language)}
       actions={
-        <button
-          className="btn btn-primary"
+        <Button
+          icon="fa-solid fa-plus"
           onClick={openAddModal}
           title={t("weekly.add", language)}
           aria-label={t("weekly.add", language)}
         >
           {t("weekly.add", language)}
-        </button>
+        </Button>
       }
     >
       {error ? <p className="error-text">{error}</p> : null}
       <div className="week-nav">
         <div className="week-nav-buttons">
-          <button className="btn btn-secondary" onClick={goToPreviousWeek}>
+          <Button variant="secondary" onClick={goToPreviousWeek}>
             {t("weekly.previousWeek", language)}
-          </button>
-          <button
-            className="btn btn-secondary"
+          </Button>
+          <Button
+            variant="secondary"
             onClick={goToNextWeek}
             disabled={!canGoNextWeek}
           >
             {t("weekly.nextWeek", language)}
-          </button>
+          </Button>
         </div>
         <p className="muted week-range-label">
           {formatDateParts(weekDays[0], language, calendarType).day}{" "}
@@ -184,20 +187,17 @@ export default function WeeklyRoutines({
                           total: progress.totalDays,
                         })}
                       />
-                      <button
-                        className="icon-btn"
-                        title={t("weekly.edit", language)}
+                      <IconButton
+                        icon="fa-solid fa-pen"
+                        label={t("weekly.edit", language)}
                         onClick={() => openEditModal(routine)}
-                      >
-                        <i className="fa-solid fa-pen" aria-hidden="true" />
-                      </button>
-                      <button
-                        className="icon-btn delete"
-                        title={t("weekly.delete", language)}
+                      />
+                      <IconButton
+                        icon="fa-solid fa-trash"
+                        label={t("weekly.delete", language)}
+                        className="delete"
                         onClick={() => onRequestRoutineDelete(routine)}
-                      >
-                        <i className="fa-solid fa-trash" aria-hidden="true" />
-                      </button>
+                      />
                       <span
                         className="routine-item-icon"
                         style={{ color: routine.color || "inherit" }}
@@ -283,20 +283,17 @@ export default function WeeklyRoutines({
                   ) : null}
                 </div>
                 <div className="row-actions">
-                  <button
-                    className="icon-btn"
-                    title={t("weekly.edit", language)}
+                  <IconButton
+                    icon="fa-solid fa-pen"
+                    label={t("weekly.edit", language)}
                     onClick={() => openEditModal(routine)}
-                  >
-                    <i className="fa-solid fa-pen" aria-hidden="true" />
-                  </button>
-                  <button
-                    className="icon-btn delete"
-                    title={t("weekly.delete", language)}
+                  />
+                  <IconButton
+                    icon="fa-solid fa-trash"
+                    label={t("weekly.delete", language)}
+                    className="delete"
                     onClick={() => onRequestRoutineDelete(routine)}
-                  >
-                    <i className="fa-solid fa-trash" aria-hidden="true" />
-                  </button>
+                  />
                 </div>
               </div>
 
@@ -333,3 +330,5 @@ export default function WeeklyRoutines({
     </Card>
   );
 }
+
+export default memo(WeeklyRoutines);
