@@ -465,7 +465,10 @@ export default function CalendarTab({ language, calendarType }) {
                           <button
                             className="icon-btn delete"
                             onClick={() => handleDeleteImportantDay(item)}
-                            title={t("calendarTab.importantDayDelete", language)}
+                            title={t(
+                              "calendarTab.importantDayDelete",
+                              language,
+                            )}
                           >
                             <i
                               className="fa-solid fa-trash"
@@ -540,28 +543,30 @@ export default function CalendarTab({ language, calendarType }) {
             />
           </div>
 
-          <div className="field">
-            <label htmlFor="modal-important-date">
-              {t("calendarTab.importantDayDateLabel", language)}
-            </label>
-            <input
-              id="modal-important-date"
-              className="input"
-              type="text"
-              value={importantDateDisplay}
-              placeholder={t("calendarTab.importantDayDateLabel", language)}
-              readOnly
-              onMouseDown={() => setIsImportantDatePickerOpen(true)}
+          <div style={{ display: "flex", gap: "8px" }}>
+            <div className="field">
+              <label htmlFor="modal-important-date">
+                {t("calendarTab.importantDayDateLabel", language)}
+              </label>
+              <input
+                id="modal-important-date"
+                className="input"
+                type="text"
+                value={importantDateDisplay}
+                placeholder={t("calendarTab.importantDayDateLabel", language)}
+                readOnly
+                onMouseDown={() => setIsImportantDatePickerOpen(true)}
+              />
+            </div>
+
+            <TimePicker
+              label={t("calendarTab.importantDayTimeLabel", language)}
+              value={importantTime}
+              onChange={setImportantTime}
+              language={language}
+              defaultFormat="24"
             />
           </div>
-
-          <TimePicker
-            label={t("calendarTab.importantDayTimeLabel", language)}
-            value={importantTime}
-            onChange={setImportantTime}
-            language={language}
-            defaultFormat="24"
-          />
 
           {isAdmin ? (
             <div className="field">
@@ -658,7 +663,9 @@ export default function CalendarTab({ language, calendarType }) {
           showMonthSwitchButtons={false}
           onSetMonth={setImportantModalMonth}
           onGoToday={() => {
-            setImportantModalMonth(getMonthCursorFromISO(todayISO, calendarType));
+            setImportantModalMonth(
+              getMonthCursorFromISO(todayISO, calendarType),
+            );
             setImportantDate(todayISO);
           }}
           selectedDate={importantDate}
