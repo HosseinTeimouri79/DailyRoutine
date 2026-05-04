@@ -186,12 +186,6 @@ textarea.input {
   resize: vertical;
 }
 
-@media (max-width: 720px) {
-  .calendar-important-day-row {
-    grid-template-columns: 1fr;
-  }
-}
-
 .calendar-events-list {
   list-style: none;
   padding: 0;
@@ -212,12 +206,6 @@ textarea.input {
   font-weight: 600;
 }
 
-@media (max-width: 720px) {
-  .calendar-event {
-    align-items: flex-start;
-  }
-}
-
 .modal-form {
   display: grid;
   gap: 16px;
@@ -232,4 +220,18 @@ textarea.input {
 .modal-form textarea {
   min-height: 80px;
   resize: vertical;
+}
+
+@media (max-width: 720px) {
+  .calendar-event {
+    align-items: flex-start;
+  }
+
+  .calendar-important-day-row {
+    grid-template-columns: 1fr;
+  }
+
+  .important-day-list {
+    grid-template-columns: none;
+  }
 }

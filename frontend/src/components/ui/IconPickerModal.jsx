@@ -372,7 +372,6 @@ export default function IconPickerModal({
   const [activeCategoryId, setActiveCategoryId] = useState(
     ICON_CATEGORIES[0].id,
   );
-  const [searchQuery, setSearchQuery] = useState("");
 
   const activeCategory = useMemo(
     () =>
@@ -381,16 +380,10 @@ export default function IconPickerModal({
     [activeCategoryId],
   );
 
-  const displayedIcons = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return activeCategory.icons;
-    // Simple substring match on icon class name
-    return activeCategory.icons.filter((cls) => cls.toLowerCase().includes(q));
-  }, [activeCategory, searchQuery]);
+  const displayedIcons = useMemo(() => activeCategory.icons, [activeCategory]);
 
   const handleCategoryClick = useCallback((id) => {
     setActiveCategoryId(id);
-    setSearchQuery("");
   }, []);
 
   const handleIconClick = useCallback(
@@ -404,12 +397,10 @@ export default function IconPickerModal({
   );
 
   const handleClose = useCallback(() => {
-    setSearchQuery("");
     onClose();
   }, [onClose]);
 
   const handleConfirm = useCallback(() => {
-    setSearchQuery("");
     onConfirm();
   }, [onConfirm]);
 
@@ -434,8 +425,11 @@ export default function IconPickerModal({
           </div>
         </div>
 
+        <div className="ipm-section-label">
+          {t("calendarTab.importantDayIconCategoryLabel", language)}
+        </div>
         {/* Category tabs */}
-        <div className="ipm-tabs-wrap" role="tablist">
+        <div className="ipm-tabs-wrap">
           {ICON_CATEGORIES.map((cat) => (
             <CategoryTab
               key={cat.id}
@@ -447,21 +441,9 @@ export default function IconPickerModal({
           ))}
         </div>
 
-        {/* Search within category */}
-        <div className="ipm-search-wrap">
-          <i
-            className="fa-solid fa-magnifying-glass ipm-search-icon"
-            aria-hidden="true"
-          />
-          <input
-            className="ipm-search-input"
-            type="search"
-            placeholder={t("notes.searchPlaceholder", language)}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        <div className="ipm-section-label">
+          {t("calendarTab.importantDayIconLabel", language)}
         </div>
-
         {/* Icon grid */}
         <div className="ipm-icon-grid" role="listbox" aria-label="icons">
           {displayedIcons.length > 0 ? (
