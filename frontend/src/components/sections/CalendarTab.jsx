@@ -85,6 +85,8 @@ export default function CalendarTab({ language, calendarType }) {
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
   const [importantDays, setImportantDays] = useState([]);
   const [editingImportantDayId, setEditingImportantDayId] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingImportantDayId, setDeletingImportantDayId] = useState(null);
   const [formMessage, setFormMessage] = useState({ type: "", text: "" });
   const [now, setNow] = useState(Date.now());
 
@@ -149,23 +151,28 @@ export default function CalendarTab({ language, calendarType }) {
   }
 
   async function handleDeleteImportantDay(id) {
-    if (
-      !window.confirm(
-        t("calendarTab.importantDayDeleteConfirmMessage", language),
-      )
-    ) {
-      return;
-    }
+    setDeletingImportantDayId(id);
+    setIsDeleteModalOpen(true);
+  }
+
+  async function confirmDeleteImportantDay() {
+    if (!deletingImportantDayId) return;
 
     try {
-      await api.deleteImportantDay(id);
-      setImportantDays((prev) => prev.filter((item) => item.id !== id));
+      await api.deleteImportantDay(deletingImportantDayId);
+      setImportantDays((prev) =>
+        prev.filter((item) => item.id !== deletingImportantDayId),
+      );
+      setIsDeleteModalOpen(false);
+      setDeletingImportantDayId(null);
     } catch (error) {
       setFormMessage({
         type: "error",
         text:
           error.message || t("calendarTab.importantDayDeleteError", language),
       });
+      setIsDeleteModalOpen(false);
+      setDeletingImportantDayId(null);
     }
   }
 
@@ -380,66 +387,67 @@ export default function CalendarTab({ language, calendarType }) {
 
         {importantDays.length ? (
           <div className="important-day-list">
-            {importantDays.map((item) => {
-              const countdown = getCountdownLabel(item.date, item.time);
-              return (
-                <div key={item.id} className="important-day-summary">
-                  <span className="important-day-summary-icon">
-                    <i
-                      className={
-                        item.icon || IMPORTANT_DAY_ICON_OPTIONS[0].value
-                      }
-                      style={{ color: item.icon_color || "#ffbe0b" }}
-                      aria-hidden="true"
-                    />
-                  </span>
-                  <span className="important-day-summary-title">
-                    {item.title}
-                  </span>
-                  {item.description ? (
-                    <p className="important-day-summary-desc">
-                      {item.description}
-                    </p>
-                  ) : null}
-                  <div className="important-day-summary-meta">
-                    <span>
-                      {t("calendarTab.importantDayDateLabel", language)}:{" "}
-                      {formatDateParts(item.date, language, calendarType).day}{" "}
-                      {formatMonthYear(item.date, language, calendarType)}
+            {importantDays
+              .filter((item) => item.date >= todayISO)
+              .map((item) => {
+                const countdown = getCountdownLabel(item.date, item.time);
+                return (
+                  <div key={item.id} className="important-day-summary">
+                    <div className="calendar-important-day-actions">
+                      <span className="important-day-summary-icon">
+                        <i
+                          className={
+                            item.icon || IMPORTANT_DAY_ICON_OPTIONS[0].value
+                          }
+                          style={{ color: item.icon_color || "#ffbe0b" }}
+                          aria-hidden="true"
+                        />
+                      </span>
+                      <button
+                        className="icon-btn"
+                        onClick={() => openEditImportantDay(item)}
+                        title={t("calendarTab.importantDayEdit", language)}
+                      >
+                        <i className="fa-solid fa-pen" aria-hidden="true" />
+                      </button>
+                      <button
+                        className="icon-btn delete"
+                        onClick={() => handleDeleteImportantDay(item.id)}
+                        title={t("calendarTab.importantDayDelete", language)}
+                      >
+                        <i className="fa-solid fa-trash" aria-hidden="true" />
+                      </button>
+                    </div>
+
+                    <span className="important-day-summary-title">
+                      {item.title}
                     </span>
-                    <span>
-                      {t("calendarTab.importantDayTimeLabel", language)}:{" "}
-                      {item.time}
-                    </span>
+                    {item.description ? (
+                      <p className="important-day-summary-desc">
+                        {item.description}
+                      </p>
+                    ) : null}
+                    <div className="important-day-summary-meta">
+                      <span>
+                        {t("calendarTab.importantDayDateLabel", language)}:{" "}
+                        {formatDateParts(item.date, language, calendarType).day}{" "}
+                        {formatMonthYear(item.date, language, calendarType)}
+                      </span>
+                      <span>
+                        {t("calendarTab.importantDayTimeLabel", language)}:{" "}
+                        {item.time}
+                      </span>
+                    </div>
+                    {countdown.label && (
+                      <p
+                        className={`important-day-countdown ${countdown.expired ? "expired" : ""}`.trim()}
+                      >
+                        {countdown.label}
+                      </p>
+                    )}
                   </div>
-                  {countdown.label && (
-                    <p
-                      className={`important-day-countdown ${countdown.expired ? "expired" : ""}`.trim()}
-                    >
-                      {countdown.label}
-                    </p>
-                  )}
-                  <div className="calendar-important-day-actions">
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={() => openEditImportantDay(item)}
-                    >
-                      <i className="fa-solid fa-pen" aria-hidden="true" />{" "}
-                      {t("calendarTab.importantDayEdit", language)}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="danger"
-                      onClick={() => handleDeleteImportantDay(item.id)}
-                    >
-                      <i className="fa-solid fa-trash" aria-hidden="true" />{" "}
-                      {t("calendarTab.importantDayDelete", language)}
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         ) : (
           <p className="empty-state-message">
@@ -571,6 +579,26 @@ export default function CalendarTab({ language, calendarType }) {
             </Button>
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title={t("common.confirmDelete", language)}
+      >
+        <p>{t("calendarTab.importantDayDeleteConfirmMessage", language)}</p>
+        <div className="modal-actions">
+          <Button
+            variant="secondary"
+            onClick={() => setIsDeleteModalOpen(false)}
+            type="button"
+          >
+            {t("common.cancel", language)}
+          </Button>
+          <Button variant="danger" onClick={confirmDeleteImportantDay}>
+            {t("calendarTab.importantDayDelete", language)}
+          </Button>
+        </div>
       </Modal>
     </Card>
   );

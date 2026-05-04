@@ -69,14 +69,14 @@ export default function DailyTasks({
         {tasks.map((task) => (
           <li key={task.id} className="daily-task-item">
             <button
-              className="routine-icon-btn"
+              className="icon-btn"
               onClick={() => onOpenEditTaskModal(task)}
               title={t("dailyTasks.editTask", language)}
             >
               <i className="fa-solid fa-pen" aria-hidden="true" />
             </button>
             <button
-              className="routine-icon-btn delete"
+              className="icon-btn delete"
               onClick={() => onRequestTaskDelete(task)}
               title={t("dailyTasks.deleteTask", language)}
             >

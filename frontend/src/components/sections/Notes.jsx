@@ -65,14 +65,14 @@ export default function Notes({
                 </span>
                 <div className="note-actions">
                   <button
-                    className="routine-icon-btn"
+                    className="icon-btn"
                     onClick={() => onOpenEdit(note)}
                     title={t("notes.edit", language)}
                   >
                     <i className="fa-solid fa-pen" aria-hidden="true" />
                   </button>
                   <button
-                    className="routine-icon-btn delete"
+                    className="icon-btn delete"
                     onClick={() => onRequestDelete(note)}
                     title={t("notes.delete", language)}
                   >

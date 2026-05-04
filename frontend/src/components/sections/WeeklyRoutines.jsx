@@ -185,14 +185,14 @@ export default function WeeklyRoutines({
                         })}
                       />
                       <button
-                        className="routine-icon-btn"
+                        className="icon-btn"
                         title={t("weekly.edit", language)}
                         onClick={() => openEditModal(routine)}
                       >
                         <i className="fa-solid fa-pen" aria-hidden="true" />
                       </button>
                       <button
-                        className="routine-icon-btn delete"
+                        className="icon-btn delete"
                         title={t("weekly.delete", language)}
                         onClick={() => onRequestRoutineDelete(routine)}
                       >
@@ -284,14 +284,14 @@ export default function WeeklyRoutines({
                 </div>
                 <div className="row-actions">
                   <button
-                    className="routine-icon-btn"
+                    className="icon-btn"
                     title={t("weekly.edit", language)}
                     onClick={() => openEditModal(routine)}
                   >
                     <i className="fa-solid fa-pen" aria-hidden="true" />
                   </button>
                   <button
-                    className="routine-icon-btn delete"
+                    className="icon-btn delete"
                     title={t("weekly.delete", language)}
                     onClick={() => onRequestRoutineDelete(routine)}
                   >

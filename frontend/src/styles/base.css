@@ -211,7 +211,7 @@ a {
   font-size: 0.9em;
 }
 
-.routine-icon-btn {
+.icon-btn {
   width: 24px;
   height: 24px;
   border: var(--border-strong);
@@ -226,13 +226,13 @@ a {
   justify-content: center;
 }
 
-.routine-icon-btn.delete {
+.icon-btn.delete {
   background: var(--color-danger-soft);
   border: 1px solid var(--color-danger-border);
   color: var(--color-danger);
 }
 
-.routine-icon-btn i,
+.icon-btn i,
 .status-btn i,
 .daily-task-check i,
 .snackbar-icon i,
