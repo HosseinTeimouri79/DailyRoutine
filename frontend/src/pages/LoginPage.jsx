@@ -5,6 +5,7 @@ import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import ThemeSwitcher from "../components/ui/ThemeSwitcher";
 import LanguageSwitcher from "../components/ui/LanguageSwitcher";
+import Modal from "../components/ui/Modal";
 import PersianMonthCalendar from "../components/calendar/PersianMonthCalendar";
 import { api, setSession, getToken } from "../lib/api";
 import { useSettings } from "../lib/settings";
@@ -44,14 +45,14 @@ export default function LoginPage() {
   const [registerDobMonth, setRegisterDobMonth] = useState(() =>
     getMonthCursorFromISO(getTodayISO(), "jalali"),
   );
-  const [isRegisterDobPickerOpen, setIsRegisterDobPickerOpen] = useState(false);
+  const [isRegisterDobModalOpen, setIsRegisterDobModalOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   function toggleRegisterDobPicker(event) {
     event?.preventDefault?.();
-    setIsRegisterDobPickerOpen((prev) => !prev);
+    setIsRegisterDobModalOpen((prev) => !prev);
   }
 
   useEffect(() => {
@@ -160,27 +161,6 @@ export default function LoginPage() {
                   readOnly
                   onMouseDown={toggleRegisterDobPicker}
                 />
-                {isRegisterDobPickerOpen ? (
-                  <PersianMonthCalendar
-                    className="auth-dob-calendar"
-                    month={registerDobMonth}
-                    calendarType={form.calendar_type}
-                    showMonthSwitchButtons={false}
-                    onSetMonth={setRegisterDobMonth}
-                    selectedDate={form.date_of_birth || undefined}
-                    onSelectDay={(isoDate) => {
-                      setForm((prev) => ({
-                        ...prev,
-                        date_of_birth: isoDate,
-                      }));
-                      setRegisterDobMonth(
-                        getMonthCursorFromISO(isoDate, form.calendar_type),
-                      );
-                      setIsRegisterDobPickerOpen(false);
-                    }}
-                    language={language}
-                  />
-                ) : null}
               </div>
 
               <div
@@ -313,6 +293,32 @@ export default function LoginPage() {
           </div>
         </form>
       </Card>
+
+      <Modal
+        isOpen={isRegisterDobModalOpen}
+        onClose={() => setIsRegisterDobModalOpen(false)}
+        title={t("login.dateOfBirth", language)}
+      >
+        <PersianMonthCalendar
+          className="auth-dob-calendar"
+          month={registerDobMonth}
+          calendarType={form.calendar_type}
+          showMonthSwitchButtons={false}
+          onSetMonth={setRegisterDobMonth}
+          selectedDate={form.date_of_birth || undefined}
+          onSelectDay={(isoDate) => {
+            setForm((prev) => ({
+              ...prev,
+              date_of_birth: isoDate,
+            }));
+            setRegisterDobMonth(
+              getMonthCursorFromISO(isoDate, form.calendar_type),
+            );
+            setIsRegisterDobModalOpen(false);
+          }}
+          language={language}
+        />
+      </Modal>
     </div>
   );
 }

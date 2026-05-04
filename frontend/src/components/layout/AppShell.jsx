@@ -42,7 +42,7 @@ export default function AppShell({ title, children }) {
       initialUser?.calendar_type || "jalali",
     ),
   );
-  const [isDobPickerOpen, setIsDobPickerOpen] = useState(false);
+  const [isDobModalOpen, setIsDobModalOpen] = useState(false);
   const [profileCalendarType, setProfileCalendarType] = useState(
     initialUser?.calendar_type || "jalali",
   );
@@ -89,14 +89,14 @@ export default function AppShell({ title, children }) {
     );
     setProfileCalendarType(user?.calendar_type || "jalali");
     setProfileGender(user?.gender || "");
-    setIsDobPickerOpen(false);
+    setIsDobModalOpen(false);
     setIsProfileOpen(true);
     syncProfile();
   }
 
   function closeProfile() {
     setIsProfileOpen(false);
-    setIsDobPickerOpen(false);
+    setIsDobModalOpen(false);
     setProfileMessage({ type: "", text: "" });
   }
 
@@ -319,12 +319,12 @@ export default function AppShell({ title, children }) {
   function handleSelectDob(isoDate) {
     setProfileDob(isoDate);
     setProfileDobMonth(getMonthCursorFromISO(isoDate, profileCalendarType));
-    setIsDobPickerOpen(false);
+    setIsDobModalOpen(false);
   }
 
   function toggleDobPicker(event) {
     event?.preventDefault?.();
-    setIsDobPickerOpen((prev) => !prev);
+    setIsDobModalOpen((prev) => !prev);
   }
 
   const profileDobPreview = profileDob
@@ -410,29 +410,6 @@ export default function AppShell({ title, children }) {
                   onMouseDown={toggleDobPicker}
                 />
               </div>
-              {isDobPickerOpen ? (
-                <PersianMonthCalendar
-                  className="profile-dob-calendar"
-                  month={profileDobMonth}
-                  calendarType={profileCalendarType}
-                  showMonthSwitchButtons={false}
-                  onPrevMonth={() =>
-                    setProfileDobMonth((prev) => shiftMonthCursor(prev, -1))
-                  }
-                  onNextMonth={() =>
-                    setProfileDobMonth((prev) => shiftMonthCursor(prev, 1))
-                  }
-                  onSetMonth={setProfileDobMonth}
-                  onGoToday={() =>
-                    setProfileDobMonth(
-                      getMonthCursorFromISO(getTodayISO(), profileCalendarType),
-                    )
-                  }
-                  selectedDate={profileDob || undefined}
-                  onSelectDay={handleSelectDob}
-                  language={language}
-                />
-              ) : null}
             </div>
 
             <div
@@ -527,6 +504,34 @@ export default function AppShell({ title, children }) {
         {profileLoading ? (
           <p className="muted">{t("appShell.updatingProfile", language)}</p>
         ) : null}
+      </Modal>
+
+      <Modal
+        isOpen={isDobModalOpen}
+        onClose={() => setIsDobModalOpen(false)}
+        title={t("appShell.dateOfBirth", language)}
+      >
+        <PersianMonthCalendar
+          className="profile-dob-calendar"
+          month={profileDobMonth}
+          calendarType={profileCalendarType}
+          showMonthSwitchButtons={false}
+          onPrevMonth={() =>
+            setProfileDobMonth((prev) => shiftMonthCursor(prev, -1))
+          }
+          onNextMonth={() =>
+            setProfileDobMonth((prev) => shiftMonthCursor(prev, 1))
+          }
+          onSetMonth={setProfileDobMonth}
+          onGoToday={() =>
+            setProfileDobMonth(
+              getMonthCursorFromISO(getTodayISO(), profileCalendarType),
+            )
+          }
+          selectedDate={profileDob || undefined}
+          onSelectDay={handleSelectDob}
+          language={language}
+        />
       </Modal>
 
       <Modal

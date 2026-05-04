@@ -84,6 +84,8 @@ export default function CalendarTab({ language, calendarType }) {
   );
   const [importantIconColor, setImportantIconColor] = useState("#ffbe0b");
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
+  const [isImportantDatePickerOpen, setIsImportantDatePickerOpen] =
+    useState(false);
   const [importantDays, setImportantDays] = useState([]);
   const [editingImportantDayId, setEditingImportantDayId] = useState(null);
   const [editingImportantDayIsGlobal, setEditingImportantDayIsGlobal] =
@@ -142,6 +144,7 @@ export default function CalendarTab({ language, calendarType }) {
     setIsImportantDayModalOpen(true);
     setEditingImportantDayIsGlobal(false);
     setIsGlobalImportantDay(false);
+    setIsImportantDatePickerOpen(false);
   }
 
   function closeImportantDayModal() {
@@ -150,6 +153,7 @@ export default function CalendarTab({ language, calendarType }) {
     setFormMessage({ type: "", text: "" });
     setEditingImportantDayIsGlobal(false);
     setIsGlobalImportantDay(false);
+    setIsImportantDatePickerOpen(false);
   }
 
   function openEditImportantDay(item) {
@@ -167,6 +171,7 @@ export default function CalendarTab({ language, calendarType }) {
     setIsGlobalImportantDay(Boolean(item.is_global));
     setFormMessage({ type: "", text: "" });
     setIsImportantDayModalOpen(true);
+    setIsImportantDatePickerOpen(false);
   }
 
   async function handleDeleteImportantDay(item) {
@@ -362,6 +367,10 @@ export default function CalendarTab({ language, calendarType }) {
     [selectedDate, calendarType, holidayMaps],
   );
 
+  const importantDateDisplay = importantDate
+    ? `${formatDateParts(importantDate, language, calendarType).day} ${formatMonthYear(importantDate, language, calendarType)}`
+    : "";
+
   return (
     <Card
       title={t("calendarTab.title", language)}
@@ -531,21 +540,17 @@ export default function CalendarTab({ language, calendarType }) {
           </div>
 
           <div className="field">
-            <label>{t("calendarTab.importantDayDateLabel", language)}</label>
-            <PersianMonthCalendar
-              month={importantModalMonth}
-              calendarType={calendarType}
-              showMonthSwitchButtons={false}
-              onSetMonth={setImportantModalMonth}
-              onGoToday={() => {
-                setImportantModalMonth(
-                  getMonthCursorFromISO(todayISO, calendarType),
-                );
-                setImportantDate(todayISO);
-              }}
-              selectedDate={importantDate}
-              onSelectDay={setImportantDate}
-              language={language}
+            <label htmlFor="modal-important-date">
+              {t("calendarTab.importantDayDateLabel", language)}
+            </label>
+            <input
+              id="modal-important-date"
+              className="input"
+              type="text"
+              value={importantDateDisplay}
+              placeholder={t("calendarTab.importantDayDateLabel", language)}
+              readOnly
+              onMouseDown={() => setIsImportantDatePickerOpen(true)}
             />
           </div>
 
@@ -644,6 +649,32 @@ export default function CalendarTab({ language, calendarType }) {
             </Button>
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        isOpen={isImportantDatePickerOpen}
+        onClose={() => setIsImportantDatePickerOpen(false)}
+        title={t("calendarTab.importantDayDateLabel", language)}
+      >
+        <PersianMonthCalendar
+          month={importantModalMonth}
+          calendarType={calendarType}
+          showMonthSwitchButtons={false}
+          onSetMonth={setImportantModalMonth}
+          onGoToday={() => {
+            setImportantModalMonth(getMonthCursorFromISO(todayISO, calendarType));
+            setImportantDate(todayISO);
+          }}
+          selectedDate={importantDate}
+          onSelectDay={(isoDate) => {
+            setImportantDate(isoDate);
+            setImportantModalMonth(
+              getMonthCursorFromISO(isoDate, calendarType),
+            );
+            setIsImportantDatePickerOpen(false);
+          }}
+          language={language}
+        />
       </Modal>
 
       <Modal
