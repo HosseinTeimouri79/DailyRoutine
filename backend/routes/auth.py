@@ -1,3 +1,4 @@
+import os
 import re
 
 from flask import Blueprint, jsonify, request, g
@@ -23,6 +24,17 @@ def normalize_iran_phone(raw_phone: str) -> str:
     elif phone.startswith("9"):
         phone = "0" + phone
     return phone
+
+
+ADMIN_PHONES = {
+    normalize_iran_phone(value)
+    for value in os.getenv("ADMIN_PHONES", "").split(",")
+    if value.strip()
+}
+
+
+def is_admin_phone(phone: str) -> bool:
+    return phone in ADMIN_PHONES
 
 
 def normalize_gender(raw_gender):
@@ -64,6 +76,7 @@ def build_user_response(user):
         "date_of_birth": normalize_date_to_iso(user.get("date_of_birth")),
         "calendar_type": user.get("calendar_type") or "jalali",
         "gender": user.get("gender"),
+        "is_admin": bool(user.get("is_admin")),
     }
 
 
@@ -106,8 +119,9 @@ def register():
             return jsonify({"message": "calendar_type must be jalali or gregorian"}), 400
 
     password_hash = hash_password(password)
+    is_admin = 1 if is_admin_phone(phone) else 0
     cursor = execute(
-        "INSERT INTO users(name, phone, password_hash, profile_image, date_of_birth, calendar_type, gender) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id",
+        "INSERT INTO users(name, phone, password_hash, profile_image, date_of_birth, calendar_type, gender, is_admin) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
         (
             name,
             phone,
@@ -116,10 +130,11 @@ def register():
             date_of_birth_ts,
             calendar_type_value,
             gender_value,
+            is_admin,
         ),
     )
     user_id = cursor.fetchone()["id"]
-    token = generate_token(user_id, phone)
+    token = generate_token(user_id, phone, is_admin)
 
     return jsonify(
         {
@@ -132,6 +147,7 @@ def register():
                 "date_of_birth": normalize_date_to_iso(date_of_birth_ts),
                 "calendar_type": calendar_type_value,
                 "gender": gender_value,
+                "is_admin": bool(is_admin),
             },
         }
     )
@@ -150,13 +166,13 @@ def login():
         return jsonify({"message": "phone number is invalid"}), 400
 
     user = query_one(
-        "SELECT id, name, phone, password_hash, profile_image, date_of_birth, calendar_type, gender FROM users WHERE phone = %s",
+        "SELECT id, name, phone, password_hash, profile_image, date_of_birth, calendar_type, gender, is_admin FROM users WHERE phone = %s",
         (phone,),
     )
     if not user or not verify_password(password, user["password_hash"]):
         return jsonify({"message": "invalid credentials"}), 401
 
-    token = generate_token(user["id"], user["phone"])
+    token = generate_token(user["id"], user["phone"], user.get("is_admin"))
     return jsonify(
         {
             "token": token,
@@ -169,7 +185,7 @@ def login():
 @auth_required
 def me():
     user = query_one(
-        "SELECT id, name, phone, profile_image, date_of_birth, calendar_type, gender FROM users WHERE id = %s",
+        "SELECT id, name, phone, profile_image, date_of_birth, calendar_type, gender, is_admin FROM users WHERE id = %s",
         (g.user_id,),
     )
     if not user:
@@ -219,7 +235,7 @@ def update_profile():
             return jsonify({"message": "calendar_type must be jalali or gregorian"}), 400
 
     current_user = query_one(
-        "SELECT id, name, phone, profile_image, date_of_birth, calendar_type, gender FROM users WHERE id = %s",
+        "SELECT id, name, phone, profile_image, date_of_birth, calendar_type, gender, is_admin FROM users WHERE id = %s",
         (g.user_id,),
     )
     if not current_user:
@@ -250,7 +266,7 @@ def update_profile():
     )
 
     user = query_one(
-        "SELECT id, name, phone, profile_image, date_of_birth, calendar_type, gender FROM users WHERE id = %s",
+        "SELECT id, name, phone, profile_image, date_of_birth, calendar_type, gender, is_admin FROM users WHERE id = %s",
         (g.user_id,),
     )
     return jsonify(build_user_response(user))

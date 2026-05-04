@@ -104,4 +104,13 @@ export const api = {
     }),
   deleteImportantDay: (id) =>
     request(`/important-days/${id}`, { method: "DELETE", auth: true }),
+  getGlobalImportantDay: () => request("/important-days/global", { auth: true }),
+  upsertGlobalImportantDay: (payload) =>
+    request("/important-days/global", {
+      method: "PUT",
+      body: payload,
+      auth: true,
+    }),
+  deleteGlobalImportantDay: () =>
+    request("/important-days/global", { method: "DELETE", auth: true }),
 };

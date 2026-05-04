@@ -12,7 +12,7 @@ import {
   getTodayISO,
   shiftMonthCursor,
 } from "../../lib/date";
-import { api } from "../../lib/api";
+import { api, getUser } from "../../lib/api";
 import { t } from "../../lib/i18n";
 import IconPickerModal from "../ui/IconPickerModal";
 import "./CalendarTab.css";
@@ -61,6 +61,7 @@ function getJalaliKey(isoDate) {
 
 export default function CalendarTab({ language, calendarType }) {
   const todayISO = useMemo(() => getTodayISO(), []);
+  const isAdmin = Boolean(getUser()?.is_admin);
   const [selectedDate, setSelectedDate] = useState(todayISO);
   const [month, setMonth] = useState(() =>
     getMonthCursorFromISO(todayISO, calendarType),
@@ -85,8 +86,13 @@ export default function CalendarTab({ language, calendarType }) {
   const [isIconPickerOpen, setIsIconPickerOpen] = useState(false);
   const [importantDays, setImportantDays] = useState([]);
   const [editingImportantDayId, setEditingImportantDayId] = useState(null);
+  const [editingImportantDayIsGlobal, setEditingImportantDayIsGlobal] =
+    useState(false);
+  const [isGlobalImportantDay, setIsGlobalImportantDay] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingImportantDayId, setDeletingImportantDayId] = useState(null);
+  const [deletingImportantDayIsGlobal, setDeletingImportantDayIsGlobal] =
+    useState(false);
   const [formMessage, setFormMessage] = useState({ type: "", text: "" });
   const [now, setNow] = useState(Date.now());
 
@@ -95,9 +101,16 @@ export default function CalendarTab({ language, calendarType }) {
 
     async function loadImportantDays() {
       try {
-        const rows = await api.getImportantDays();
+        const [rows, globalDay] = await Promise.all([
+          api.getImportantDays(),
+          api.getGlobalImportantDay().catch(() => null),
+        ]);
         if (cancelled) return;
-        setImportantDays(rows || []);
+        const combined = [...(rows || [])];
+        if (globalDay) {
+          combined.unshift({ ...globalDay, is_global: true });
+        }
+        setImportantDays(combined);
       } catch {
         // ignore backend load failure for now
       }
@@ -127,16 +140,21 @@ export default function CalendarTab({ language, calendarType }) {
     );
     setFormMessage({ type: "", text: "" });
     setIsImportantDayModalOpen(true);
+    setEditingImportantDayIsGlobal(false);
+    setIsGlobalImportantDay(false);
   }
 
   function closeImportantDayModal() {
     setIsImportantDayModalOpen(false);
     setEditingImportantDayId(null);
     setFormMessage({ type: "", text: "" });
+    setEditingImportantDayIsGlobal(false);
+    setIsGlobalImportantDay(false);
   }
 
   function openEditImportantDay(item) {
     setEditingImportantDayId(item.id);
+    setEditingImportantDayIsGlobal(Boolean(item.is_global));
     setImportantTitle(item.title || "");
     setImportantDescription(item.description || "");
     setImportantDate(item.date || todayISO);
@@ -146,12 +164,14 @@ export default function CalendarTab({ language, calendarType }) {
     setImportantModalMonth(
       getMonthCursorFromISO(item.date || todayISO, calendarType),
     );
+    setIsGlobalImportantDay(Boolean(item.is_global));
     setFormMessage({ type: "", text: "" });
     setIsImportantDayModalOpen(true);
   }
 
-  async function handleDeleteImportantDay(id) {
-    setDeletingImportantDayId(id);
+  async function handleDeleteImportantDay(item) {
+    setDeletingImportantDayId(item.id);
+    setDeletingImportantDayIsGlobal(Boolean(item.is_global));
     setIsDeleteModalOpen(true);
   }
 
@@ -159,12 +179,18 @@ export default function CalendarTab({ language, calendarType }) {
     if (!deletingImportantDayId) return;
 
     try {
-      await api.deleteImportantDay(deletingImportantDayId);
-      setImportantDays((prev) =>
-        prev.filter((item) => item.id !== deletingImportantDayId),
-      );
+      if (deletingImportantDayIsGlobal) {
+        await api.deleteGlobalImportantDay();
+        setImportantDays((prev) => prev.filter((item) => !item.is_global));
+      } else {
+        await api.deleteImportantDay(deletingImportantDayId);
+        setImportantDays((prev) =>
+          prev.filter((item) => item.id !== deletingImportantDayId),
+        );
+      }
       setIsDeleteModalOpen(false);
       setDeletingImportantDayId(null);
+      setDeletingImportantDayIsGlobal(false);
     } catch (error) {
       setFormMessage({
         type: "error",
@@ -173,6 +199,7 @@ export default function CalendarTab({ language, calendarType }) {
       });
       setIsDeleteModalOpen(false);
       setDeletingImportantDayId(null);
+      setDeletingImportantDayIsGlobal(false);
     }
   }
 
@@ -242,7 +269,19 @@ export default function CalendarTab({ language, calendarType }) {
       };
 
       let saved;
-      if (editingImportantDayId) {
+      if (isGlobalImportantDay) {
+        saved = await api.upsertGlobalImportantDay(payload);
+        if (editingImportantDayId && !editingImportantDayIsGlobal) {
+          await api.deleteImportantDay(editingImportantDayId);
+        }
+        setImportantDays((prev) => {
+          const withoutGlobal = prev.filter((item) => !item.is_global);
+          const withoutEdited = editingImportantDayId
+            ? withoutGlobal.filter((item) => item.id !== editingImportantDayId)
+            : withoutGlobal;
+          return [{ ...saved, is_global: true }, ...withoutEdited];
+        });
+      } else if (editingImportantDayId) {
         saved = await api.updateImportantDay(editingImportantDayId, payload);
         setImportantDays((prev) =>
           prev.map((item) => (item.id === saved.id ? saved : item)),
@@ -391,6 +430,7 @@ export default function CalendarTab({ language, calendarType }) {
               .filter((item) => item.date >= todayISO)
               .map((item) => {
                 const countdown = getCountdownLabel(item.date, item.time);
+                const canManage = !item.is_global || isAdmin;
                 return (
                   <div key={item.id} className="important-day-summary">
                     <div className="calendar-important-day-actions">
@@ -403,20 +443,27 @@ export default function CalendarTab({ language, calendarType }) {
                           aria-hidden="true"
                         />
                       </span>
-                      <button
-                        className="icon-btn"
-                        onClick={() => openEditImportantDay(item)}
-                        title={t("calendarTab.importantDayEdit", language)}
-                      >
-                        <i className="fa-solid fa-pen" aria-hidden="true" />
-                      </button>
-                      <button
-                        className="icon-btn delete"
-                        onClick={() => handleDeleteImportantDay(item.id)}
-                        title={t("calendarTab.importantDayDelete", language)}
-                      >
-                        <i className="fa-solid fa-trash" aria-hidden="true" />
-                      </button>
+                      {canManage ? (
+                        <>
+                          <button
+                            className="icon-btn"
+                            onClick={() => openEditImportantDay(item)}
+                            title={t("calendarTab.importantDayEdit", language)}
+                          >
+                            <i className="fa-solid fa-pen" aria-hidden="true" />
+                          </button>
+                          <button
+                            className="icon-btn delete"
+                            onClick={() => handleDeleteImportantDay(item)}
+                            title={t("calendarTab.importantDayDelete", language)}
+                          >
+                            <i
+                              className="fa-solid fa-trash"
+                              aria-hidden="true"
+                            />
+                          </button>
+                        </>
+                      ) : null}
                     </div>
 
                     <span className="important-day-summary-title">
@@ -514,6 +561,24 @@ export default function CalendarTab({ language, calendarType }) {
               onChange={(event) => setImportantTime(event.target.value)}
             />
           </div>
+
+          {isAdmin ? (
+            <div className="field">
+              <label className="important-day-global-toggle">
+                <input
+                  type="checkbox"
+                  checked={isGlobalImportantDay}
+                  onChange={(event) =>
+                    setIsGlobalImportantDay(event.target.checked)
+                  }
+                  disabled={editingImportantDayIsGlobal}
+                />
+                <span>
+                  {t("calendarTab.importantDayGlobalToggle", language)}
+                </span>
+              </label>
+            </div>
+          ) : null}
 
           <div className="field">
             <label>{t("calendarTab.importantDayIconLabel", language)}</label>

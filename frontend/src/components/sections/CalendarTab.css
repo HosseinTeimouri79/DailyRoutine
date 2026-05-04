@@ -114,6 +114,14 @@
   white-space: nowrap;
 }
 
+.important-day-global-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
 .important-day-icon-selection {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));

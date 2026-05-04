@@ -18,11 +18,12 @@ def verify_password(raw_password: str, password_hash: str) -> bool:
     return bcrypt.checkpw(raw_password.encode("utf-8"), password_hash.encode("utf-8"))
 
 
-def generate_token(user_id: int, phone: str) -> str:
+def generate_token(user_id: int, phone: str, is_admin: bool = False) -> str:
     expires_at = datetime.now(timezone.utc) + timedelta(days=JWT_EXPIRES_DAYS)
     payload = {
         "sub": user_id,
         "phone": phone,
+        "is_admin": bool(is_admin),
         "exp": expires_at,
     }
     return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
@@ -46,6 +47,18 @@ def auth_required(handler):
 
         g.user_id = payload.get("sub")
         g.user_phone = payload.get("phone")
+        g.user_is_admin = bool(payload.get("is_admin"))
+        return handler(*args, **kwargs)
+
+    wrapped.__name__ = handler.__name__
+    return wrapped
+
+
+def admin_required(handler):
+    @auth_required
+    def wrapped(*args, **kwargs):
+        if not getattr(g, "user_is_admin", False):
+            return jsonify({"message": "Forbidden"}), 403
         return handler(*args, **kwargs)
 
     wrapped.__name__ = handler.__name__

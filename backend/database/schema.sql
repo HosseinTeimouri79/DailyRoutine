@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   date_of_birth BIGINT,
   calendar_type TEXT NOT NULL DEFAULT 'jalali',
   gender TEXT,
+  is_admin INTEGER NOT NULL DEFAULT 0,
   created_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::bigint)
 );
 
@@ -61,6 +62,18 @@ CREATE TABLE IF NOT EXISTS notes (
 CREATE TABLE IF NOT EXISTS important_days (
   id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT,
+  event_date BIGINT NOT NULL,
+  event_time TEXT NOT NULL,
+  icon TEXT,
+  icon_color TEXT,
+  created_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::bigint),
+  updated_at BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::bigint)
+);
+
+CREATE TABLE IF NOT EXISTS global_important_day (
+  id SMALLINT PRIMARY KEY DEFAULT 1,
   title TEXT NOT NULL,
   description TEXT,
   event_date BIGINT NOT NULL,
@@ -140,3 +153,17 @@ BEGIN
 END $$;
 
 ALTER TABLE users ADD COLUMN IF NOT EXISTS calendar_type TEXT NOT NULL DEFAULT 'jalali';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin INTEGER NOT NULL DEFAULT 0;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'global_important_day_singleton'
+  ) THEN
+    ALTER TABLE global_important_day
+      ADD CONSTRAINT global_important_day_singleton
+      CHECK (id = 1);
+  END IF;
+END $$;

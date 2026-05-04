@@ -218,6 +218,7 @@ const translations = {
       importantDayIconColorLabel: "رنگ آیکون",
       importantDayIconPickerTitle: "انتخاب آیکون",
       importantDayIconSave: "انتخاب",
+      importantDayGlobalToggle: "نمایش برای همه کاربران",
       iconCategory: {
         general: "عمومی",
         celebration: "جشن",
@@ -531,6 +532,7 @@ const translations = {
       importantDayIconColorLabel: "Icon color",
       importantDayIconPickerTitle: "Select icon",
       importantDayIconSave: "Select",
+      importantDayGlobalToggle: "Show for all users",
       iconCategory: {
         general: "General",
         celebration: "Celebration",
