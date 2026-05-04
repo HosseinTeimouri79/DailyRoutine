@@ -15,6 +15,7 @@ import {
 import { api, getUser } from "../../lib/api";
 import { t } from "../../lib/i18n";
 import IconPickerModal from "../ui/IconPickerModal";
+import TimePicker from "../ui/TimePicker";
 import "./CalendarTab.css";
 
 const IMPORTANT_DAY_ICON_OPTIONS = [
@@ -554,18 +555,13 @@ export default function CalendarTab({ language, calendarType }) {
             />
           </div>
 
-          <div className="field">
-            <label htmlFor="modal-important-time">
-              {t("calendarTab.importantDayTimeLabel", language)}
-            </label>
-            <input
-              id="modal-important-time"
-              className="input"
-              type="time"
-              value={importantTime}
-              onChange={(event) => setImportantTime(event.target.value)}
-            />
-          </div>
+          <TimePicker
+            label={t("calendarTab.importantDayTimeLabel", language)}
+            value={importantTime}
+            onChange={setImportantTime}
+            language={language}
+            defaultFormat="24"
+          />
 
           {isAdmin ? (
             <div className="field">

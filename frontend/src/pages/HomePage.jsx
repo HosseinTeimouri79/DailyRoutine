@@ -4,6 +4,7 @@ import Button from "../components/ui/Button";
 import Modal from "../components/ui/Modal";
 import IconPickerModal from "../components/ui/IconPickerModal";
 import Snackbar from "../components/ui/Snackbar";
+import TimePicker from "../components/ui/TimePicker";
 import WeeklyRoutines from "../components/sections/WeeklyRoutines";
 import MonthlyCalendar from "../components/sections/MonthlyCalendar";
 import DailyTasks from "../components/sections/DailyTasks";
@@ -1066,13 +1067,13 @@ export default function HomePage() {
             />
             {t("weekly.enableAlarm", language)}
           </label>
-          <input
-            type="time"
-            className="input"
+          <TimePicker
             value={newRoutineAlarmTime}
-            onChange={(e) => setNewRoutineAlarmTime(e.target.value)}
+            onChange={setNewRoutineAlarmTime}
             disabled={!newRoutineAlarmEnabled}
-            required={newRoutineAlarmEnabled}
+            ariaLabel={t("common.alarmTime", language)}
+            language={language}
+            defaultFormat="24"
           />
           <div className="modal-actions">
             <Button
@@ -1159,13 +1160,13 @@ export default function HomePage() {
             />
             {t("dailyTasks.enableAlarm", language)}
           </label>
-          <input
-            type="time"
-            className="input"
+          <TimePicker
             value={newTaskAlarmTime}
-            onChange={(event) => setNewTaskAlarmTime(event.target.value)}
+            onChange={setNewTaskAlarmTime}
             disabled={!newTaskAlarmEnabled}
-            required={newTaskAlarmEnabled}
+            ariaLabel={t("common.alarmTime", language)}
+            language={language}
+            defaultFormat="24"
           />
           <div className="modal-actions">
             <Button type="button" variant="secondary" onClick={closeTaskModal}>

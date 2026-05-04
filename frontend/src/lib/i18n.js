@@ -273,6 +273,16 @@ const translations = {
       alarmTime: "زمان هشدار",
       userFallback: "کاربر",
     },
+    timePicker: {
+      title: "انتخاب ساعت",
+      format12: "۱۲ ساعته",
+      format24: "۲۴ ساعته",
+      hour: "ساعت",
+      minute: "دقیقه",
+      am: "ق.ظ",
+      pm: "ب.ظ",
+      confirm: "تایید",
+    },
     notifications: {
       routineAlarmTitle: "هشدار روتین",
       taskAlarmTitle: "هشدار کار روزانه",
@@ -587,6 +597,16 @@ const translations = {
       close: "Close",
       alarmTime: "Alarm time",
       userFallback: "User",
+    },
+    timePicker: {
+      title: "Select time",
+      format12: "12-hour",
+      format24: "24-hour",
+      hour: "Hour",
+      minute: "Minute",
+      am: "AM",
+      pm: "PM",
+      confirm: "Confirm",
     },
     notifications: {
       routineAlarmTitle: "Routine alert",
