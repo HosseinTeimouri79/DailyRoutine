@@ -1,7 +1,8 @@
 .page-transition {
   transition:
     opacity 240ms ease,
-    transform 240ms ease;
+    transform 240ms ease,
+    filter 240ms ease;
 }
 
 .page-transition-hidden {
@@ -12,6 +13,7 @@
 .page-transition-visible {
   opacity: 1;
   transform: translateY(0);
+  filter: none;
 }
 
 .page-transition-slide.page-transition-hidden {
@@ -28,4 +30,25 @@
 
 .page-transition-swirl.page-transition-hidden {
   transform: rotate(-4deg) scale(0.96);
+}
+
+.page-transition-blur.page-transition-hidden {
+  transform: scale(1.01);
+  filter: blur(6px);
+}
+
+.page-transition-tilt.page-transition-hidden {
+  transform: translateY(8px) rotate(2deg);
+}
+
+.page-transition-flip {
+  transform-origin: center;
+}
+
+.page-transition-flip.page-transition-hidden {
+  transform: perspective(600px) rotateX(6deg) translateY(10px);
+}
+
+.page-transition-skew.page-transition-hidden {
+  transform: translateY(8px) skewY(2deg);
 }

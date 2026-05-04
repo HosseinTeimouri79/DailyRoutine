@@ -6,6 +6,10 @@ export const PAGE_TRANSITION_MODE_OPTIONS = [
   { value: "zoom" },
   { value: "sparkle" },
   { value: "swirl" },
+  { value: "blur" },
+  { value: "tilt" },
+  { value: "flip" },
+  { value: "skew" },
 ];
 
 const DEFAULT_SETTINGS = {

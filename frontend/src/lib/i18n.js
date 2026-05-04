@@ -118,6 +118,10 @@ const translations = {
         zoom: "بزرگ‌نمایی",
         sparkle: "درخشش",
         swirl: "چرخش",
+        blur: "تاری",
+        tilt: "شیب",
+        flip: "ورق‌خوردن",
+        skew: "مورب",
       },
     },
     weekly: {
@@ -440,6 +444,10 @@ const translations = {
         zoom: "Zoom",
         sparkle: "Sparkle",
         swirl: "Swirl",
+        blur: "Blur",
+        tilt: "Tilt",
+        flip: "Flip",
+        skew: "Skew",
       },
     },
     weekly: {
