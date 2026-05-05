@@ -1,31 +1,23 @@
 .language-switcher {
-  display: grid;
-  gap: 6px;
-  min-width: 0;
+  @apply grid gap-1.5 min-w-0;
 }
 
 .language-switcher-label {
-  color: var(--color-text-secondary);
-  font-size: 0.88rem;
-  font-weight: 600;
+  @apply text-text-secondary text-[0.88rem] font-semibold;
 }
 
 .language-switcher-control {
-  position: relative;
+  @apply relative;
 }
 
 .language-switcher-select.input {
-  appearance: none;
+  @apply appearance-none cursor-pointer;
   padding-inline-end: 36px;
-  cursor: pointer;
 }
 
 .language-switcher-chevron {
-  position: absolute;
+  @apply absolute text-text-secondary pointer-events-none text-[0.82rem];
   inset-inline-end: 12px;
   inset-block-start: 50%;
   transform: translateY(-50%);
-  color: var(--color-text-secondary);
-  pointer-events: none;
-  font-size: 0.82rem;
 }

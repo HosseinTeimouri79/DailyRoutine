@@ -1,38 +1,25 @@
 .card {
-  background: var(--color-bg-surface);
-  border-radius: var(--radius-lg);
-  border: var(--border-default);
-  box-shadow: var(--shadow-card);
-  padding: 18px;
+  @apply bg-surface rounded-lg border border-border-default shadow-card p-[18px];
 }
 
 .card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
+  @apply flex items-start justify-between mb-3;
 }
 
 .card-title {
-  margin: 0;
-  font-size: 1.05rem;
+  @apply m-0 text-[1.05rem];
 }
 
 .card-subtitle {
-  margin: 6px 0 0;
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  @apply mt-1.5 text-text-secondary text-[0.9rem];
 }
 
 @media (max-width: 720px) {
   .card {
-    padding: 14px;
-    border-radius: 14px;
+    @apply p-3.5 rounded-[14px];
   }
 
   .card-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
+    @apply flex-col items-stretch gap-2;
   }
 }

@@ -1,152 +1,92 @@
 .app-shell {
-  width: min(100%, var(--page-max-width));
-  max-width: var(--page-max-width);
-  margin: 0 auto;
-  padding: 20px;
-  display: grid;
-  gap: 8px;
+  @apply w-full max-w-[var(--page-max-width)] mx-auto p-5 grid gap-2;
 }
 
 .app-shell > * {
-  min-width: 0;
+  @apply min-w-0;
 }
 
 .content-grid {
-  gap: 8px;
-  display: flex;
-  flex-direction: column;
+  @apply flex flex-col gap-2;
 }
 
 .profile-modal {
-  width: min(520px, 100%);
+  @apply w-full max-w-[520px];
 }
 
 .settings-modal {
-  width: min(520px, 100%);
+  @apply w-full max-w-[520px];
 }
 
 .settings-stack {
-  display: grid;
-  gap: 12px;
+  @apply grid gap-3;
 }
 
 .profile-identity {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  @apply flex flex-col items-center gap-3 mb-3;
 }
 
 .profile-avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  border: var(--border-default);
-  object-fit: cover;
-  display: grid;
-  place-items: center;
-  font-weight: 700;
-  color: var(--color-secondary);
-  background: var(--color-primary-soft);
+  @apply w-[120px] h-[120px] rounded-full border border-border-default object-cover grid place-items-center font-bold text-secondary bg-primary-soft;
 }
 
 .profile-avatar-btn {
-  border: none;
-  background: transparent;
+  @apply border-0 bg-transparent;
 }
 
 .profile-avatar-fallback {
-  font-size: 1.2rem;
+  @apply text-[1.2rem];
 }
 
 .hidden-file-input {
-  display: none;
+  @apply hidden;
 }
 
 .profile-meta {
-  display: flex;
-  flex-direction: column;
-  width: 85%;
-  gap: 8px;
+  @apply flex flex-col w-[85%] gap-2;
 }
 
 .profile-meta p {
-  margin: 2px 0;
-  color: var(--color-text-secondary);
+  @apply my-0.5 text-text-secondary;
 }
 
 .profile-settings {
-  display: grid;
-  gap: 10px;
-  padding: 10px 12px;
-  border: var(--border-soft);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg-surface-soft);
+  @apply grid gap-2.5 px-3 py-2.5 border border-border-soft rounded-sm bg-surface-soft;
 }
 
 .profile-settings-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  @apply grid grid-cols-2 gap-2.5;
 }
 
 .profile-section-title {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--color-text-primary);
+  @apply m-0 text-[0.95rem] font-semibold text-text-primary;
 }
 
 .profile-toggle-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  @apply flex items-center justify-between gap-2 text-text-secondary text-[0.9rem];
 }
 
 .setting-box {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  border: var(--border-default);
-  border-radius: var(--radius-md);
-  padding: 10px;
+  @apply flex flex-col gap-2 border border-border-default rounded-md p-2.5;
 }
 
 .toggle-switch {
-  position: relative;
-  width: 44px;
-  height: 24px;
-  display: inline-flex;
-  align-items: center;
+  @apply relative w-11 h-6 inline-flex items-center;
 }
 
 .toggle-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
+  @apply opacity-0 w-0 h-0;
 }
 
 .toggle-slider {
-  position: absolute;
-  inset: 0;
-  border-radius: 999px;
+  @apply absolute inset-0 rounded-full;
   background: color-mix(in srgb, var(--color-text-muted) 20%, transparent);
   transition: background 0.2s ease;
 }
 
 .toggle-slider::before {
   content: "";
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--color-bg-surface);
+  @apply absolute top-[3px] left-[3px] w-[18px] h-[18px] rounded-full bg-surface;
   box-shadow: var(--shadow-soft);
   transition:
     left 0.2s ease,
@@ -174,45 +114,39 @@
 }
 
 .select-wrap {
-  position: relative;
+  @apply relative;
 }
 
 .select-wrap .input {
-  appearance: none;
+  @apply appearance-none;
   padding-inline-end: 36px;
 }
 
 .select-chevron {
-  position: absolute;
+  @apply absolute text-text-secondary pointer-events-none text-[0.82rem];
   inset-inline-end: 12px;
   inset-block-start: 50%;
   transform: translateY(-50%);
-  color: var(--color-text-secondary);
-  pointer-events: none;
-  font-size: 0.82rem;
 }
 
 .profile-dob-trigger-row {
-  display: grid;
-  gap: 8px;
+  @apply grid gap-2;
 }
 
 .profile-dob-calendar .monthly-calendar-navigation {
-  gap: 6px;
+  @apply gap-1.5;
 }
 
 .profile-dob-calendar .monthly-calendar-navigation .btn {
-  padding: 6px 10px;
-  font-size: 0.85rem;
+  @apply px-2.5 py-1.5 text-[0.85rem];
 }
 
 @media (max-width: 720px) {
   .app-shell {
-    padding: 12px;
-    gap: 8px;
+    @apply p-3 gap-2;
   }
 
   .profile-settings-grid {
-    grid-template-columns: minmax(0, 1fr);
+    @apply grid-cols-1;
   }
 }

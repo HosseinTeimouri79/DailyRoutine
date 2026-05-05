@@ -1,118 +1,57 @@
 .ipm-root {
-  display: grid;
-  gap: 14px;
+  @apply grid gap-3.5;
 }
 
 /* Preview */
 .ipm-preview-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  background: var(--color-bg-surface-soft);
-  border: var(--border-default);
-  border-radius: var(--radius-md);
+  @apply flex items-center gap-3 px-3.5 py-3 bg-surface-soft border border-border-default rounded-md;
 }
 
 .ipm-preview-icon-wrap {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 46px;
-  height: 46px;
-  flex-shrink: 0;
-  border-radius: 12px;
-  background: var(--color-bg-surface);
-  border: var(--border-strong);
-  font-size: 1.3rem;
-  transition: color 0.2s ease;
+  @apply inline-flex items-center justify-center w-[46px] h-[46px] shrink-0 rounded-[12px] bg-surface border border-border-strong text-[1.3rem] transition-colors duration-200;
 }
 
 .ipm-preview-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
+  @apply flex flex-col gap-1 min-w-0;
 }
 
 .ipm-preview-label {
-  font-size: 0.8rem;
-  color: var(--color-text-secondary);
+  @apply text-[0.8rem] text-text-secondary;
 }
 
 .ipm-preview-class {
-  font-size: 0.75rem;
-  color: var(--color-primary);
-  background: var(--color-primary-soft);
-  padding: 2px 7px;
-  border-radius: 6px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 220px;
-  font-family: monospace;
+  @apply text-[0.75rem] text-primary bg-primary-soft px-[7px] py-[2px] rounded-[6px] whitespace-nowrap overflow-hidden text-ellipsis max-w-[220px] font-mono;
 }
 
 /* Category Tabs */
 .ipm-tabs-wrap {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 2px;
+  @apply flex flex-wrap gap-1.5 overflow-x-auto pb-0.5;
   scrollbar-width: none;
 }
 
 .ipm-tab {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-  padding: 8px 10px;
-  width: 56px;
-  border: var(--border-default);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg-surface-soft);
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  font-size: 0.7rem;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease,
-    border-color 0.15s ease;
+  @apply inline-flex flex-col items-center gap-1 shrink-0 px-2.5 py-2 w-14 border border-border-default rounded-sm bg-surface-soft text-text-secondary cursor-pointer text-[0.7rem] transition-colors duration-150;
 }
 
 .ipm-tab i {
-  font-size: 0.95rem;
+  @apply text-[0.95rem];
 }
 
 .ipm-tab span {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 56px;
+  @apply whitespace-nowrap overflow-hidden text-ellipsis max-w-[56px];
 }
 
 .ipm-tab:hover {
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
+  @apply bg-primary-soft text-primary;
 }
 
 .ipm-tab--active {
-  background: var(--color-primary-soft);
-  border-color: var(--color-accent-border);
-  color: var(--color-primary);
-  font-weight: 600;
+  @apply bg-primary-soft border-accent-border text-primary font-semibold;
 }
 
 /* Icon Grid */
 .ipm-icon-grid {
-  display: grid;
-  grid-template-columns: repeat(9, minmax(0, 1fr));
-  gap: 6px;
-  max-height: 220px;
-  overflow-y: auto;
+  @apply grid grid-cols-9 gap-1.5 max-h-[220px] overflow-y-auto;
   scrollbar-width: thin;
   scrollbar-color: var(--color-accent-border) transparent;
 }
@@ -127,109 +66,68 @@
 }
 
 .ipm-icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  aspect-ratio: 1 / 1;
-  border: var(--border-default);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg-surface-soft);
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  font-size: 1rem;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease,
-    border-color 0.15s ease,
-    transform 0.12s ease;
+  @apply inline-flex items-center justify-center aspect-square border border-border-default rounded-sm bg-surface-soft text-text-secondary cursor-pointer text-base transition duration-150;
 }
 
 .ipm-icon-btn:hover {
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
-  border-color: var(--color-accent-border);
-  transform: translateY(-1px);
+  @apply bg-primary-soft text-primary border-accent-border -translate-y-[1px];
 }
 
 .ipm-icon-btn--selected {
-  background: var(--color-primary-soft);
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  @apply bg-primary-soft border-primary text-primary;
   box-shadow: 0 0 0 2px
     color-mix(in srgb, var(--color-primary) 20%, transparent);
 }
 
 .ipm-empty {
-  grid-column: 1 / -1;
-  text-align: center;
-  color: var(--color-text-muted);
-  padding: 16px 0;
-  margin: 0;
-  font-size: 0.88rem;
+  @apply col-span-full text-center text-text-muted py-4 m-0 text-[0.88rem];
 }
 
 /* Section label */
 .ipm-section-label {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  margin-bottom: -6px;
+  @apply text-[0.82rem] font-semibold text-text-secondary -mb-1.5;
 }
 
 /* Color Grid */
 .ipm-color-grid {
-  display: grid;
-  grid-template-columns: repeat(10, minmax(0, 1fr));
-  gap: 7px;
+  @apply grid grid-cols-10 gap-[7px];
 }
 
 .ipm-swatch {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+  @apply w-full aspect-square rounded-full border-2 border-transparent cursor-pointer transition duration-150;
 }
 
 .ipm-swatch:hover {
-  transform: scale(1.15);
+  @apply scale-[1.15];
 }
 
 .ipm-swatch--selected {
-  border-color: var(--color-text-primary);
+  @apply border-text-primary scale-110;
   box-shadow:
     0 0 0 2px var(--color-bg-surface),
     0 0 0 4px currentColor;
-  transform: scale(1.1);
 }
 
 /* Actions */
 .ipm-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding-top: 4px;
-  border-top: var(--border-soft);
+  @apply flex justify-end gap-2 pt-1 border-t border-border-soft;
 }
 
 /* Responsive */
 @media (max-width: 480px) {
   .ipm-icon-grid {
-    grid-template-columns: repeat(7, minmax(0, 1fr));
+    @apply grid-cols-7;
   }
 
   .ipm-color-grid {
-    grid-template-columns: repeat(10, minmax(0, 1fr));
+    @apply grid-cols-10;
   }
 
   .ipm-tab {
-    padding: 6px 8px;
+    @apply px-2 py-1.5;
   }
 
   .ipm-preview-class {
-    max-width: 160px;
+    @apply max-w-[160px];
   }
 }

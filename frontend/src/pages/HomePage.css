@@ -1,31 +1,19 @@
 .nav-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  @apply flex flex-wrap gap-2;
 }
 
 .tab {
-  text-decoration: none;
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
-  border: var(--border-default);
-  background: var(--color-bg-surface);
-  color: var(--color-text-secondary);
-  max-width: 100%;
-  white-space: normal;
+  @apply no-underline px-3.5 py-2.5 rounded-sm border border-border-default bg-surface text-text-secondary max-w-full whitespace-normal inline-flex items-center gap-1.5;
   overflow-wrap: anywhere;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  word-break: break-word;
 }
 
 .tab-icon {
-  font-size: 0.9rem;
+  @apply text-[0.9rem];
 }
 
 .tab.active {
-  color: var(--color-primary);
-  border: var(--border-accent);
+  @apply text-primary border-border-accent;
   background: color-mix(
     in srgb,
     var(--color-primary) 14%,
@@ -34,109 +22,74 @@
 }
 
 .tab-btn {
-  cursor: pointer;
+  @apply cursor-pointer;
   font: inherit;
 }
 
 .page-tabs {
-  margin-bottom: 2px;
+  @apply mb-0.5;
 }
 
 .routine-icon-picker-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 140px;
+  @apply inline-flex items-center gap-2 min-w-[140px];
 }
 
 .routine-icon-picker-preview {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
+  @apply inline-flex items-center justify-center w-8 h-8 rounded-full;
   background: color-mix(in srgb, var(--color-bg-surface) 80%, transparent);
-  border-radius: 50%;
 }
 
 .routine-icon-picker-preview i {
-  font-size: 1rem;
+  @apply text-base;
 }
 
 .routine-color-inline {
-  width: 10%;
-  min-width: 52px;
+  @apply w-[10%] min-w-[52px];
 }
 
 .routine-color-input {
-  min-height: 42px;
-  padding: 4px;
+  @apply min-h-[42px] p-1;
 }
 
 .routine-alarm-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  @apply inline-flex items-center gap-1.5 text-text-secondary text-[0.9rem];
 }
 
 .routine-field-label {
-  font-size: 0.86rem;
-  color: var(--color-text-secondary);
-  font-weight: 600;
+  @apply text-[0.86rem] text-text-secondary font-semibold;
 }
 
 .stack-tight {
-  gap: 8px;
+  @apply gap-2;
 }
 
 .weekday-chip-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  @apply grid grid-cols-3 gap-2;
 }
 
 .weekday-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border: var(--border-default);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg-surface-soft);
-  color: var(--color-text-secondary);
-  padding: 8px 10px;
-  cursor: pointer;
-  font-size: 0.82rem;
-  user-select: none;
+  @apply inline-flex items-center justify-center gap-1.5 border border-border-default rounded-sm bg-surface-soft text-text-secondary px-2.5 py-2 cursor-pointer text-[0.82rem] select-none;
 }
 
 .weekday-chip input {
-  display: none;
+  @apply hidden;
 }
 
 .weekday-chip.active {
-  color: var(--color-primary);
-  border: var(--border-accent);
+  @apply text-primary border-border-accent;
   background: color-mix(in srgb, var(--color-primary-soft) 65%, transparent);
 }
 
 @media (max-width: 720px) {
   .nav-tabs {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 6px;
+    @apply grid grid-cols-4 gap-1.5;
   }
 
   .tab {
-    text-align: center;
-    padding: 8px 6px;
-    font-size: 0.82rem;
-    line-height: 1.35;
+    @apply text-center px-1.5 py-2 text-[0.82rem] leading-[1.35];
   }
 
   .weekday-chip-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    @apply grid-cols-2;
   }
 }

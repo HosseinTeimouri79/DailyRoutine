@@ -1,257 +1,234 @@
-@font-face {
-  font-family: "Vazir";
-  src:
-    url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Normal/Vazir.woff2")
-      format("woff2"),
-    url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Normal/Vazir.woff")
-      format("woff");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  @font-face {
+    font-family: "Vazir";
+    src:
+      url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Normal/Vazir.woff2")
+        format("woff2"),
+      url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Normal/Vazir.woff")
+        format("woff");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Vazir";
+    src:
+      url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Medium/Vazir-Medium.woff2")
+        format("woff2"),
+      url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Medium/Vazir-Medium.woff")
+        format("woff");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Vazir";
+    src:
+      url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Bold/Vazir-Bold.woff2")
+        format("woff2"),
+      url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Bold/Vazir-Bold.woff")
+        format("woff");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "VazirEnglish";
+    src:
+      url("../../assets/font/Vazir-v16.1.0/English-Digits/Normal/Vazir.woff2")
+        format("woff2"),
+      url("../../assets/font/Vazir-v16.1.0/English-Digits/Normal/Vazir.woff")
+        format("woff");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "VazirEnglish";
+    src:
+      url("../../assets/font/Vazir-v16.1.0/English-Digits/Medium/Vazir-Medium.woff2")
+        format("woff2"),
+      url("../../assets/font/Vazir-v16.1.0/English-Digits/Medium/Vazir-Medium.woff")
+        format("woff");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "VazirEnglish";
+    src:
+      url("../../assets/font/Vazir-v16.1.0/English-Digits/Bold/Vazir-Bold.woff2")
+        format("woff2"),
+      url("../../assets/font/Vazir-v16.1.0/English-Digits/Bold/Vazir-Bold.woff")
+        format("woff");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    color-scheme: light;
+    --page-max-width: 1200px;
+    --font-family-base: Vazir, system-ui, -apple-system, Segoe UI, sans-serif;
+    --font-size-body: 1rem;
+    --font-size-title: 1.35rem;
+
+    --color-primary: #375dfb;
+    --color-primary-strong: #2346ca;
+    --color-primary-soft: #eef2ff;
+    --color-secondary: #2f448f;
+    --color-accent: #6f7fe8;
+    --color-accent-soft: #edf0ff;
+    --color-accent-border: #b9c8ff;
+
+    --color-success: #157347;
+    --color-success-soft: #c9efda;
+    --color-success-border: #67c48d;
+    --color-danger: #b42318;
+    --color-danger-soft: #ffeff0;
+    --color-danger-border: #ffced1;
+    --color-warn: #a16207;
+
+    --color-bg-page: #f4f7ff;
+    --color-bg-page-gradient: radial-gradient(
+      circle at top,
+      #e8eeff,
+      #f7f9ff 42%,
+      #f4f7ff 100%
+    );
+    --color-bg-surface: #ffffff;
+    --color-bg-surface-soft: #f8faff;
+    --color-bg-control: #eef2ff;
+    --color-overlay: rgba(24, 33, 62, 0.35);
+
+    --color-text-primary: #1a2340;
+    --color-text-secondary: #64719a;
+    --color-text-muted: #667395;
+    --color-text-on-accent: #ffffff;
+    --color-snackbar-info: #1f4fbf;
+    --color-snackbar-success: #197a43;
+    --color-snackbar-warn: #a16207;
+    --color-snackbar-error: #b42318;
+
+    --color-border-strong: #d5deff;
+    --color-border-default: #dce5ff;
+    --color-border-soft: #e4eaff;
+    --color-border-accent: #b9c8ff;
+
+    --border-strong: 1px solid #d5deff;
+    --border-default: 1px solid #dce5ff;
+    --border-soft: 1px solid #e4eaff;
+    --border-accent: 1px solid #b9c8ff;
+    --radius-sm: 10px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+
+    --shadow-card: 0 14px 30px -24px #1f3b9f;
+    --shadow-modal: 0 20px 34px -20px #1f3b9f;
+  }
+
+  html[lang="en"] {
+    --font-family-base:
+      VazirEnglish, system-ui, -apple-system, Segoe UI, sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+    font-family: var(--font-family-base);
+  }
+
+  :root,
+  body {
+    @apply text-text-primary bg-page;
+  }
+
+  body {
+    @apply m-0 min-h-screen text-[var(--font-size-body)];
+    background: var(--color-bg-page-gradient);
+  }
+
+  a {
+    @apply text-inherit;
+  }
 }
 
-@font-face {
-  font-family: "Vazir";
-  src:
-    url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Medium/Vazir-Medium.woff2")
-      format("woff2"),
-    url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Medium/Vazir-Medium.woff")
-      format("woff");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
+@layer components {
+  .stack {
+    @apply grid gap-2.5;
+  }
 
-@font-face {
-  font-family: "Vazir";
-  src:
-    url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Bold/Vazir-Bold.woff2")
-      format("woff2"),
-    url("../../assets/font/Vazir-v16.1.0/Persian-Digits/Bold/Vazir-Bold.woff")
-      format("woff");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
+  .row-actions {
+    @apply flex gap-1.5;
+  }
 
-@font-face {
-  font-family: "VazirEnglish";
-  src:
-    url("../../assets/font/Vazir-v16.1.0/English-Digits/Normal/Vazir.woff2")
-      format("woff2"),
-    url("../../assets/font/Vazir-v16.1.0/English-Digits/Normal/Vazir.woff")
-      format("woff");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
+  .modal-actions {
+    @apply flex justify-end gap-2;
+  }
 
-@font-face {
-  font-family: "VazirEnglish";
-  src:
-    url("../../assets/font/Vazir-v16.1.0/English-Digits/Medium/Vazir-Medium.woff2")
-      format("woff2"),
-    url("../../assets/font/Vazir-v16.1.0/English-Digits/Medium/Vazir-Medium.woff")
-      format("woff");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
+  .field {
+    @apply grid gap-1.5 w-full;
+  }
 
-@font-face {
-  font-family: "VazirEnglish";
-  src:
-    url("../../assets/font/Vazir-v16.1.0/English-Digits/Bold/Vazir-Bold.woff2")
-      format("woff2"),
-    url("../../assets/font/Vazir-v16.1.0/English-Digits/Bold/Vazir-Bold.woff")
-      format("woff");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
+  .field label {
+    @apply text-text-secondary text-[0.9rem];
+  }
 
-:root {
-  color-scheme: light;
-  --page-max-width: 1200px;
-  --font-family-base: Vazir, system-ui, -apple-system, Segoe UI, sans-serif;
-  --font-size-body: 1rem;
-  --font-size-title: 1.35rem;
+  .error-text {
+    @apply my-1.5 text-danger text-[0.9rem];
+  }
 
-  --color-primary: #375dfb;
-  --color-primary-strong: #2346ca;
-  --color-primary-soft: #eef2ff;
-  --color-secondary: #2f448f;
-  --color-accent: #6f7fe8;
-  --color-accent-soft: #edf0ff;
-  --color-accent-border: #b9c8ff;
+  .success-text {
+    @apply my-1.5 text-success text-[0.9rem];
+  }
 
-  --color-success: #157347;
-  --color-success-soft: #c9efda;
-  --color-success-border: #67c48d;
-  --color-danger: #b42318;
-  --color-danger-soft: #ffeff0;
-  --color-danger-border: #ffced1;
-  --color-warn: #a16207;
+  .muted {
+    @apply text-text-muted;
+  }
 
-  --color-bg-page: #f4f7ff;
-  --color-bg-page-gradient: radial-gradient(
-    circle at top,
-    #e8eeff,
-    #f7f9ff 42%,
-    #f4f7ff 100%
-  );
-  --color-bg-surface: #ffffff;
-  --color-bg-surface-soft: #f8faff;
-  --color-bg-control: #eef2ff;
-  --color-overlay: rgba(24, 33, 62, 0.35);
+  .empty-state-message {
+    @apply mt-3 rounded-md border border-border-default bg-surface-soft p-3 text-center text-text-secondary;
+  }
 
-  --color-text-primary: #1a2340;
-  --color-text-secondary: #64719a;
-  --color-text-muted: #667395;
-  --color-text-on-accent: #ffffff;
-  --color-snackbar-info: #1f4fbf;
-  --color-snackbar-success: #197a43;
-  --color-snackbar-warn: #a16207;
-  --color-snackbar-error: #b42318;
+  .app-inline-icon {
+    @apply mr-1 text-[0.9em];
+  }
 
-  --border-strong: 1px solid #d5deff;
-  --border-default: 1px solid #dce5ff;
-  --border-soft: 1px solid #e4eaff;
-  --border-accent: 1px solid #b9c8ff;
-  --radius-sm: 10px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
+  .icon-btn {
+    @apply inline-flex h-6 w-6 items-center justify-center rounded-[7px] border border-border-strong bg-control text-[0.8rem] text-secondary leading-none cursor-pointer;
+  }
 
-  --shadow-card: 0 14px 30px -24px #1f3b9f;
-  --shadow-modal: 0 20px 34px -20px #1f3b9f;
-}
+  .icon-btn.delete {
+    @apply border border-danger-border bg-danger-soft text-danger;
+  }
 
-html[lang="en"] {
-  --font-family-base:
-    VazirEnglish, system-ui, -apple-system, Segoe UI, sans-serif;
-}
-
-* {
-  box-sizing: border-box;
-  font-family: var(--font-family-base);
-}
-
-:root,
-body {
-  color: var(--color-text-primary);
-  background: var(--color-bg-page);
-}
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: var(--color-bg-page-gradient);
-  font-size: var(--font-size-body);
-}
-
-a {
-  color: inherit;
-}
-
-.stack {
-  display: grid;
-  gap: 10px;
-}
-
-.row-actions {
-  display: flex;
-  gap: 6px;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.field {
-  display: grid;
-  gap: 6px;
-  width: 100%;
-}
-
-.field label {
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
-}
-
-.error-text {
-  margin: 6px 0;
-  color: var(--color-danger);
-  font-size: 0.9rem;
-}
-
-.success-text {
-  margin: 6px 0;
-  color: var(--color-success);
-  font-size: 0.9rem;
-}
-
-.muted {
-  color: var(--color-text-muted);
-}
-
-.empty-state-message {
-  margin: 12px 0 0;
-  border: var(--border-default);
-  border-radius: var(--radius-md);
-  padding: 12px;
-  text-align: center;
-  color: var(--color-text-secondary);
-  background: var(--color-bg-surface-soft);
-}
-
-.app-inline-icon {
-  margin-right: 4px;
-  font-size: 0.9em;
-}
-
-.icon-btn {
-  width: 24px;
-  height: 24px;
-  border: var(--border-strong);
-  border-radius: 7px;
-  background: var(--color-bg-control);
-  color: var(--color-secondary);
-  cursor: pointer;
-  font-size: 0.8rem;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.icon-btn.delete {
-  background: var(--color-danger-soft);
-  border: 1px solid var(--color-danger-border);
-  color: var(--color-danger);
-}
-
-.icon-btn i,
-.status-btn i,
-.daily-task-check i,
-.snackbar-icon i,
-.password-toggle-btn i,
-.profile-toggle-btn i,
-.theme-toggle-btn i,
-.theme-switcher-chevron,
-.logout-toggle-btn i {
-  line-height: 1;
-  pointer-events: none;
+  .icon-btn i,
+  .status-btn i,
+  .daily-task-check i,
+  .snackbar-icon i,
+  .password-toggle-btn i,
+  .profile-toggle-btn i,
+  .theme-toggle-btn i,
+  .theme-switcher-chevron,
+  .logout-toggle-btn i {
+    @apply leading-none pointer-events-none;
+  }
 }
 
 @media (max-width: 720px) {
   .modal-actions {
-    flex-wrap: wrap;
-    justify-content: stretch;
+    @apply flex-wrap justify-stretch;
   }
 
   .modal-actions .btn {
-    flex: 1;
+    @apply flex-1;
   }
 }

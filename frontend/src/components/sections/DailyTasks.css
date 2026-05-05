@@ -1,76 +1,42 @@
 .daily-tasks-toolbar {
-  display: flex;
-  justify-content: space-between;
+  @apply flex justify-between;
 }
 
 .daily-tasks-calendar {
-  margin-bottom: 12px;
+  @apply mb-3;
 }
 
 .tasks-selected-date {
-  margin: 0;
+  @apply m-0;
 }
 
 .daily-tasks-list {
-  list-style: none;
-  padding: 0;
-  margin: 12px 0 0;
-  display: grid;
-  gap: 8px;
+  @apply list-none p-0 mt-3 grid gap-2;
 }
 
 .daily-task-item {
-  border: var(--border-default);
-  border-radius: var(--radius-md);
-  padding: 10px;
-  background: var(--color-bg-surface-soft);
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  @apply border border-border-default rounded-md p-2.5 bg-surface-soft flex items-start gap-2;
 }
 
 .daily-task-check {
-  width: 24px;
-  height: 24px;
-  border-radius: 7px;
-  border: var(--border-strong);
-  background: var(--color-primary-soft);
-  color: var(--color-secondary);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  line-height: 1;
+  @apply w-6 h-6 rounded-[7px] border border-border-strong bg-primary-soft text-secondary cursor-pointer inline-flex items-center justify-center p-0 leading-none;
 }
 
 .daily-task-check.done {
-  background: var(--color-success-soft);
-  border-color: var(--color-success-border);
-  color: var(--color-success);
+  @apply bg-success-soft border-success-border text-success;
 }
 
 .daily-task-text {
-  color: var(--color-text-primary);
-  flex: 1;
-  min-width: 0;
-  white-space: normal;
+  @apply text-text-primary flex-1 min-w-0 whitespace-normal leading-[1.5];
   overflow-wrap: anywhere;
   word-break: break-word;
-  line-height: 1.5;
 }
 
 .daily-task-text.done {
-  text-decoration: line-through;
-  color: var(--color-text-muted);
+  @apply line-through text-text-muted;
 }
 
 .daily-task-alarm-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+  @apply inline-flex items-center gap-[5px] text-text-secondary text-[0.8rem] whitespace-nowrap;
   margin-inline-start: auto;
-  color: var(--color-text-secondary);
-  font-size: 0.8rem;
-  white-space: nowrap;
 }

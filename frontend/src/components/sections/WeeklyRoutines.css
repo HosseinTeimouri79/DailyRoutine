@@ -1,57 +1,38 @@
 .week-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 8px;
+  @apply flex items-center justify-between gap-2.5 mt-2;
 }
 
 .week-nav-buttons {
-  display: flex;
-  gap: 6px;
+  @apply flex gap-1.5;
 }
 
 .week-range-label {
-  margin: 0;
-  text-align: center;
-  font-size: 0.92rem;
+  @apply m-0 text-center text-[0.92rem];
 }
 
 .week-range-icon {
-  margin: 0 8px;
+  @apply mx-2;
 }
 
 .calendar-wrap {
-  overflow-x: auto;
-  margin-top: 12px;
+  @apply overflow-x-auto mt-3;
 }
 
 .calendar-table {
-  border-collapse: collapse;
-  min-width: 900px;
-  width: 100%;
-  background: var(--color-bg-surface);
+  @apply border-collapse min-w-[900px] w-full bg-surface;
 }
 
 .calendar-table th,
 .calendar-table td {
-  border: var(--border-default);
-  text-align: center;
-  padding: 8px;
-  font-size: 0.84rem;
+  @apply border border-border-default text-center p-2 text-[0.84rem];
 }
 
 .week-table {
-  border-collapse: separate;
-  border-spacing: 0;
-  border-radius: var(--radius-md);
-  overflow: hidden;
+  @apply border-separate border-spacing-0 rounded-md overflow-hidden;
 }
 
 .routine-title-cell {
-  white-space: nowrap;
-  font-weight: 600;
-  color: var(--color-text-primary);
+  @apply whitespace-nowrap font-semibold text-text-primary;
 }
 
 .routine-title-cell-justify {
@@ -59,143 +40,97 @@
 }
 
 .routine-title-wrap {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  @apply inline-flex items-center gap-1.5;
 }
 
 .routine-item-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  @apply inline-flex items-center justify-center w-7 h-7 rounded-full border border-border-default;
   background: color-mix(in srgb, var(--color-bg-surface) 90%, transparent);
-  border: var(--border-default);
 }
 
 .routine-item-icon i {
-  font-size: 0.9rem;
+  @apply text-[0.9rem];
 }
 
 .routine-alarm-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--color-text-secondary);
-  font-size: 0.78rem;
+  @apply inline-flex items-center gap-1 text-text-secondary text-[0.78rem];
 }
 
 .routine-recurrence-chip {
-  display: inline-flex;
-  align-items: center;
-  color: var(--color-text-secondary);
-  font-size: 0.75rem;
+  @apply inline-flex items-center text-text-secondary text-[0.75rem] border border-border-default rounded-full px-2 py-0.5;
   background: color-mix(in srgb, var(--color-bg-surface) 70%, transparent);
-  border: var(--border-default);
-  border-radius: 999px;
-  padding: 2px 8px;
 }
 
 .status-btn {
-  width: 34px;
-  height: 28px;
-  border-radius: 8px;
-  border: var(--border-strong);
+  @apply w-[34px] h-7 rounded-[8px] border border-border-strong text-secondary cursor-pointer;
   background: color-mix(
     in srgb,
     var(--color-primary-soft) 60%,
     var(--color-bg-surface)
   );
-  color: var(--color-secondary);
-  cursor: pointer;
 }
 
 .status-btn.disabled {
+  @apply cursor-not-allowed;
   opacity: 0.45;
-  cursor: not-allowed;
 }
 
 .status-btn.done {
-  background: var(--color-success-soft);
-  border-color: var(--color-success-border);
-  color: var(--color-success);
+  @apply bg-success-soft border-success-border text-success;
 }
 
 .status-btn.missed {
+  @apply border-danger-border text-danger;
   background: color-mix(
     in srgb,
     var(--color-danger-soft) 70%,
     var(--color-bg-surface)
   );
-  border-color: var(--color-danger-border);
-  color: var(--color-danger);
 }
 
 .weekly-mobile-list {
-  display: none;
+  @apply hidden;
 }
 
 .weekly-mobile-weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 6px;
+  @apply grid grid-cols-7 gap-1.5;
 }
 
 .weekly-mobile-weekdays span {
-  text-align: center;
-  color: var(--color-text-secondary);
-  font-size: 0.75rem;
-  font-weight: 700;
+  @apply text-center text-text-secondary text-[0.75rem] font-bold;
 }
 
 .weekly-mobile-row {
-  border: var(--border-default);
-  border-radius: var(--radius-md);
-  padding: 10px;
-  background: var(--color-bg-surface-soft);
-  display: grid;
-  gap: 10px;
+  @apply border border-border-default rounded-md p-2.5 bg-surface-soft grid gap-2.5;
 }
 
 .week-mobile-recurrence {
-  justify-self: flex-start;
+  @apply justify-self-start;
 }
 
 .week-mobile-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  @apply flex items-center justify-between gap-2;
 }
 
 .week-mobile-status-row {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 6px;
+  @apply grid grid-cols-7 gap-1.5;
 }
 
 .week-mobile-status-cell {
-  min-width: 0;
+  @apply min-w-0;
 }
 
 .status-btn-mobile {
-  width: 100%;
-  height: 30px;
+  @apply w-full h-[30px];
 }
 
 @media (max-width: 720px) {
   .week-nav {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
+    @apply flex-col items-stretch gap-2;
   }
 
   .week-nav-buttons {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    @apply grid grid-cols-2 gap-2;
   }
 
   .week-nav-buttons .btn {
@@ -207,36 +142,32 @@
   }
 
   .calendar-table {
-    min-width: 760px;
+    @apply min-w-[760px];
   }
 
   .calendar-wrap {
-    display: none;
+    @apply hidden;
   }
 
   .weekly-mobile-list {
-    margin-top: 12px;
-    display: grid;
-    gap: 10px;
+    @apply mt-3 grid gap-2.5;
   }
 
   .calendar-table th,
   .calendar-table td {
-    font-size: 0.78rem;
-    padding: 6px;
+    @apply text-[0.78rem] p-1.5;
   }
 
   .routine-title-wrap {
-    gap: 4px;
+    @apply gap-1;
   }
 
   .status-btn {
-    width: 30px;
-    height: 26px;
+    @apply w-[30px] h-[26px];
   }
 
   .weekly-mobile-weekdays,
   .week-mobile-status-row {
-    gap: 4px;
+    @apply gap-1;
   }
 }

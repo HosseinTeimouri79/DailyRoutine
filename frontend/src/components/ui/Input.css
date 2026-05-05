@@ -1,15 +1,10 @@
 .input {
-  width: 100%;
-  border: var(--border-soft);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
-  background: var(--color-bg-surface);
-  color: var(--color-text-primary);
+  @apply w-full rounded-sm border border-border-soft bg-surface px-3 py-2.5 text-text-primary;
 }
 
 .input:focus {
   outline: 2px solid color-mix(in srgb, var(--color-primary) 34%, transparent);
-  border-color: var(--color-primary);
+  @apply border-primary;
 }
 
 .input:disabled {
@@ -18,15 +13,13 @@
     var(--color-bg-surface-soft) 82%,
     var(--color-bg-page)
   );
-  color: var(--color-text-muted);
-  cursor: not-allowed;
+  @apply text-text-muted cursor-not-allowed;
 }
 
 .input-error {
-  border-color: var(--color-danger-border);
+  @apply border-danger-border;
 }
 
 .field-error {
-  color: var(--color-danger);
-  font-size: 0.8rem;
+  @apply text-danger text-[0.8rem];
 }

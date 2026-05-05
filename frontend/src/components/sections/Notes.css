@@ -1,59 +1,39 @@
 .notes-toolbar {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
+  @apply flex gap-2 mb-3;
 }
 
 .notes-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 10px;
+  @apply list-none p-0 m-0 grid gap-2.5;
 }
 
 .note-item {
-  border: var(--border-default);
-  border-radius: var(--radius-md);
-  padding: 12px;
-  background: var(--color-bg-surface-soft);
-  display: grid;
-  gap: 10px;
+  @apply border border-border-default rounded-md p-3 bg-surface-soft grid gap-2.5;
 }
 
 .note-content {
-  margin: 0;
-  color: var(--color-text-primary);
-  white-space: pre-wrap;
+  @apply m-0 text-text-primary whitespace-pre-wrap leading-[1.7];
   overflow-wrap: anywhere;
   word-break: break-word;
-  line-height: 1.7;
 }
 
 .note-meta-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  @apply flex items-center justify-between gap-2.5;
 }
 
 .note-date {
-  font-size: 0.84rem;
+  @apply text-[0.84rem];
 }
 
 .note-actions {
-  display: inline-flex;
-  gap: 6px;
+  @apply inline-flex gap-1.5;
 }
 
 .note-form-textarea {
-  min-height: 140px;
-  resize: vertical;
+  @apply min-h-[140px] resize-y;
 }
 
 @media (max-width: 720px) {
   .note-meta-row {
-    flex-direction: column;
-    align-items: flex-start;
+    @apply flex-col items-start;
   }
 }

@@ -1,120 +1,73 @@
 .monthly-calendar-shell {
-  margin-top: 12px;
-  border: var(--border-default);
-  border-radius: 14px;
-  background: var(--color-bg-surface-soft);
-  padding: 10px;
+  @apply mt-3 border border-border-default rounded-[14px] bg-surface-soft p-2.5;
 }
 
 .monthly-calendar-header {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
+  @apply flex items-center justify-start gap-2;
 }
 
 .monthly-calendar-navigation {
-  display: flex;
-  gap: 6px;
+  @apply flex gap-1.5;
 }
 
 .monthly-calendar-title {
-  margin: 0;
-  flex: 1;
-  text-align: center;
-  color: var(--color-text-primary);
-  font-weight: 700;
+  @apply m-0 flex-1 text-center text-text-primary font-bold;
 }
 
 .monthly-calendar-title-wrap {
-  flex: 1;
-  display: grid;
-  justify-items: center;
-  position: relative;
+  @apply flex-1 grid justify-items-center relative;
 }
 
 .monthly-calendar-title-btn {
-  border: none;
-  background: transparent;
-  color: var(--color-text-primary);
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
+  @apply border-0 bg-transparent text-text-primary font-bold inline-flex items-center gap-2 cursor-pointer;
 }
 
 .month-year-dropdown {
-  margin-top: 8px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 8px;
-  width: min(340px, 100%);
+  @apply mt-2 grid grid-cols-2 gap-2 w-full max-w-[340px];
 }
 
 .month-year-dropdown .input {
-  min-width: 0;
+  @apply min-w-0;
 }
 
 .monthly-weekdays {
-  margin-top: 10px;
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+  @apply mt-2.5 grid grid-cols-7 gap-1.5;
 }
 
 .monthly-weekdays span {
-  text-align: center;
-  color: var(--color-text-secondary);
-  font-size: 0.84rem;
-  font-weight: 700;
+  @apply text-center text-text-secondary text-[0.84rem] font-bold;
 }
 
 .monthly-grid {
-  margin-top: 6px;
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+  @apply mt-1.5 grid grid-cols-7 gap-1.5;
 }
 
 .monthly-day {
-  min-height: 40px;
-  border: var(--border-default);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg-surface);
-  color: var(--color-text-primary);
-  font-weight: 600;
-  cursor: pointer;
-  position: relative;
+  @apply relative min-h-[40px] border border-border-default rounded-sm bg-surface text-text-primary font-semibold cursor-pointer;
 }
 
 .monthly-day.selected {
-  border: var(--border-accent);
+  @apply border-border-accent;
   box-shadow: inset 0 0 0 1px var(--color-primary);
 }
 
 .monthly-day-icon {
-  position: absolute;
-  top: 6px;
+  @apply absolute top-1.5 text-[0.78rem] text-primary;
   inset-inline-end: 6px;
-  font-size: 0.78rem;
-  color: var(--color-primary);
 }
 
 .monthly-day.placeholder {
-  background: transparent;
-  border-style: dashed;
+  @apply bg-transparent border-dashed;
   border-color: color-mix(
     in srgb,
     var(--color-bg-surface) 65%,
     var(--color-bg-page)
   );
-  cursor: default;
+  @apply cursor-default;
 }
 
 .task-day-done {
-  background: var(--color-success-soft);
-  border-color: var(--color-success-border);
+  @apply bg-success-soft border-success-border;
 }
 
 .task-day-missed {
@@ -123,7 +76,7 @@
     var(--color-danger-soft) 70%,
     var(--color-bg-surface)
   );
-  border-color: var(--color-danger-border);
+  @apply border-danger-border;
 }
 
 .monthly-day.holiday {
@@ -132,59 +85,44 @@
     var(--color-danger-soft) 78%,
     var(--color-bg-surface)
   );
-  border-color: var(--color-danger-border);
-  color: var(--color-danger);
+  @apply border-danger-border text-danger;
 }
 
 .task-day-badge-has-entries::after {
   content: "";
-  position: absolute;
-  top: 6px;
+  @apply absolute top-1.5 w-2 h-2 rounded-full bg-primary border border-surface;
   inset-inline-start: 6px;
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--color-primary);
-  border: 1px solid var(--color-bg-surface);
 }
 
 .task-day-badge-has-events::after {
   content: "";
-  position: absolute;
-  top: 6px;
+  @apply absolute top-1.5 w-2 h-2 rounded-full bg-accent border border-surface;
   inset-inline-start: 6px;
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--color-accent);
-  border: 1px solid var(--color-bg-surface);
 }
 
 @media (max-width: 720px) {
   .monthly-calendar-header {
-    flex-direction: column;
+    @apply flex-col;
   }
 
   .monthly-calendar-navigation {
-    width: 100%;
-    justify-content: space-between;
+    @apply w-full justify-between;
   }
 
   .monthly-weekdays span {
-    font-size: 0.75rem;
+    @apply text-[0.75rem];
   }
 
   .monthly-grid,
   .monthly-weekdays {
-    gap: 4px;
+    @apply gap-1;
   }
 
   .monthly-day {
-    min-height: 34px;
-    border-radius: 8px;
+    @apply min-h-[34px] rounded-[8px];
   }
 
   .month-year-dropdown {
-    width: 100%;
+    @apply w-full;
   }
 }

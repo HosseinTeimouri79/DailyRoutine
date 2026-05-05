@@ -1,51 +1,30 @@
 .snackbar {
-  position: fixed;
-  top: 18px;
-  right: 18px;
-  min-width: 220px;
+  @apply fixed top-[18px] right-[18px] min-w-[220px] rounded-sm px-3.5 py-2.5 text-text-on-accent text-[0.9rem] shadow-card z-[1200] inline-flex items-center gap-2;
   max-width: min(92vw, 420px);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
-  color: var(--color-text-on-accent);
-  font-size: 0.9rem;
-  box-shadow: var(--shadow-card);
-  z-index: 1200;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .snackbar-icon {
-  width: 18px;
-  height: 18px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
+  @apply w-[18px] h-[18px] inline-flex items-center justify-center font-bold;
 }
 
 .snackbar.info {
-  background: var(--color-snackbar-info);
+  @apply bg-snackbar-info;
 }
 
 .snackbar.success {
-  background: var(--color-snackbar-success);
+  @apply bg-snackbar-success;
 }
 
 .snackbar.warn {
-  background: var(--color-snackbar-warn);
+  @apply bg-snackbar-warn;
 }
 
 .snackbar.error {
-  background: var(--color-snackbar-error);
+  @apply bg-snackbar-error;
 }
 
 @media (max-width: 720px) {
   .snackbar {
-    top: auto;
-    bottom: 14px;
-    left: 12px;
-    right: 12px;
-    max-width: none;
+    @apply top-auto bottom-3.5 left-3 right-3 max-w-none;
   }
 }

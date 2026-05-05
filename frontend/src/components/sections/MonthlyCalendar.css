@@ -1,54 +1,29 @@
 .monthly-calendar-overview {
-  display: flex;
-  gap: 8px;
+  @apply flex gap-2;
 }
 
 .routine-badges {
-  flex: 1;
-  border: var(--border-default);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface-soft);
-  padding: 14px;
+  @apply flex-1 border border-border-default rounded-md bg-surface-soft p-3.5;
   gap: 8px;
 }
 
 .routine-badge {
-  border: var(--border-default);
-  background: var(--color-bg-surface-soft);
-  color: var(--color-text-muted);
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  max-width: 100%;
-  height: fit-content;
-  white-space: normal;
+  @apply border border-border-default bg-surface-soft text-text-muted rounded-full px-3 py-1.5 text-[0.85rem] cursor-pointer inline-flex items-center gap-1.5 max-w-full h-fit whitespace-normal m-[4px];
   overflow-wrap: anywhere;
   word-break: break-word;
-  margin: 0 4px 4px 4px;
 }
 
 .routine-month-progress {
-  flex-shrink: 0;
+  @apply shrink-0;
 }
 
 .routine-icon-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 999px;
+  @apply inline-flex items-center justify-center w-6 h-6 rounded-full border border-border-default flex-[0_0_24px];
   background: color-mix(in srgb, var(--color-bg-surface) 90%, transparent);
-  border: var(--border-default);
-  flex: 0 0 24px;
 }
 
 .routine-icon-badge i {
-  font-size: 0.95rem;
+  @apply text-[0.95rem];
 }
 
 .routine-badge.active {
@@ -57,90 +32,58 @@
     var(--routine-accent, var(--color-primary)) 18%,
     var(--color-bg-surface)
   );
+  @apply border-primary text-primary font-semibold;
   border-color: var(--routine-accent, var(--color-primary));
   color: var(--routine-accent, var(--color-primary));
-  font-weight: 600;
 }
 
 .monthly-pie-report {
-  border: var(--border-default);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface-soft);
-  padding: 14px;
-  display: flex;
-  gap: 8px;
-  justify-content: space-between;
+  @apply border border-border-default rounded-md bg-surface-soft p-3.5 flex gap-2 justify-between;
 }
 
 .monthly-pie-wrap {
-  width: 9rem;
-  position: relative;
+  @apply w-36 relative;
 }
 
 .monthly-pie-center {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-content: center;
-  text-align: center;
-  gap: 2px;
+  @apply absolute inset-0 grid place-content-center text-center gap-0.5;
 }
 
 .monthly-pie-center strong {
-  font-size: 1.05rem;
-  color: var(--color-text-primary);
+  @apply text-[1.05rem] text-text-primary;
 }
 
 .monthly-pie-center span {
-  font-size: 0.78rem;
-  color: var(--color-text-secondary);
+  @apply text-[0.78rem] text-text-secondary;
 }
 
 .monthly-pie-legend {
-  display: flex;
-  gap: 4px;
-  flex-direction: column;
+  @apply flex flex-col gap-1;
 }
 
 .monthly-pie-legend-item {
-  border: var(--border-default);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg-surface);
-  padding: 8px 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--color-text-secondary);
+  @apply border border-border-default rounded-sm bg-surface px-2.5 py-2 flex items-center gap-2 text-text-secondary;
 }
 
 .monthly-pie-legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  display: inline-block;
-  flex: 0 0 10px;
+  @apply w-2.5 h-2.5 rounded-full inline-block flex-[0_0_10px];
 }
 
 .monthly-pie-legend-item strong {
+  @apply text-text-primary;
   margin-inline-start: auto;
-  color: var(--color-text-primary);
 }
 
 .monthly-pie-report-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: auto;
+  @apply flex flex-col gap-3 w-auto;
 }
 
 .monthly-break-record {
-  margin: 0;
-  font-size: 0.78rem;
-  color: var(--color-text-secondary);
+  @apply m-0 text-[0.78rem] text-text-secondary;
 }
 
 @media (max-width: 720px) {
   .monthly-calendar-overview {
-    flex-direction: column;
+    @apply flex-col;
   }
 }

@@ -3,9 +3,7 @@
 }
 
 .confirm-modal-text {
-  margin: 4px 0 14px;
-  white-space: normal;
+  @apply my-1 whitespace-normal leading-[1.7] mb-3.5;
   overflow-wrap: anywhere;
   word-break: break-word;
-  line-height: 1.7;
 }

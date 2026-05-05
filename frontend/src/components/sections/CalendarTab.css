@@ -1,225 +1,146 @@
 .calendar-tab-month {
-  margin-bottom: 14px;
+  @apply mb-3.5;
 }
 
 .calendar-tab-events {
-  display: grid;
-  gap: 10px;
+  @apply grid gap-2.5;
 }
 
 .calendar-selected-date {
-  margin: 0;
+  @apply m-0;
 }
 
 .calendar-important-day {
-  border: var(--border-default);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface-soft);
-  padding: 18px;
-  display: grid;
-  gap: 18px;
+  @apply border border-border-default rounded-md bg-surface-soft p-[18px] grid gap-[18px];
 }
 
 .calendar-important-day-section {
-  border: var(--border-default);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface-soft);
-  padding: 14px;
-  display: grid;
-  margin-top: 8px;
-  gap: 14px;
+  @apply border border-border-default rounded-md bg-surface-soft p-3.5 grid mt-2 gap-3.5;
 }
 
 .calendar-important-day-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
+  @apply flex items-start justify-between gap-4;
 }
 
 .calendar-important-day-header h3 {
-  margin: 0;
-  font-size: 1rem;
+  @apply m-0 text-base;
 }
 
 .calendar-important-day-header div {
-  flex: 1;
+  @apply flex-1;
 }
 
 .calendar-important-day-header .btn {
-  flex-shrink: 0;
+  @apply shrink-0;
 }
 
 .calendar-important-day-form {
-  display: grid;
-  gap: 16px;
+  @apply grid gap-4;
 }
 
 .calendar-important-day-row {
-  display: grid;
-  gap: 14px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  @apply grid gap-3.5 grid-cols-2;
 }
 
 .calendar-important-day-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  @apply flex items-center gap-2;
 }
 
 .important-day-list {
-  display: grid;
+  @apply grid gap-3;
   grid-template-columns: auto auto auto;
-  gap: 12px;
 }
 
 .important-day-summary {
-  border: var(--border-default);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg-surface);
-  padding: 12px;
-  display: grid;
-  gap: 8px;
+  @apply border border-border-default rounded-sm bg-surface p-3 grid gap-2;
 }
 
 .important-day-summary-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  background: var(--color-bg-surface-soft);
-  color: var(--color-text-primary);
-  margin-bottom: 4px;
+  @apply inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface-soft text-text-primary mb-1;
 }
 
 .important-day-icon-picker-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  border: var(--border-default);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
-  background: var(--color-bg-surface);
-  color: var(--color-text-primary);
-  cursor: pointer;
+  @apply inline-flex items-center gap-2.5 border border-border-default rounded-sm px-3.5 py-2.5 bg-surface text-text-primary cursor-pointer;
 }
 
 .important-day-icon-picker-button i {
-  font-size: 1rem;
+  @apply text-base;
 }
 
 .important-day-icon-picker-button span {
-  white-space: nowrap;
+  @apply whitespace-nowrap;
 }
 
 .important-day-global-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--color-text-secondary);
-  font-size: 0.95rem;
+  @apply inline-flex items-center gap-2 text-text-secondary text-[0.95rem];
 }
 
 .important-day-icon-selection {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
+  @apply grid grid-cols-5 gap-2;
 }
 
 .important-day-icon-option {
-  border: var(--border-default);
-  border-radius: var(--radius-sm);
-  padding: 10px;
-  background: var(--color-bg-surface);
-  color: var(--color-text-primary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease;
+  @apply border border-border-default rounded-sm p-2.5 bg-surface text-text-primary inline-flex items-center justify-center cursor-pointer transition-colors duration-200;
 }
 
 .important-day-icon-option.selected {
-  border-color: var(--color-primary);
-  background: var(--color-primary-soft);
+  @apply border-primary bg-primary-soft;
 }
 
 .important-day-icon-option i {
-  font-size: 1rem;
+  @apply text-base;
 }
 
 .important-day-summary-title {
-  font-weight: 700;
+  @apply font-bold;
 }
 
 .important-day-summary-desc {
-  margin: 0;
-  color: var(--color-text-secondary);
+  @apply m-0 text-text-secondary;
 }
 
 .important-day-summary-meta {
-  display: grid;
-  gap: 4px;
-  font-size: 0.92rem;
-  color: var(--color-text-secondary);
+  @apply grid gap-1 text-[0.92rem] text-text-secondary;
 }
 
 .important-day-message {
-  margin: 0;
-  font-size: 0.95rem;
+  @apply m-0 text-[0.95rem];
 }
 
 .important-day-message.success {
-  color: var(--color-success);
+  @apply text-success;
 }
 
 .important-day-message.error {
-  color: var(--color-danger);
+  @apply text-danger;
 }
 
 textarea.input {
-  min-height: 100px;
-  resize: vertical;
+  @apply min-h-[100px] resize-y;
 }
 
 .calendar-events-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 12px;
-  border: var(--border-default);
-  border-radius: var(--radius-md);
-  padding: 10px 12px;
-  background: var(--color-bg-surface-soft);
+  @apply list-none p-0 m-0 grid gap-3 border border-border-default rounded-md px-3 py-2.5 bg-surface-soft;
 }
 
 .calendar-event.holiday {
-  color: var(--color-danger-border);
+  @apply text-danger-border;
 }
 
 .calendar-event-title {
-  font-weight: 600;
+  @apply font-semibold;
 }
 
 .modal-form {
-  display: grid;
-  gap: 16px;
+  @apply grid gap-4;
 }
 
 .modal-form .field {
-  display: grid;
-  gap: 6px;
-  width: 100%;
+  @apply grid gap-1.5 w-full;
 }
 
 .modal-form textarea {
-  min-height: 80px;
-  resize: vertical;
+  @apply min-h-[80px] resize-y;
 }
 
 @media (max-width: 720px) {
@@ -228,7 +149,7 @@ textarea.input {
   }
 
   .calendar-important-day-row {
-    grid-template-columns: 1fr;
+    @apply grid-cols-1;
   }
 
   .important-day-list {
