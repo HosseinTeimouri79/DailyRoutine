@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, clearSession, getUser, setSession } from "../../lib/api";
 import { useSettings } from "../../lib/settings";
-import PersianMonthCalendar from "../calendar/PersianMonthCalendar";
+import DatePicker from "../ui/DatePicker";
 import {
   formatDateParts,
   formatMonthYear,
@@ -22,7 +22,6 @@ import {
   setConfettiSettings,
 } from "../../lib/confetti";
 import { PAGE_TRANSITION_MODE_OPTIONS } from "../../lib/pageTransition";
-import "./AppShell.css";
 
 export default function AppShell({ title, children }) {
   const initialUser = getUser();
@@ -106,14 +105,7 @@ export default function AppShell({ title, children }) {
   }
 
   function updatePageTransitionSettings(next) {
-    setPageTransitionSettings((prev) => ({
-      ...prev,
-      ...next,
-    }));
-  }
-
-  function closeSettings() {
-    setIsSettingsOpen(false);
+    setPageTransitionSettings((prev) => ({ ...prev, ...next }));
   }
 
   function openPasswordModal() {
@@ -136,10 +128,7 @@ export default function AppShell({ title, children }) {
 
   function updateConfettiSettings(next) {
     setConfettiSettingsState((prev) => {
-      const merged = {
-        ...prev,
-        ...next,
-      };
+      const merged = { ...prev, ...next };
       setConfettiSettings(merged);
       return merged;
     });
@@ -149,10 +138,7 @@ export default function AppShell({ title, children }) {
     try {
       setProfileLoading(true);
       const profile = await api.getProfile();
-      const merged = {
-        ...(getUser() || {}),
-        ...profile,
-      };
+      const merged = { ...(getUser() || {}), ...profile };
       setUser(merged);
       setProfileName(merged?.name || "");
       setProfileDob(merged?.date_of_birth || "");
@@ -184,7 +170,6 @@ export default function AppShell({ title, children }) {
   async function onSelectProfileImage(event) {
     const file = event.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = async () => {
       const value = typeof reader.result === "string" ? reader.result : "";
@@ -214,7 +199,6 @@ export default function AppShell({ title, children }) {
   async function submitProfile(event) {
     event.preventDefault();
     const nextName = profileName.trim();
-
     if (!nextName) {
       setProfileMessage({
         type: "error",
@@ -222,7 +206,6 @@ export default function AppShell({ title, children }) {
       });
       return;
     }
-
     try {
       setProfileLoading(true);
       const updatedUser = await api.updateProfile({
@@ -256,7 +239,6 @@ export default function AppShell({ title, children }) {
   async function submitPasswordChange(event) {
     event.preventDefault();
     setPasswordMessage({ type: "", text: "" });
-
     if (!passwordForm.current || !passwordForm.next || !passwordForm.confirm) {
       setPasswordMessage({
         type: "error",
@@ -264,7 +246,6 @@ export default function AppShell({ title, children }) {
       });
       return;
     }
-
     if (passwordForm.next.length < 6) {
       setPasswordMessage({
         type: "error",
@@ -272,7 +253,6 @@ export default function AppShell({ title, children }) {
       });
       return;
     }
-
     if (passwordForm.next !== passwordForm.confirm) {
       setPasswordMessage({
         type: "error",
@@ -280,7 +260,6 @@ export default function AppShell({ title, children }) {
       });
       return;
     }
-
     try {
       setPasswordLoading(true);
       await api.changePassword({
@@ -291,9 +270,7 @@ export default function AppShell({ title, children }) {
         type: "success",
         text: t("appShell.passwordChangeSuccess", language),
       });
-      setTimeout(() => {
-        closePasswordModal();
-      }, 800);
+      setTimeout(() => closePasswordModal(), 800);
     } catch (error) {
       setPasswordMessage({
         type: "error",
@@ -330,10 +307,63 @@ export default function AppShell({ title, children }) {
   const profileDobPreview = profileDob
     ? `${formatDateParts(profileDob, language, profileCalendarType).day} ${formatMonthYear(profileDob, language, profileCalendarType)}`
     : "";
-  const profileDobInputDisplay = profileDobPreview || "";
+
+  const inputBase =
+    "w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)] focus:border-[var(--color-primary)]";
+
+  const toggleBase = "relative w-11 h-6 inline-flex items-center";
+
+  function PasswordField({ id, label, field }) {
+    return (
+      <div className="grid gap-1.5 w-full">
+        <label
+          htmlFor={id}
+          className="text-[var(--color-text-secondary)] text-[0.9rem]"
+        >
+          {label}
+        </label>
+        <div className="relative">
+          <input
+            id={id}
+            type={passwordVisibility[field] ? "text" : "password"}
+            className={`${inputBase} pl-[42px]`}
+            value={passwordForm[field]}
+            onChange={(event) =>
+              setPasswordForm((prev) => ({
+                ...prev,
+                [field]: event.target.value,
+              }))
+            }
+          />
+          <button
+            type="button"
+            className="absolute left-2 top-1/2 -translate-y-1/2 border border-[var(--color-border-strong)] bg-[var(--color-primary-soft)] text-[var(--color-secondary)] w-7 h-7 rounded-[8px] cursor-pointer inline-flex items-center justify-center text-[0.9rem]"
+            onClick={() => togglePasswordVisibility(field)}
+            title={
+              passwordVisibility[field]
+                ? t("appShell.hidePassword", language)
+                : t("appShell.showPassword", language)
+            }
+          >
+            <i
+              className={
+                passwordVisibility[field]
+                  ? "fa-solid fa-eye-slash leading-none pointer-events-none"
+                  : "fa-solid fa-eye leading-none pointer-events-none"
+              }
+              aria-hidden="true"
+            />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="app-shell" dir={language === "fa" ? "rtl" : "ltr"}>
+    <div
+      className="w-full max-w-[var(--page-max-width)] mx-auto p-5 grid gap-2 max-[720px]:p-3 max-[720px]:gap-2"
+      dir={language === "fa" ? "rtl" : "ltr"}
+    >
       <Header
         title={title}
         user={user}
@@ -343,19 +373,19 @@ export default function AppShell({ title, children }) {
         onOpenSettings={openSettings}
         onLogout={logout}
       />
+      <main className="flex flex-col gap-2">{children}</main>
 
-      <main className="content-grid">{children}</main>
-
+      {/* Profile Modal */}
       <Modal
         isOpen={isProfileOpen}
         onClose={closeProfile}
         title={t("appShell.profileModalTitle", language)}
-        className="profile-modal"
+        className="w-full max-w-[520px]"
       >
-        <div className="profile-identity">
-          <div className="profile-avatar-wrap">
+        <div className="flex flex-col items-center gap-3 mb-3">
+          <div>
             <button
-              className="profile-avatar-btn"
+              className="border-0 bg-transparent cursor-pointer"
               onClick={onAvatarClick}
               title={t("appShell.changeProfileImage", language)}
             >
@@ -363,10 +393,10 @@ export default function AppShell({ title, children }) {
                 <img
                   src={user.profile_image}
                   alt={t("appShell.profileImageAlt", language)}
-                  className="profile-avatar"
+                  className="w-[120px] h-[120px] rounded-full border border-[var(--color-border-default)] object-cover"
                 />
               ) : (
-                <div className="profile-avatar profile-avatar-fallback">
+                <div className="w-[120px] h-[120px] rounded-full border border-[var(--color-border-default)] grid place-items-center font-bold text-[var(--color-secondary)] bg-[var(--color-primary-soft)] text-[1.2rem]">
                   {(user?.name || t("common.userFallback", language)).slice(
                     0,
                     1,
@@ -379,52 +409,59 @@ export default function AppShell({ title, children }) {
               id="profileImage"
               type="file"
               accept="image/*"
-              className="hidden-file-input"
+              className="hidden"
               onChange={onSelectProfileImage}
             />
           </div>
-          <form className="profile-meta" onSubmit={submitProfile}>
-            <div className="field">
-              <label htmlFor="profileName">
+
+          <form
+            className="flex flex-col w-[85%] gap-2"
+            onSubmit={submitProfile}
+          >
+            <div className="grid gap-1.5 w-full">
+              <label
+                htmlFor="profileName"
+                className="text-[var(--color-text-secondary)] text-[0.9rem]"
+              >
                 {t("appShell.username", language)}
               </label>
               <input
                 id="profileName"
-                className="input"
+                className={inputBase}
                 value={profileName}
                 onChange={(event) => setProfileName(event.target.value)}
               />
             </div>
-            <div className="field">
-              <label htmlFor="profileDob">
+
+            <div className="grid gap-1.5 w-full">
+              <label
+                htmlFor="profileDob"
+                className="text-[var(--color-text-secondary)] text-[0.9rem]"
+              >
                 {t("appShell.dateOfBirth", language)}
               </label>
-              <div className="profile-dob-trigger-row">
-                <input
-                  id="profileDob"
-                  type="text"
-                  className="input"
-                  value={profileDobInputDisplay}
-                  placeholder={t("appShell.dateOfBirthPlaceholder", language)}
-                  readOnly
-                  onMouseDown={toggleDobPicker}
-                />
-              </div>
+              <input
+                id="profileDob"
+                type="text"
+                className={`${inputBase} cursor-pointer`}
+                value={profileDobPreview}
+                placeholder={t("appShell.dateOfBirthPlaceholder", language)}
+                readOnly
+                onMouseDown={toggleDobPicker}
+              />
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                gap: "10px",
-              }}
-            >
-              <div className="field">
-                <label htmlFor="profileGender">
+            <div className="flex gap-[10px]">
+              <div className="grid gap-1.5 w-full">
+                <label
+                  htmlFor="profileGender"
+                  className="text-[var(--color-text-secondary)] text-[0.9rem]"
+                >
                   {t("appShell.gender", language)}
                 </label>
                 <select
                   id="profileGender"
-                  className="input"
+                  className={inputBase}
                   value={profileGender}
                   onChange={(event) => setProfileGender(event.target.value)}
                 >
@@ -440,13 +477,16 @@ export default function AppShell({ title, children }) {
                   </option>
                 </select>
               </div>
-              <div className="field">
-                <label htmlFor="profileCalendarType">
+              <div className="grid gap-1.5 w-full">
+                <label
+                  htmlFor="profileCalendarType"
+                  className="text-[var(--color-text-secondary)] text-[0.9rem]"
+                >
                   {t("appShell.calendarType", language)}
                 </label>
                 <select
                   id="profileCalendarType"
-                  className="input"
+                  className={inputBase}
                   value={profileCalendarType}
                   onChange={(event) =>
                     setProfileCalendarType(event.target.value)
@@ -461,19 +501,24 @@ export default function AppShell({ title, children }) {
                 </select>
               </div>
             </div>
-            <div className="field">
-              <label htmlFor="profilePhone">
+
+            <div className="grid gap-1.5 w-full">
+              <label
+                htmlFor="profilePhone"
+                className="text-[var(--color-text-secondary)] text-[0.9rem]"
+              >
                 {t("appShell.phone", language)}
               </label>
               <input
                 id="profilePhone"
-                className="input"
+                className={`${inputBase} opacity-70 cursor-not-allowed`}
                 value={user?.phone || ""}
                 disabled
                 readOnly
               />
             </div>
-            <div className="modal-actions">
+
+            <div className="flex justify-end gap-2 max-[720px]:flex-wrap max-[720px]:justify-stretch">
               <Button type="submit" disabled={profileLoading}>
                 {profileLoading
                   ? t("appShell.saving", language)
@@ -486,14 +531,16 @@ export default function AppShell({ title, children }) {
         {profileMessage.text ? (
           <p
             className={
-              profileMessage.type === "error" ? "error-text" : "success-text"
+              profileMessage.type === "error"
+                ? "my-1.5 text-[var(--color-danger)] text-[0.9rem]"
+                : "my-1.5 text-[var(--color-success)] text-[0.9rem]"
             }
           >
             {profileMessage.text}
           </p>
         ) : null}
 
-        <div className="modal-actions">
+        <div className="flex justify-end gap-2 max-[720px]:flex-wrap max-[720px]:justify-stretch">
           <Button type="button" onClick={openPasswordModal}>
             {t("appShell.changePassword", language)}
           </Button>
@@ -502,17 +549,19 @@ export default function AppShell({ title, children }) {
           </Button>
         </div>
         {profileLoading ? (
-          <p className="muted">{t("appShell.updatingProfile", language)}</p>
+          <p className="text-[var(--color-text-muted)]">
+            {t("appShell.updatingProfile", language)}
+          </p>
         ) : null}
       </Modal>
 
+      {/* DOB Modal */}
       <Modal
         isOpen={isDobModalOpen}
         onClose={() => setIsDobModalOpen(false)}
         title={t("appShell.dateOfBirth", language)}
       >
-        <PersianMonthCalendar
-          className="profile-dob-calendar"
+        <DatePicker
           month={profileDobMonth}
           calendarType={profileCalendarType}
           showMonthSwitchButtons={false}
@@ -534,14 +583,15 @@ export default function AppShell({ title, children }) {
         />
       </Modal>
 
+      {/* Settings Modal */}
       <Modal
         isOpen={isSettingsOpen}
-        onClose={closeSettings}
+        onClose={() => setIsSettingsOpen(false)}
         title={t("login.settingsTitle", language)}
-        className="settings-modal"
+        className="w-full max-w-[520px]"
       >
-        <div className="settings-stack">
-          <div className="profile-settings-grid">
+        <div className="grid gap-3">
+          <div className="grid grid-cols-2 gap-2.5 max-[720px]:grid-cols-1">
             <ThemeSwitcher
               label={t("login.theme", language)}
               value={theme}
@@ -553,30 +603,41 @@ export default function AppShell({ title, children }) {
               onChange={setLanguage}
             />
           </div>
-          <div className="setting-box">
-            <div className="profile-toggle-row">
+
+          {/* Confetti settings */}
+          <div className="flex flex-col gap-2 border border-[var(--color-border-default)] rounded-[var(--radius-md)] p-2.5">
+            <div className="flex items-center justify-between gap-2 text-[var(--color-text-secondary)] text-[0.9rem]">
               <span>{t("confetti.enable", language)}</span>
-              <label className="toggle-switch">
+              <label className={toggleBase}>
                 <input
                   type="checkbox"
+                  className="opacity-0 w-0 h-0"
                   checked={confettiSettings.enabled}
                   onChange={(event) =>
-                    updateConfettiSettings({
-                      enabled: event.target.checked,
-                    })
+                    updateConfettiSettings({ enabled: event.target.checked })
                   }
                 />
-                <span className="toggle-slider" aria-hidden="true" />
+                <span
+                  className="absolute inset-0 rounded-full transition-[background] duration-200 before:content-[''] before:absolute before:top-[3px] before:w-[18px] before:h-[18px] before:rounded-full before:bg-[var(--color-bg-surface)] before:transition-all before:duration-200"
+                  style={{
+                    background: confettiSettings.enabled
+                      ? "color-mix(in srgb, var(--color-primary) 60%, transparent)"
+                      : "color-mix(in srgb, var(--color-text-muted) 20%, transparent)",
+                  }}
+                />
               </label>
             </div>
-            <div className="field">
-              <label htmlFor="confettiMode">
+            <div className="grid gap-1.5 w-full">
+              <label
+                htmlFor="confettiMode"
+                className="text-[var(--color-text-secondary)] text-[0.9rem]"
+              >
                 {t("confetti.mode", language)}
               </label>
-              <div className="select-wrap">
+              <div className="relative">
                 <select
                   id="confettiMode"
-                  className="input"
+                  className={`${inputBase} appearance-none [padding-inline-end:36px]`}
                   value={confettiSettings.mode}
                   onChange={(event) =>
                     updateConfettiSettings({ mode: event.target.value })
@@ -590,18 +651,21 @@ export default function AppShell({ title, children }) {
                   ))}
                 </select>
                 <i
-                  className="fa-solid fa-chevron-down select-chevron"
+                  className="fa-solid fa-chevron-down absolute text-[var(--color-text-secondary)] pointer-events-none text-[0.82rem] [inset-inline-end:12px] top-1/2 -translate-y-1/2"
                   aria-hidden="true"
                 />
               </div>
             </div>
           </div>
-          <div className="setting-box">
-            <div className="profile-toggle-row">
+
+          {/* Page transition settings */}
+          <div className="flex flex-col gap-2 border border-[var(--color-border-default)] rounded-[var(--radius-md)] p-2.5">
+            <div className="flex items-center justify-between gap-2 text-[var(--color-text-secondary)] text-[0.9rem]">
               <span>{t("pageTransition.enable", language)}</span>
-              <label className="toggle-switch">
+              <label className={toggleBase}>
                 <input
                   type="checkbox"
+                  className="opacity-0 w-0 h-0"
                   checked={pageTransitionSettings.enabled}
                   onChange={(event) =>
                     updatePageTransitionSettings({
@@ -609,17 +673,27 @@ export default function AppShell({ title, children }) {
                     })
                   }
                 />
-                <span className="toggle-slider" aria-hidden="true" />
+                <span
+                  className="absolute inset-0 rounded-full transition-[background] duration-200 before:content-[''] before:absolute before:top-[3px] before:w-[18px] before:h-[18px] before:rounded-full before:bg-[var(--color-bg-surface)] before:transition-all before:duration-200"
+                  style={{
+                    background: pageTransitionSettings.enabled
+                      ? "color-mix(in srgb, var(--color-primary) 60%, transparent)"
+                      : "color-mix(in srgb, var(--color-text-muted) 20%, transparent)",
+                  }}
+                />
               </label>
             </div>
-            <div className="field">
-              <label htmlFor="pageTransitionMode">
+            <div className="grid gap-1.5 w-full">
+              <label
+                htmlFor="pageTransitionMode"
+                className="text-[var(--color-text-secondary)] text-[0.9rem]"
+              >
                 {t("pageTransition.mode", language)}
               </label>
-              <div className="select-wrap">
+              <div className="relative">
                 <select
                   id="pageTransitionMode"
-                  className="input"
+                  className={`${inputBase} appearance-none [padding-inline-end:36px]`}
                   value={pageTransitionSettings.mode}
                   onChange={(event) =>
                     updatePageTransitionSettings({ mode: event.target.value })
@@ -633,167 +707,61 @@ export default function AppShell({ title, children }) {
                   ))}
                 </select>
                 <i
-                  className="fa-solid fa-chevron-down select-chevron"
+                  className="fa-solid fa-chevron-down absolute text-[var(--color-text-secondary)] pointer-events-none text-[0.82rem] [inset-inline-end:12px] top-1/2 -translate-y-1/2"
                   aria-hidden="true"
                 />
               </div>
             </div>
           </div>
-          <div className="modal-actions">
-            <Button type="button" variant="secondary" onClick={closeSettings}>
+
+          <div className="flex justify-end gap-2 max-[720px]:flex-wrap max-[720px]:justify-stretch">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setIsSettingsOpen(false)}
+            >
               {t("common.close", language)}
             </Button>
           </div>
         </div>
       </Modal>
 
+      {/* Password Modal */}
       <Modal
         isOpen={isPasswordModalOpen}
         onClose={closePasswordModal}
         title={t("appShell.passwordModalTitle", language)}
       >
-        <form className="stack" onSubmit={submitPasswordChange}>
-          <div className="field">
-            <label htmlFor="currentPassword">
-              {t("appShell.currentPassword", language)}
-            </label>
-            <div className="password-input-wrap">
-              <input
-                id="currentPassword"
-                type={passwordVisibility.current ? "text" : "password"}
-                className="input password-input"
-                value={passwordForm.current}
-                onChange={(event) =>
-                  setPasswordForm((prev) => ({
-                    ...prev,
-                    current: event.target.value,
-                  }))
-                }
-              />
-              <button
-                type="button"
-                className="password-toggle-btn"
-                onClick={() => togglePasswordVisibility("current")}
-                title={
-                  passwordVisibility.current
-                    ? t("appShell.hidePassword", language)
-                    : t("appShell.showPassword", language)
-                }
-                aria-label={
-                  passwordVisibility.current
-                    ? t("appShell.hidePassword", language)
-                    : t("appShell.showPassword", language)
-                }
-              >
-                <i
-                  className={
-                    passwordVisibility.current
-                      ? "fa-solid fa-eye-slash"
-                      : "fa-solid fa-eye"
-                  }
-                  aria-hidden="true"
-                />
-              </button>
-            </div>
-          </div>
-          <div className="field">
-            <label htmlFor="nextPassword">
-              {t("appShell.newPassword", language)}
-            </label>
-            <div className="password-input-wrap">
-              <input
-                id="nextPassword"
-                type={passwordVisibility.next ? "text" : "password"}
-                className="input password-input"
-                value={passwordForm.next}
-                onChange={(event) =>
-                  setPasswordForm((prev) => ({
-                    ...prev,
-                    next: event.target.value,
-                  }))
-                }
-              />
-              <button
-                type="button"
-                className="password-toggle-btn"
-                onClick={() => togglePasswordVisibility("next")}
-                title={
-                  passwordVisibility.next
-                    ? t("appShell.hidePassword", language)
-                    : t("appShell.showPassword", language)
-                }
-                aria-label={
-                  passwordVisibility.next
-                    ? t("appShell.hidePassword", language)
-                    : t("appShell.showPassword", language)
-                }
-              >
-                <i
-                  className={
-                    passwordVisibility.next
-                      ? "fa-solid fa-eye-slash"
-                      : "fa-solid fa-eye"
-                  }
-                  aria-hidden="true"
-                />
-              </button>
-            </div>
-          </div>
-          <div className="field">
-            <label htmlFor="confirmPassword">
-              {t("appShell.confirmPassword", language)}
-            </label>
-            <div className="password-input-wrap">
-              <input
-                id="confirmPassword"
-                type={passwordVisibility.confirm ? "text" : "password"}
-                className="input password-input"
-                value={passwordForm.confirm}
-                onChange={(event) =>
-                  setPasswordForm((prev) => ({
-                    ...prev,
-                    confirm: event.target.value,
-                  }))
-                }
-              />
-              <button
-                type="button"
-                className="password-toggle-btn"
-                onClick={() => togglePasswordVisibility("confirm")}
-                title={
-                  passwordVisibility.confirm
-                    ? t("appShell.hidePassword", language)
-                    : t("appShell.showPassword", language)
-                }
-                aria-label={
-                  passwordVisibility.confirm
-                    ? t("appShell.hidePassword", language)
-                    : t("appShell.showPassword", language)
-                }
-              >
-                <i
-                  className={
-                    passwordVisibility.confirm
-                      ? "fa-solid fa-eye-slash"
-                      : "fa-solid fa-eye"
-                  }
-                  aria-hidden="true"
-                />
-              </button>
-            </div>
-          </div>
+        <form className="grid gap-2.5" onSubmit={submitPasswordChange}>
+          <PasswordField
+            id="currentPassword"
+            label={t("appShell.currentPassword", language)}
+            field="current"
+          />
+          <PasswordField
+            id="nextPassword"
+            label={t("appShell.newPassword", language)}
+            field="next"
+          />
+          <PasswordField
+            id="confirmPassword"
+            label={t("appShell.confirmPassword", language)}
+            field="confirm"
+          />
 
           {passwordMessage.text ? (
             <p
               className={
-                passwordMessage.type === "error" ? "error-text" : "success-text"
+                passwordMessage.type === "error"
+                  ? "my-1.5 text-[var(--color-danger)] text-[0.9rem]"
+                  : "my-1.5 text-[var(--color-success)] text-[0.9rem]"
               }
             >
               {passwordMessage.text}
             </p>
           ) : null}
 
-          <div className="modal-actions">
+          <div className="flex justify-end gap-2 max-[720px]:flex-wrap max-[720px]:justify-stretch">
             <Button
               type="button"
               variant="secondary"

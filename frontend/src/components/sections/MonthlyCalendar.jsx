@@ -1,7 +1,7 @@
 import { memo } from "react";
 import Card from "../ui/Card";
 import ProgressRing from "../ui/ProgressRing";
-import PersianMonthCalendar from "../calendar/PersianMonthCalendar";
+import DatePicker from "../ui/DatePicker";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { t } from "../../lib/i18n";
 import "./MonthlyCalendar.css";
@@ -292,7 +292,7 @@ function MonthlyCalendar({
         </div>
       </div>
 
-      <PersianMonthCalendar
+      <DatePicker
         month={month}
         calendarType={calendarType}
         onPrevMonth={goToPreviousMonth}

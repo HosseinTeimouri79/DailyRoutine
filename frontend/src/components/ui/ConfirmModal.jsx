@@ -1,6 +1,5 @@
 import Modal from "./Modal";
 import Button from "./Button";
-import "./ConfirmModal.css";
 
 export default function ConfirmModal({
   isOpen,
@@ -18,14 +17,16 @@ export default function ConfirmModal({
       isOpen={isOpen}
       onClose={onClose}
       title={title}
-      className={`confirm-modal ${className}`.trim()}
+      className={`w-[min(420px,calc(100vw-24px))] ${className}`.trim()}
     >
       {typeof message === "string" ? (
-        <p className="muted confirm-modal-text">{message}</p>
+        <p className="text-[var(--color-text-muted)] my-1 whitespace-normal leading-[1.7] mb-3.5 [overflow-wrap:anywhere] [word-break:break-word]">
+          {message}
+        </p>
       ) : (
         message
       )}
-      <div className="modal-actions">
+      <div className="flex justify-end gap-2 max-[720px]:flex-wrap max-[720px]:justify-stretch">
         <Button type="button" variant="secondary" onClick={onClose}>
           {cancelLabel}
         </Button>

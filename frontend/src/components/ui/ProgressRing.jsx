@@ -1,5 +1,3 @@
-import "./ProgressRing.css";
-
 export default function ProgressRing({
   percent = 0,
   title,
@@ -13,15 +11,21 @@ export default function ProgressRing({
 
   return (
     <span
-      className={`progress-ring ${className}`.trim()}
+      className={`inline-flex items-center justify-center rounded-full flex-[0_0_${size}px] ${className}`.trim()}
       style={{
-        "--progress": `${normalizedPercent}%`,
-        "--ring-size": `${size}px`,
-        "--ring-inner-size": `${innerSize}px`,
+        width: `${size}px`,
+        height: `${size}px`,
+        background: `conic-gradient(var(--color-success-border) ${normalizedPercent}%, color-mix(in srgb, var(--color-primary-soft) 62%, var(--color-bg-surface)) 0)`,
+        flexShrink: 0,
       }}
       title={title}
     >
-      <span className="progress-ring-inner">{normalizedPercent}</span>
+      <span
+        className="inline-flex items-center justify-center rounded-full bg-[var(--color-bg-surface)] border border-[var(--color-border-soft)] text-[var(--color-text-secondary)] text-[0.56rem] font-bold leading-none"
+        style={{ width: `${innerSize}px`, height: `${innerSize}px` }}
+      >
+        {normalizedPercent}
+      </span>
     </span>
   );
 }

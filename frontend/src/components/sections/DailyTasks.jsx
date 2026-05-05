@@ -2,7 +2,7 @@ import { memo } from "react";
 import Card from "../ui/Card";
 import Button from "../ui/Button";
 import IconButton from "../ui/IconButton";
-import PersianMonthCalendar from "../calendar/PersianMonthCalendar";
+import DatePicker from "../ui/DatePicker";
 import {
   formatDateParts,
   formatMonthYear,
@@ -84,7 +84,7 @@ function DailyTasks({
       title={t("dailyTasks.title", language)}
       subtitle={t("dailyTasks.subtitle", language)}
     >
-      <PersianMonthCalendar
+      <DatePicker
         className="daily-tasks-calendar"
         month={tasksMonth}
         calendarType={calendarType}

@@ -1,9 +1,0 @@
-.confirm-modal {
-  width: min(420px, calc(100vw - 24px));
-}
-
-.confirm-modal-text {
-  @apply my-1 whitespace-normal leading-[1.7] mb-3.5;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}

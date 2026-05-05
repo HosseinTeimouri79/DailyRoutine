@@ -6,7 +6,7 @@ import Button from "../components/ui/Button";
 import ThemeSwitcher from "../components/ui/ThemeSwitcher";
 import LanguageSwitcher from "../components/ui/LanguageSwitcher";
 import Modal from "../components/ui/Modal";
-import PersianMonthCalendar from "../components/calendar/PersianMonthCalendar";
+import DatePicker from "../components/ui/DatePicker";
 import { api, setSession, getToken } from "../lib/api";
 import { useSettings } from "../lib/settings";
 import {
@@ -299,7 +299,7 @@ export default function LoginPage() {
         onClose={() => setIsRegisterDobModalOpen(false)}
         title={t("login.dateOfBirth", language)}
       >
-        <PersianMonthCalendar
+        <DatePicker
           className="auth-dob-calendar"
           month={registerDobMonth}
           calendarType={form.calendar_type}

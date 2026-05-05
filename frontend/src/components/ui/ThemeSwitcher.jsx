@@ -1,6 +1,5 @@
 import { useId } from "react";
 import { THEME_OPTIONS } from "../../lib/themes";
-import "./ThemeSwitcher.css";
 
 export default function ThemeSwitcher({
   value,
@@ -12,16 +11,19 @@ export default function ThemeSwitcher({
   const selectId = useId();
 
   return (
-    <div className={`theme-switcher ${className}`.trim()}>
+    <div className={`grid gap-1.5 min-w-0 ${className}`.trim()}>
       {label ? (
-        <label className="theme-switcher-label" htmlFor={selectId}>
+        <label
+          className="text-[var(--color-text-secondary)] text-[0.88rem] font-semibold"
+          htmlFor={selectId}
+        >
           {label}
         </label>
       ) : null}
-      <div className="theme-switcher-control">
+      <div className="relative">
         <select
           id={selectId}
-          className="input theme-switcher-select"
+          className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] appearance-none cursor-pointer focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)] focus:border-[var(--color-primary)] [padding-inline-end:36px]"
           value={value}
           onChange={(event) => onChange?.(event.target.value)}
           aria-label={label}
@@ -34,7 +36,7 @@ export default function ThemeSwitcher({
           ))}
         </select>
         <i
-          className="fa-solid fa-chevron-down theme-switcher-chevron"
+          className="fa-solid fa-chevron-down absolute text-[var(--color-text-secondary)] pointer-events-none text-[0.82rem] [inset-inline-end:12px] top-1/2 -translate-y-1/2"
           aria-hidden="true"
         />
       </div>

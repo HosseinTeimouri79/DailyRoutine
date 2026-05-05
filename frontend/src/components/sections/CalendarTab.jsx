@@ -4,7 +4,7 @@ import Button from "../ui/Button";
 import Modal from "../ui/Modal";
 import ConfirmModal from "../ui/ConfirmModal";
 import IconButton from "../ui/IconButton";
-import PersianMonthCalendar from "../calendar/PersianMonthCalendar";
+import DatePicker from "../ui/DatePicker";
 import holidays from "../../data/holidays.json";
 import {
   formatDateParts,
@@ -379,7 +379,7 @@ function CalendarTab({ language, calendarType }) {
       title={t("calendarTab.title", language)}
       subtitle={t("calendarTab.subtitle", language)}
     >
-      <PersianMonthCalendar
+      <DatePicker
         className="calendar-tab-month"
         month={month}
         calendarType={calendarType}
@@ -656,7 +656,7 @@ function CalendarTab({ language, calendarType }) {
         onClose={() => setIsImportantDatePickerOpen(false)}
         title={t("calendarTab.importantDayDateLabel", language)}
       >
-        <PersianMonthCalendar
+        <DatePicker
           month={importantModalMonth}
           calendarType={calendarType}
           showMonthSwitchButtons={false}
