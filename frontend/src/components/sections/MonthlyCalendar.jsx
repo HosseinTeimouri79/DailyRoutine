@@ -4,11 +4,11 @@ import ProgressRing from "../ui/ProgressRing";
 import DatePicker from "../ui/DatePicker";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { t } from "../../lib/i18n";
-import "./MonthlyCalendar.css";
+// MonthlyCalendar styles moved to Tailwind utilities in component
 
 function SelectedRoutinePieReport({ data, language, selectedRoutineStreaks }) {
   if (!data)
-    return <p className="muted">{t("dailyTasks.loading", language)}</p>;
+  return <p className="text-text-muted">{t("dailyTasks.loading", language)}</p>;
 
   const done = data.done || 0;
   const missed = data.missed || 0;

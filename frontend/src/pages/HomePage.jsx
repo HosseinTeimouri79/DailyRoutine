@@ -28,7 +28,32 @@ import {
   isRoutineScheduledOnDate,
   normalizeRoutineRecurrence,
 } from "../lib/recurrence";
-import "./HomePage.css";
+const transitionBaseClasses =
+  "transition-[opacity,transform,filter] duration-[240ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]";
+
+const transitionHiddenByMode = {
+  fade: "translate-y-[10px]",
+  slide: "translate-x-[12px]",
+  zoom: "scale-[0.98]",
+  sparkle: "translate-y-[10px] scale-[0.98]",
+  swirl: "-rotate-[4deg] scale-[0.96]",
+  blur: "scale-[1.01] blur-[6px]",
+  tilt: "translate-y-[8px] rotate-[2deg]",
+  flip: "[transform:perspective(600px)_rotateX(6deg)_translateY(10px)]",
+  skew: "translate-y-[8px] skew-y-[2deg]",
+};
+
+function getPageTransitionClasses(mode, isVisible) {
+  const hiddenClass = transitionHiddenByMode[mode] || transitionHiddenByMode.fade;
+  const modeBase = mode === "flip" ? "origin-center" : "";
+  const visibilityClass = isVisible
+    ? "opacity-100 filter-none"
+    : `opacity-0 ${hiddenClass}`;
+
+  return [transitionBaseClasses, modeBase, visibilityClass]
+    .filter(Boolean)
+    .join(" ");
+}
 
 const WeeklyRoutines = lazy(
   () => import("../components/sections/WeeklyRoutines"),
@@ -770,13 +795,16 @@ export default function HomePage() {
       />
 
       <div
-        className={`page-transition page-transition-${pageTransitionSettings.mode} ${
-          isTabVisible ? "page-transition-visible" : "page-transition-hidden"
-        }`}
+        className={getPageTransitionClasses(
+          pageTransitionSettings.mode,
+          isTabVisible,
+        )}
       >
         <Suspense
           fallback={
-            <p className="muted">{t("dailyTasks.loading", language)}</p>
+            <p className="text-text-muted">
+              {t("dailyTasks.loading", language)}
+            </p>
           }
         >
           {activeTab === "calendar" ? (

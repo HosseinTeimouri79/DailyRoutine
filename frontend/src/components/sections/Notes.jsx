@@ -4,7 +4,7 @@ import Button from "../ui/Button";
 import IconButton from "../ui/IconButton";
 import { formatDateTimeFromSql } from "../../lib/date";
 import { t } from "../../lib/i18n";
-import "./Notes.css";
+// Notes styles moved to Tailwind utilities in component
 
 function getNoteDisplayDate(note, language, calendarType) {
   const hasEdit =
@@ -84,7 +84,7 @@ function Notes({
       </div>
 
       {notesLoading ? (
-        <p className="muted">{t("notes.loading", language)}</p>
+        <p className="text-text-muted">{t("notes.loading", language)}</p>
       ) : null}
 
       {!notesLoading && !notes.length ? (

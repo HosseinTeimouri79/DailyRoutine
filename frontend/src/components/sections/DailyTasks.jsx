@@ -9,7 +9,7 @@ import {
   shiftMonthCursor,
 } from "../../lib/date";
 import { t } from "../../lib/i18n";
-import "./DailyTasks.css";
+// DailyTasks styles moved to Tailwind utilities in component
 
 const TaskListItem = memo(function TaskListItem({
   task,
@@ -110,7 +110,7 @@ function DailyTasks({
       </div>
 
       {tasksLoading ? (
-        <p className="muted">{t("dailyTasks.loading", language)}</p>
+        <p className="text-text-muted">{t("dailyTasks.loading", language)}</p>
       ) : null}
 
       {!tasksLoading && !tasks.length ? (

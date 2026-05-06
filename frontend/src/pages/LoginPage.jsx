@@ -17,7 +17,17 @@ import {
   shiftMonthCursor,
 } from "../lib/date";
 import { t } from "../lib/i18n";
-import "./LoginPage.css";
+const INPUT_BASE_CLASSES = [
+  "w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)]",
+  "bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)]",
+  "focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)]",
+  "focus:border-[var(--color-primary)]",
+  "disabled:bg-[color-mix(in_srgb,var(--color-bg-surface-soft)_82%,var(--color-bg-page))]",
+  "disabled:text-[var(--color-text-muted)] disabled:cursor-not-allowed",
+].join(" ");
+
+const FIELD_CLASSES = "grid gap-1.5 w-full";
+const FIELD_LABEL_CLASSES = "text-text-secondary text-[0.9rem]";
 
 const IRAN_PHONE_REGEX = /^(?:\+98|0)?9\d{9}$/;
 
@@ -107,7 +117,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="auth-page" dir={language === "fa" ? "rtl" : "ltr"}>
+    <div
+      className="min-h-screen grid place-items-center p-6"
+      dir={language === "fa" ? "rtl" : "ltr"}
+    >
       <Card
         title={
           mode === "register"
@@ -116,23 +129,23 @@ export default function LoginPage() {
         }
         subtitle={t("login.subtitle", language)}
       >
-        <div className="auth-settings-row">
+        <div className="flex flex-wrap gap-2.5 mb-4">
           <ThemeSwitcher
-            className="auth-theme-switcher"
+            className="min-w-[180px] flex-1"
             value={theme}
             onChange={setTheme}
             label={t("login.theme", language)}
           />
 
           <LanguageSwitcher
-            className="auth-language-switcher"
+            className="min-w-[180px] flex-1"
             value={language}
             onChange={setLanguage}
             label={t("login.language", language)}
           />
         </div>
 
-        <form className="stack" onSubmit={submit}>
+        <form className="grid gap-2.5" onSubmit={submit}>
           {mode === "register" ? (
             <>
               <Input
@@ -144,14 +157,14 @@ export default function LoginPage() {
                 }
                 required
               />
-              <div className="field">
-                <label htmlFor="dateOfBirth">
+              <div className={FIELD_CLASSES}>
+                <label className={FIELD_LABEL_CLASSES} htmlFor="dateOfBirth">
                   {t("login.dateOfBirth", language)}
                 </label>
                 <input
                   id="dateOfBirth"
                   type="text"
-                  className="input"
+                  className={INPUT_BASE_CLASSES}
                   value={
                     form.date_of_birth
                       ? `${formatDateParts(form.date_of_birth, language, form.calendar_type).day} ${formatMonthYear(form.date_of_birth, language, form.calendar_type)}`
@@ -163,19 +176,14 @@ export default function LoginPage() {
                 />
               </div>
 
-              <div
-                style={{
-                  display: "flex",
-                  gap: "10px",
-                }}
-              >
-                <div className="field">
-                  <label htmlFor="calendarType">
+              <div className="flex gap-2.5">
+                <div className={FIELD_CLASSES}>
+                  <label className={FIELD_LABEL_CLASSES} htmlFor="calendarType">
                     {t("login.calendarType", language)}
                   </label>
                   <select
                     id="calendarType"
-                    className="input"
+                    className={INPUT_BASE_CLASSES}
                     value={form.calendar_type}
                     onChange={(e) =>
                       setForm((prev) => ({
@@ -192,11 +200,13 @@ export default function LoginPage() {
                     </option>
                   </select>
                 </div>
-                <div className="field">
-                  <label htmlFor="gender">{t("login.gender", language)}</label>
+                <div className={FIELD_CLASSES}>
+                  <label className={FIELD_LABEL_CLASSES} htmlFor="gender">
+                    {t("login.gender", language)}
+                  </label>
                   <select
                     id="gender"
-                    className="input"
+                    className={INPUT_BASE_CLASSES}
                     value={form.gender}
                     onChange={(e) =>
                       setForm((prev) => ({ ...prev, gender: e.target.value }))
@@ -230,13 +240,15 @@ export default function LoginPage() {
             required
           />
 
-          <div className="field">
-            <label htmlFor="password">{t("login.password", language)}</label>
-            <div className="password-input-wrap">
+          <div className={FIELD_CLASSES}>
+            <label className={FIELD_LABEL_CLASSES} htmlFor="password">
+              {t("login.password", language)}
+            </label>
+            <div className="relative">
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                className="input password-input"
+                className={`${INPUT_BASE_CLASSES} pl-[42px]`}
                 value={form.password}
                 onChange={(e) =>
                   setForm((prev) => ({ ...prev, password: e.target.value }))
@@ -245,7 +257,7 @@ export default function LoginPage() {
               />
               <button
                 type="button"
-                className="password-toggle-btn"
+                className="absolute left-2 top-1/2 -translate-y-1/2 border border-border-strong bg-primary-soft text-secondary w-7 h-7 rounded-[8px] cursor-pointer inline-flex items-center justify-center text-[0.9rem]"
                 onClick={() => setShowPassword((prev) => !prev)}
                 title={
                   showPassword
@@ -260,7 +272,7 @@ export default function LoginPage() {
               >
                 <i
                   className={
-                    showPassword ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"
+                    `${showPassword ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"} leading-none pointer-events-none`
                   }
                   aria-hidden="true"
                 />
@@ -268,9 +280,11 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {error ? <p className="error-text">{error}</p> : null}
+          {error ? (
+            <p className="my-1.5 text-danger text-[0.9rem]">{error}</p>
+          ) : null}
 
-          <div className="login-actions">
+          <div className="flex justify-between flex-wrap gap-2.5">
             <Button type="submit" disabled={loading}>
               {loading
                 ? t("appShell.saving", language)
@@ -300,7 +314,6 @@ export default function LoginPage() {
         title={t("login.dateOfBirth", language)}
       >
         <DatePicker
-          className="auth-dob-calendar"
           month={registerDobMonth}
           calendarType={form.calendar_type}
           showMonthSwitchButtons={false}

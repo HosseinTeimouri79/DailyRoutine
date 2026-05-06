@@ -18,7 +18,7 @@ import { api, getUser } from "../../lib/api";
 import { t } from "../../lib/i18n";
 import IconPickerModal from "../ui/IconPickerModal";
 import TimePicker from "../ui/TimePicker";
-import "./CalendarTab.css";
+// CalendarTab styles moved to Tailwind utilities in component
 
 const IMPORTANT_DAY_ICON_OPTIONS = [
   { label: "Star", value: "fa-solid fa-star" },
@@ -427,7 +427,7 @@ function CalendarTab({ language, calendarType }) {
         <div className="calendar-important-day-header">
           <div>
             <h3>{t("calendarTab.importantDaySectionTitle", language)}</h3>
-            <p className="muted">
+            <p className="text-text-muted">
               {t("calendarTab.importantDaySectionDescription", language)}
             </p>
           </div>
@@ -525,13 +525,13 @@ function CalendarTab({ language, calendarType }) {
         }
       >
         <form onSubmit={handleSaveImportantDay} className="modal-form">
-          <div className="field">
+          <div className="grid gap-1.5 w-full">
             <label htmlFor="modal-important-title">
               {t("calendarTab.importantDayTitleLabel", language)}
             </label>
-            <input
-              id="modal-important-title"
-              className="input"
+              <input
+                id="modal-important-title"
+                className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)] focus:border-[var(--color-primary)]"
               value={importantTitle}
               onChange={(event) => setImportantTitle(event.target.value)}
               placeholder={t(
@@ -543,14 +543,14 @@ function CalendarTab({ language, calendarType }) {
           </div>
 
           <div style={{ display: "flex", gap: "8px" }}>
-            <div className="field">
+            <div className="grid gap-1.5 w-full">
               <label htmlFor="modal-important-date">
                 {t("calendarTab.importantDayDateLabel", language)}
               </label>
-              <input
-                id="modal-important-date"
-                className="input"
-                type="text"
+                <input
+                  id="modal-important-date"
+                  className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)] focus:border-[var(--color-primary)]"
+                  type="text"
                 value={importantDateDisplay}
                 placeholder={t("calendarTab.importantDayDateLabel", language)}
                 readOnly
@@ -568,8 +568,8 @@ function CalendarTab({ language, calendarType }) {
           </div>
 
           {isAdmin ? (
-            <div className="field">
-              <label className="important-day-global-toggle">
+            <div className="grid gap-1.5 w-full">
+              <label className="inline-flex items-center gap-2 text-text-secondary text-[0.95rem]">
                 <input
                   type="checkbox"
                   checked={isGlobalImportantDay}
@@ -585,11 +585,11 @@ function CalendarTab({ language, calendarType }) {
             </div>
           ) : null}
 
-          <div className="field">
+          <div className="grid gap-2">
             <label>{t("calendarTab.importantDayIconLabel", language)}</label>
             <button
               type="button"
-              className="important-day-icon-picker-button"
+              className="inline-flex items-center gap-2.5 border border-border-default rounded-sm px-3.5 py-2.5 bg-surface text-text-primary cursor-pointer"
               onClick={() => setIsIconPickerOpen(true)}
             >
               <i
@@ -613,21 +613,21 @@ function CalendarTab({ language, calendarType }) {
             language={language}
           />
 
-          <div className="field">
+          <div className="grid gap-1.5 w-full">
             <label htmlFor="modal-important-description">
               {t("calendarTab.importantDayDescriptionLabel", language)}
             </label>
-            <textarea
-              id="modal-important-description"
-              className="input"
-              value={importantDescription}
-              onChange={(event) => setImportantDescription(event.target.value)}
-              placeholder={t(
-                "calendarTab.importantDayDescriptionPlaceholder",
-                language,
-              )}
-              rows="3"
-            />
+              <textarea
+                id="modal-important-description"
+                className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] min-h-[80px] resize-y"
+                value={importantDescription}
+                onChange={(event) => setImportantDescription(event.target.value)}
+                placeholder={t(
+                  "calendarTab.importantDayDescriptionPlaceholder",
+                  language,
+                )}
+                rows="3"
+              />
           </div>
 
           {formMessage.text ? (
