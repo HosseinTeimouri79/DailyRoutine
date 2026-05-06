@@ -20,7 +20,8 @@ const transitionHiddenByMode = {
 };
 
 function getPageTransitionClasses(mode, isVisible) {
-  const hiddenClass = transitionHiddenByMode[mode] || transitionHiddenByMode.fade;
+  const hiddenClass =
+    transitionHiddenByMode[mode] || transitionHiddenByMode.fade;
   const modeBase = mode === "flip" ? "origin-center" : "";
   const visibilityClass = isVisible
     ? "opacity-100 filter-none"

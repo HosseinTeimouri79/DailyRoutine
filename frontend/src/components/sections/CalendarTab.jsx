@@ -529,9 +529,9 @@ function CalendarTab({ language, calendarType }) {
             <label htmlFor="modal-important-title">
               {t("calendarTab.importantDayTitleLabel", language)}
             </label>
-              <input
-                id="modal-important-title"
-                className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)] focus:border-[var(--color-primary)]"
+            <input
+              id="modal-important-title"
+              className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)] focus:border-[var(--color-primary)]"
               value={importantTitle}
               onChange={(event) => setImportantTitle(event.target.value)}
               placeholder={t(
@@ -547,10 +547,10 @@ function CalendarTab({ language, calendarType }) {
               <label htmlFor="modal-important-date">
                 {t("calendarTab.importantDayDateLabel", language)}
               </label>
-                <input
-                  id="modal-important-date"
-                  className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)] focus:border-[var(--color-primary)]"
-                  type="text"
+              <input
+                id="modal-important-date"
+                className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)] focus:border-[var(--color-primary)]"
+                type="text"
                 value={importantDateDisplay}
                 placeholder={t("calendarTab.importantDayDateLabel", language)}
                 readOnly
@@ -617,17 +617,17 @@ function CalendarTab({ language, calendarType }) {
             <label htmlFor="modal-important-description">
               {t("calendarTab.importantDayDescriptionLabel", language)}
             </label>
-              <textarea
-                id="modal-important-description"
-                className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] min-h-[80px] resize-y"
-                value={importantDescription}
-                onChange={(event) => setImportantDescription(event.target.value)}
-                placeholder={t(
-                  "calendarTab.importantDayDescriptionPlaceholder",
-                  language,
-                )}
-                rows="3"
-              />
+            <textarea
+              id="modal-important-description"
+              className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] min-h-[80px] resize-y"
+              value={importantDescription}
+              onChange={(event) => setImportantDescription(event.target.value)}
+              placeholder={t(
+                "calendarTab.importantDayDescriptionPlaceholder",
+                language,
+              )}
+              rows="3"
+            />
           </div>
 
           {formMessage.text ? (

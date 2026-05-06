@@ -271,9 +271,7 @@ export default function LoginPage() {
                 }
               >
                 <i
-                  className={
-                    `${showPassword ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"} leading-none pointer-events-none`
-                  }
+                  className={`${showPassword ? "fa-solid fa-eye-slash" : "fa-solid fa-eye"} leading-none pointer-events-none`}
                   aria-hidden="true"
                 />
               </button>
