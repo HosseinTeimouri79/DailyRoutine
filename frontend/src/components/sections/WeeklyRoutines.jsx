@@ -26,6 +26,14 @@ function WeeklyRoutines({
   language,
   calendarType,
 }) {
+  const recurrenceWeekdayLabels = recurrenceWeekdayOptions.reduce(
+    (labels, option) => {
+      labels[option.value] = option.label;
+      return labels;
+    },
+    [],
+  );
+
   function getRoutineWeekProgress(routine) {
     const doneCount = weekDays.reduce((count, day) => {
       if (!isRoutineScheduledOnDate(routine, day)) return count;
@@ -47,16 +55,23 @@ function WeeklyRoutines({
     const isFutureDay = day > todayISO;
     const isScheduled = isRoutineScheduledOnDate(routine, day);
     const isDisabled = isFutureDay || !isScheduled;
-    const cls =
+    const statusClasses =
       status === "done"
-        ? "status-btn done"
+        ? "bg-[var(--color-success-soft)] text-[var(--color-success)]"
         : status === "missed"
-          ? "status-btn missed"
-          : "status-btn";
+          ? "bg-[var(--color-danger-soft)] text-[var(--color-danger)]"
+          : "bg-[var(--color-bg-surface)] text-[var(--color-text-primary)]";
 
     return (
       <button
-        className={`${cls} ${mobile ? "w-full h-[30px]" : ""} ${isDisabled ? "opacity-45 cursor-not-allowed" : ""}`.trim()}
+        className={[
+          "inline-flex items-center justify-center transition-colors font-semibold",
+          mobile ? "w-full h-[34px]" : "min-w-[85px] h-[34px] px-2",
+          statusClasses,
+          isDisabled ? "opacity-45 cursor-not-allowed" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
         disabled={isDisabled}
         title={
           isFutureDay
@@ -153,14 +168,20 @@ function WeeklyRoutines({
       </div>
 
       <div className="hidden md:block overflow-x-auto mt-3">
-        <table className="border-collapse bg-[var(--color-bg-surface)] w-full min-w-[900px] border-collapse rounded-md overflow-hidden">
+        <table className="table-auto border-collapse border border-[var(--color-border-default)] bg-[var(--color-bg-surface)] w-full min-w-[900px] rounded-md overflow-hidden">
           <thead>
             <tr>
-              <th>{t("weekly.routine", language)}</th>
+              <th className="min-w-[320px] whitespace-nowrap border border-[var(--color-border-default)]">
+                {t("weekly.routine", language)}
+              </th>
               {weekDays.map((date) => {
                 const p = formatDateParts(date, language, calendarType);
                 return (
-                  <th key={date} title={p.weekdayLong}>
+                  <th
+                    key={date}
+                    title={p.weekdayLong}
+                    className="min-w-[55px] whitespace-nowrap border border-[var(--color-border-default)]"
+                  >
                     {p.weekdayShort}
                     <br />
                     {p.day}
@@ -174,12 +195,12 @@ function WeeklyRoutines({
               const progress = getRoutineWeekProgress(routine);
               const recurrenceSummary = getRoutineRecurrenceSummary(
                 routine,
-                recurrenceWeekdayOptions.map((option) => option.label),
+                recurrenceWeekdayLabels,
               );
 
               return (
                 <tr key={routine.id}>
-                  <td className="whitespace-nowrap font-semibold text-[var(--color-text-primary)] text-justify">
+                  <td className="min-w-[320px] whitespace-nowrap font-semibold text-[var(--color-text-primary)] text-justify border border-[var(--color-border-default)]">
                     <div className="inline-flex items-center gap-[6px]">
                       <ProgressRing
                         percent={progress.percent}
@@ -232,7 +253,10 @@ function WeeklyRoutines({
                   {weekDays.map((day) => {
                     const key = `${routine.id}-${day}`;
                     return (
-                      <td className="text-center" key={key}>
+                      <td
+                        className="min-w-[85px] text-center whitespace-nowrap border border-[var(--color-border-default)]"
+                        key={key}
+                      >
                         {renderStatusButton(routine, day)}
                       </td>
                     );
@@ -249,7 +273,7 @@ function WeeklyRoutines({
           const progress = getRoutineWeekProgress(routine);
           const recurrenceSummary = getRoutineRecurrenceSummary(
             routine,
-            recurrenceWeekdayOptions.map((option) => option.label),
+            recurrenceWeekdayLabels,
           );
 
           return (

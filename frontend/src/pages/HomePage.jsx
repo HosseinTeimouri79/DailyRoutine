@@ -203,18 +203,27 @@ export default function HomePage() {
     [month],
   );
   const weekDays = useMemo(() => getWeekDaysGregorian(weekStart), [weekStart]);
-  const recurrenceWeekdayOptions = useMemo(
-    () => [
-      { value: 0, label: t("weekly.weekdayMonday", language) },
-      { value: 1, label: t("weekly.weekdayTuesday", language) },
-      { value: 2, label: t("weekly.weekdayWednesday", language) },
-      { value: 3, label: t("weekly.weekdayThursday", language) },
-      { value: 4, label: t("weekly.weekdayFriday", language) },
-      { value: 5, label: t("weekly.weekdaySaturday", language) },
-      { value: 6, label: t("weekly.weekdaySunday", language) },
-    ],
-    [language],
-  );
+  const recurrenceWeekdayOptions = useMemo(() => {
+    const labelsByValue = [
+      t("weekly.weekdayMonday", language),
+      t("weekly.weekdayTuesday", language),
+      t("weekly.weekdayWednesday", language),
+      t("weekly.weekdayThursday", language),
+      t("weekly.weekdayFriday", language),
+      t("weekly.weekdaySaturday", language),
+      t("weekly.weekdaySunday", language),
+    ];
+
+    const displayOrder =
+      calendarType === "gregorian"
+        ? [0, 1, 2, 3, 4, 5, 6]
+        : [5, 6, 0, 1, 2, 3, 4];
+
+    return displayOrder.map((value) => ({
+      value,
+      label: labelsByValue[value],
+    }));
+  }, [language, calendarType]);
   const todayWeekStart = useMemo(() => getWeekStartISO(getTodayISO()), []);
   const canGoNextWeek = weekStart < todayWeekStart;
 

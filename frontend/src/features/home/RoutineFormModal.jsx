@@ -110,15 +110,14 @@ export default function RoutineFormModal({
                 {recurrenceWeekdayOptions.map((option) => (
                   <Checkbox
                     key={`routine-weekday-${option.value}`}
-                    variant="plain"
                     checked={selectedWeekdays.includes(option.value)}
                     onChange={() => onToggleWeekday(option.value)}
                     className={[
-                      "inline-flex items-center justify-center gap-1.5 border border-border-default",
-                      "rounded-sm bg-surface-soft text-text-secondary px-2.5 py-2 cursor-pointer",
-                      "text-[0.82rem] select-none",
+                      "inline-flex items-center justify-center gap-2 border px-2.5 py-2 cursor-pointer",
+                      "rounded-sm text-[0.82rem] select-none transition-colors transition-shadow",
+                      "border-border-default bg-surface-soft text-text-secondary",
                       selectedWeekdays.includes(option.value)
-                        ? "text-primary border-border-accent bg-[color-mix(in_srgb,var(--color-primary-soft)_65%,transparent)]"
+                        ? "border-border-accent bg-[color-mix(in_srgb,var(--color-primary-soft)_65%,transparent)] text-primary shadow-sm"
                         : "",
                     ]
                       .filter(Boolean)
