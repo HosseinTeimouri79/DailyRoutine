@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   formatDateParts,
   formatMonthYear,
@@ -8,6 +8,7 @@ import {
 } from "../../lib/date";
 import { t } from "../../lib/i18n";
 import Dropdown from "./Dropdown";
+import IconButton from "./IconButton";
 
 export default function DatePicker({
   month,
@@ -25,7 +26,6 @@ export default function DatePicker({
   language = "fa",
   className = "",
 }) {
-  const [isMonthYearPickerOpen, setIsMonthYearPickerOpen] = useState(false);
   const weekdays = t(
     calendarType === "gregorian"
       ? "calendar.weekdaysGregorian"
@@ -45,6 +45,9 @@ export default function DatePicker({
     language,
     calendarType,
   );
+  const todayISO = getTodayISO();
+  const isTodaySelected = selectedDate === todayISO;
+  const showGoTodayButton = Boolean(onGoToday) && !isTodaySelected;
 
   const monthOptions = useMemo(() => {
     return Array.from({ length: 12 }, (_, idx) => {
@@ -83,61 +86,46 @@ export default function DatePicker({
     >
       {/* Header */}
       <div className="flex items-center justify-start gap-2 max-[720px]:flex-col">
-        <div className="flex gap-1.5 max-[720px]:w-full max-[720px]:justify-between">
-          {showMonthSwitchButtons ? (
+        {showMonthSwitchButtons ? (
+          <div className="flex gap-1.5 max-[720px]:w-full max-[720px]:justify-between">
             <button type="button" className={btnBase} onClick={onPrevMonth}>
               {t("calendar.previousMonth", language)}
             </button>
-          ) : null}
-          {onGoToday ? (
-            <button type="button" className={btnBase} onClick={onGoToday}>
-              {t("calendar.goToToday", language)}
-            </button>
-          ) : null}
-          {showMonthSwitchButtons ? (
             <button type="button" className={btnBase} onClick={onNextMonth}>
               {t("calendar.nextMonth", language)}
             </button>
-          ) : null}
-        </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-2 w-full max-[720px]:w-full">
+            <Dropdown
+              className="w-full"
+              value={month?.month || 1}
+              options={monthOptions}
+              onChange={(nextMonth) =>
+                setMonthFromPicker(month?.year, nextMonth)
+              }
+            />
+            <Dropdown
+              className="w-full"
+              value={month?.year || yearOptions[0]}
+              options={yearOptions.map((yearValue) => ({
+                value: yearValue,
+                label: String(yearValue),
+              }))}
+              onChange={(nextYear) =>
+                setMonthFromPicker(nextYear, month?.month || 1)
+              }
+            />
+          </div>
+        )}
 
-        <div className="flex-1 grid justify-items-center relative">
-          <button
-            type="button"
-            className="border-0 bg-transparent text-[var(--color-text-primary)] font-bold inline-flex items-center gap-2 cursor-pointer"
-            onClick={() => setIsMonthYearPickerOpen((prev) => !prev)}
-          >
-            {monthLabel}
-            <i className="fa-solid fa-caret-down" aria-hidden="true" />
-          </button>
-
-          {isMonthYearPickerOpen ? (
-            <div
-              className="mt-2 grid grid-cols-2 gap-2 w-full max-w-[340px] max-[720px]:w-full"
-              role="group"
-            >
-              <Dropdown
-                className="w-full"
-                value={month?.month || 1}
-                options={monthOptions}
-                onChange={(nextMonth) =>
-                  setMonthFromPicker(month?.year, nextMonth)
-                }
-              />
-              <Dropdown
-                className="w-full"
-                value={month?.year || yearOptions[0]}
-                options={yearOptions.map((yearValue) => ({
-                  value: yearValue,
-                  label: String(yearValue),
-                }))}
-                onChange={(nextYear) =>
-                  setMonthFromPicker(nextYear, month?.month || 1)
-                }
-              />
-            </div>
-          ) : null}
-        </div>
+        {showMonthSwitchButtons ? (
+          <div className="flex-1 grid justify-items-center relative">
+            <span className="text-[var(--color-text-primary)] font-bold">
+              {monthLabel}
+            </span>
+          </div>
+        ) : null}
       </div>
 
       {/* Weekdays */}
@@ -242,6 +230,17 @@ export default function DatePicker({
           );
         })}
       </div>
+
+      {showGoTodayButton ? (
+        <div className="mt-2 flex justify-end">
+          <IconButton
+            icon="fa-solid fa-rotate-left"
+            label={t("calendar.goToToday", language)}
+            onClick={onGoToday}
+            className="h-9 w-9"
+          />
+        </div>
+      ) : null}
     </div>
   );
 }
