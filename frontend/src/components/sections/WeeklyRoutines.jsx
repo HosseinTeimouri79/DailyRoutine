@@ -6,7 +6,6 @@ import ProgressRing from "../ui/ProgressRing";
 import { formatDateParts, formatMonthYear } from "../../lib/date";
 import { getRoutineRecurrenceSummary } from "../../lib/recurrence";
 import { t } from "../../lib/i18n";
-// WeeklyRoutines styles moved to Tailwind utilities in component
 
 function WeeklyRoutines({
   error,

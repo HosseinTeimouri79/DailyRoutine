@@ -3,13 +3,13 @@ import Card from "../ui/Card";
 import Button from "../ui/Button";
 import IconButton from "../ui/IconButton";
 import DatePicker from "../ui/DatePicker";
+import Checkbox from "../ui/Checkbox";
 import {
   formatDateParts,
   formatMonthYear,
   shiftMonthCursor,
 } from "../../lib/date";
 import { t } from "../../lib/i18n";
-// DailyTasks styles moved to Tailwind utilities in component
 
 const TaskListItem = memo(function TaskListItem({
   task,
@@ -31,22 +31,15 @@ const TaskListItem = memo(function TaskListItem({
         className="bg-[var(--color-danger-soft)] border border-[var(--color-danger-border)] text-[var(--color-danger)]"
         onClick={() => onDelete(task)}
       />
-      <button
-        className={`w-6 h-6 rounded-[7px] border border-[var(--border-strong)] bg-[var(--color-primary-soft)] text-[var(--color-secondary)] cursor-pointer inline-flex items-center justify-center p-0 leading-none ${task.is_done ? "bg-[var(--color-success-soft)] border-[var(--color-success-border)] text-[var(--color-success)]" : ""}`.trim()}
-        onClick={() => onToggle(task)}
+      <Checkbox
+        checked={task.is_done}
+        onChange={() => onToggle(task)}
         title={
           task.is_done
             ? t("dailyTasks.markUndone", language)
             : t("dailyTasks.markDone", language)
         }
-      >
-        <i
-          className={
-            task.is_done ? "fa-solid fa-check" : "fa-regular fa-circle"
-          }
-          aria-hidden="true"
-        />
-      </button>
+      />
       <span
         className={`text-[var(--color-text-primary)] flex-1 min-w-0 whitespace-normal break-words leading-6 ${task.is_done ? "line-through text-[var(--color-text-muted)]" : ""}`.trim()}
       >

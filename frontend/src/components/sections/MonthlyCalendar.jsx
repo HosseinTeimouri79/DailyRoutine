@@ -4,7 +4,6 @@ import ProgressRing from "../ui/ProgressRing";
 import DatePicker from "../ui/DatePicker";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { t } from "../../lib/i18n";
-// MonthlyCalendar styles moved to Tailwind utilities in component
 
 function SelectedRoutinePieReport({ data, language, selectedRoutineStreaks }) {
   if (!data)
