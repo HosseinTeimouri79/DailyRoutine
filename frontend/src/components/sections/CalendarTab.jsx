@@ -380,7 +380,7 @@ function CalendarTab({ language, calendarType }) {
       subtitle={t("calendarTab.subtitle", language)}
     >
       <DatePicker
-        className="calendar-tab-month"
+        className="mb-[14px]"
         month={month}
         calendarType={calendarType}
         onPrevMonth={() => setMonth((prev) => shiftMonthCursor(prev, -1))}
@@ -398,33 +398,33 @@ function CalendarTab({ language, calendarType }) {
         language={language}
       />
 
-      <div className="calendar-tab-events">
-        <p className="muted calendar-selected-date">
+      <div className="grid gap-[10px]">
+        <p className="text-text-muted">
           {t("calendarTab.selectedDate", language)}:{" "}
           {formatDateParts(selectedDate, language, calendarType).day}{" "}
           {formatMonthYear(selectedDate, language, calendarType)}
         </p>
 
         {!selectedEvents.length ? (
-          <p className="empty-state-message">
+          <p className="mt-3 border rounded-md p-3 text-center text-[var(--color-text-secondary)] bg-[var(--color-bg-surface-soft)]">
             {t("calendarTab.noEvents", language)}
           </p>
         ) : (
-          <ul className="calendar-events-list">
+          <ul className="list-none m-0 grid gap-3 border rounded-md p-[10px_12px] bg-[var(--color-bg-surface-soft)]">
             {selectedEvents.map((event, index) => (
               <li
                 key={`${selectedDate}-${event.name}-${index}`}
-                className={`calendar-event ${event.isHoliday ? "holiday" : ""}`.trim()}
+                className={`${event.isHoliday ? "text-[var(--color-danger-border)]" : ""}`.trim()}
               >
-                <span className="calendar-event-title">{event.name}</span>
+                <span className="font-semibold">{event.name}</span>
               </li>
             ))}
           </ul>
         )}
       </div>
 
-      <div className="calendar-important-day-section">
-        <div className="calendar-important-day-header">
+      <div className="border rounded-md bg-[var(--color-bg-surface-soft)] p-[14px] grid mt-2 gap-[14px]">
+        <div className="flex justify-between items-start gap-4">
           <div>
             <h3>{t("calendarTab.importantDaySectionTitle", language)}</h3>
             <p className="text-text-muted">
@@ -440,16 +440,19 @@ function CalendarTab({ language, calendarType }) {
         </div>
 
         {importantDays.length ? (
-          <div className="important-day-list">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {importantDays
               .filter((item) => item.date >= todayISO)
               .map((item) => {
                 const countdown = getCountdownLabel(item.date, item.time);
                 const canManage = !item.is_global || isAdmin;
                 return (
-                  <div key={item.id} className="important-day-summary">
-                    <div className="calendar-important-day-actions">
-                      <span className="important-day-summary-icon">
+                  <div
+                    key={item.id}
+                    className="border rounded-sm bg-[var(--color-bg-surface)] p-3 grid gap-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[var(--color-bg-surface-soft)] text-[var(--color-text-primary)] mb-1">
                         <i
                           className={
                             item.icon || IMPORTANT_DAY_ICON_OPTIONS[0].value
@@ -478,15 +481,13 @@ function CalendarTab({ language, calendarType }) {
                       ) : null}
                     </div>
 
-                    <span className="important-day-summary-title">
-                      {item.title}
-                    </span>
+                    <span className="font-bold">{item.title}</span>
                     {item.description ? (
-                      <p className="important-day-summary-desc">
+                      <p className="m-0 text-[var(--color-text-secondary)]">
                         {item.description}
                       </p>
                     ) : null}
-                    <div className="important-day-summary-meta">
+                    <div className="grid gap-1 text-[0.92rem] text-[var(--color-text-secondary)]">
                       <span>
                         {t("calendarTab.importantDayDateLabel", language)}:{" "}
                         {formatDateParts(item.date, language, calendarType).day}{" "}
@@ -509,7 +510,7 @@ function CalendarTab({ language, calendarType }) {
               })}
           </div>
         ) : (
-          <p className="empty-state-message">
+          <p className="mt-3 border rounded-md p-3 text-center text-[var(--color-text-secondary)] bg-[var(--color-bg-surface-soft)]">
             {t("calendarTab.importantDaysEmptyMessage", language)}
           </p>
         )}
@@ -525,7 +526,7 @@ function CalendarTab({ language, calendarType }) {
             : t("calendarTab.importantDayModalTitle", language)
         }
       >
-        <form onSubmit={handleSaveImportantDay} className="modal-form">
+        <form onSubmit={handleSaveImportantDay} className="grid gap-4">
           <Input
             id="modal-important-title"
             label={t("calendarTab.importantDayTitleLabel", language)}
@@ -619,12 +620,18 @@ function CalendarTab({ language, calendarType }) {
           />
 
           {formMessage.text ? (
-            <p className={`important-day-message ${formMessage.type}`.trim()}>
+            <p
+              className={`m-0 text-[0.95rem] ${
+                formMessage.type === "success"
+                  ? "text[var(--color-success)]"
+                  : "text[var(--color-danger)]"
+              }`}
+            >
               {formMessage.text}
             </p>
           ) : null}
 
-          <div className="modal-actions">
+          <div className="flex justify-end gap-2 flex-wrap">
             <Button
               variant="secondary"
               onClick={closeImportantDayModal}

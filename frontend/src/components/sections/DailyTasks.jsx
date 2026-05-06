@@ -114,7 +114,7 @@ function DailyTasks({
       ) : null}
 
       {!tasksLoading && !tasks.length ? (
-        <p className="empty-state-message">
+        <p className="mt-3 border rounded-md p-3 text-center text-[var(--color-text-secondary)] bg-[var(--color-bg-surface-soft)]">
           {t("dailyTasks.noTasks", language)}
         </p>
       ) : null}

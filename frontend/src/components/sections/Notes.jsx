@@ -87,7 +87,9 @@ function Notes({
       ) : null}
 
       {!notesLoading && !notes.length ? (
-        <p className="empty-state-message">{t("notes.noNotes", language)}</p>
+        <p className="mt-3 border rounded-md p-3 text-center text-[var(--color-text-secondary)] bg-[var(--color-bg-surface-soft)]">
+          {t("notes.noNotes", language)}
+        </p>
       ) : null}
 
       <ul className="notes-list">

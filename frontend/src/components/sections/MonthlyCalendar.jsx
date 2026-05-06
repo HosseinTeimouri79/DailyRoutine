@@ -227,7 +227,7 @@ function MonthlyCalendar({
   if (!routines.length) {
     return (
       <Card title={t("monthly.title", language)} subtitle={subtitle}>
-        <p className="empty-state-message">
+        <p className="mt-3 border rounded-md p-3 text-center text-[var(--color-text-secondary)] bg-[var(--color-bg-surface-soft)]">
           {t("monthly.noRoutines", language)}
         </p>
       </Card>
