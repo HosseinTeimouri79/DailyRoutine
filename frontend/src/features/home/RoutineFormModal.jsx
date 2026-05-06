@@ -5,6 +5,7 @@ import Input from "../../components/ui/Input";
 import TimePicker from "../../components/ui/TimePicker";
 import IconPickerModal from "../../components/ui/IconPickerModal";
 import Dropdown from "../../components/ui/Dropdown";
+import Checkbox from "../../components/ui/Checkbox";
 import { t } from "../../lib/i18n";
 import { RECURRENCE_MODES } from "../../lib/recurrence";
 
@@ -107,8 +108,11 @@ export default function RoutineFormModal({
               </span>
               <div className="grid grid-cols-3 gap-2 max-[720px]:grid-cols-2">
                 {recurrenceWeekdayOptions.map((option) => (
-                  <label
+                  <Checkbox
                     key={`routine-weekday-${option.value}`}
+                    variant="plain"
+                    checked={selectedWeekdays.includes(option.value)}
+                    onChange={() => onToggleWeekday(option.value)}
                     className={[
                       "inline-flex items-center justify-center gap-1.5 border border-border-default",
                       "rounded-sm bg-surface-soft text-text-secondary px-2.5 py-2 cursor-pointer",
@@ -120,14 +124,8 @@ export default function RoutineFormModal({
                       .filter(Boolean)
                       .join(" ")}
                   >
-                    <input
-                      type="checkbox"
-                      className="hidden"
-                      checked={selectedWeekdays.includes(option.value)}
-                      onChange={() => onToggleWeekday(option.value)}
-                    />
-                    <span>{option.label}</span>
-                  </label>
+                    {option.label}
+                  </Checkbox>
                 ))}
               </div>
             </div>
@@ -167,14 +165,12 @@ export default function RoutineFormModal({
             />
           ) : null}
 
-          <label className="inline-flex items-center gap-1.5 text-text-secondary text-[0.9rem]">
-            <input
-              type="checkbox"
-              checked={alarmEnabled}
-              onChange={(event) => onToggleAlarm(event.target.checked)}
-            />
-            {t("weekly.enableAlarm", language)}
-          </label>
+          <Checkbox
+            checked={alarmEnabled}
+            onChange={(event) => onToggleAlarm(event.target.checked)}
+            label={t("weekly.enableAlarm", language)}
+            className="text-text-secondary text-[0.9rem]"
+          />
 
           <TimePicker
             value={alarmTime}

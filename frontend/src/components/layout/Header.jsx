@@ -57,7 +57,8 @@ export default function Header({
     <header
       className="border border-[var(--color-border-default)] rounded-[var(--radius-lg)] p-[18px] grid gap-2 max-[720px]:p-3.5 max-[720px]:gap-1"
       style={{
-        background: "color-mix(in srgb, var(--color-bg-surface) 88%, transparent)",
+        background:
+          "color-mix(in srgb, var(--color-bg-surface) 88%, transparent)",
         backdropFilter: "blur(8px)",
       }}
     >
@@ -69,7 +70,9 @@ export default function Header({
             src="/assets/logo/logo.svg"
             alt={t("header.logoAlt", language)}
           />
-          <h1 className="m-0 text-[var(--font-size-title)] max-[720px]:text-[1.1rem]">{title}</h1>
+          <h1 className="m-0 text-[var(--font-size-title)] max-[720px]:text-[1.1rem]">
+            {title}
+          </h1>
         </div>
 
         {/* Menu */}
@@ -88,12 +91,10 @@ export default function Header({
           <div
             className={[
               "flex items-center gap-2",
-              "max-[720px]:hidden max-[720px]:absolute max-[720px]:top-[calc(100%+8px)] max-[720px]:left-0 max-[720px]:right-auto",
+              isMenuOpen ? "max-[720px]:grid" : "max-[720px]:hidden",
+              "max-[720px]:absolute max-[720px]:top-[calc(100%+8px)] max-[720px]:left-0 max-[720px]:right-auto",
               "max-[720px]:bg-[var(--color-bg-surface)] max-[720px]:border max-[720px]:border-[var(--color-border-default)]",
-              "max-[720px]:rounded-[var(--radius-md)] max-[720px]:shadow-[var(--shadow-card)] max-[720px]:p-2 max-[720px]:min-w-[6rem] max-[720px]:z-30",
-              isMenuOpen
-                ? "max-[720px]:grid max-[720px]:gap-1.5"
-                : "",
+              "max-[720px]:rounded-[var(--radius-md)] max-[720px]:shadow-[var(--shadow-card)] max-[720px]:p-2 max-[720px]:min-w-[6rem] max-[720px]:z-50 max-[720px]:gap-1.5",
             ].join(" ")}
           >
             <button
@@ -121,7 +122,10 @@ export default function Header({
               title={t("header.logout", language)}
               aria-label={t("header.logout", language)}
             >
-              <i className="fa-solid fa-right-from-bracket leading-none pointer-events-none" aria-hidden="true" />
+              <i
+                className="fa-solid fa-right-from-bracket leading-none pointer-events-none"
+                aria-hidden="true"
+              />
             </button>
           </div>
         </div>

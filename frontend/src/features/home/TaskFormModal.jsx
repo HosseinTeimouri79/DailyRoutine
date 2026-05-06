@@ -2,6 +2,7 @@ import Modal from "../../components/ui/Modal";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import TimePicker from "../../components/ui/TimePicker";
+import Checkbox from "../../components/ui/Checkbox";
 import { t } from "../../lib/i18n";
 
 export default function TaskFormModal({
@@ -34,14 +35,12 @@ export default function TaskFormModal({
           onChange={(event) => onTextChange(event.target.value)}
           required
         />
-        <label className="inline-flex items-center gap-1.5 text-text-secondary text-[0.9rem]">
-          <input
-            type="checkbox"
-            checked={alarmEnabled}
-            onChange={(event) => onToggleAlarm(event.target.checked)}
-          />
-          {t("dailyTasks.enableAlarm", language)}
-        </label>
+        <Checkbox
+          checked={alarmEnabled}
+          onChange={(event) => onToggleAlarm(event.target.checked)}
+          label={t("dailyTasks.enableAlarm", language)}
+          className="text-text-secondary text-[0.9rem]"
+        />
         <TimePicker
           value={alarmTime}
           onChange={onChangeAlarmTime}

@@ -152,7 +152,7 @@ function WeeklyRoutines({
         </p>
       </div>
 
-      <div className="overflow-x-auto mt-3">
+      <div className="hidden md:block overflow-x-auto mt-3">
         <table className="border-collapse bg-[var(--color-bg-surface)] w-full min-w-[900px] border-collapse rounded-md overflow-hidden">
           <thead>
             <tr>
@@ -244,7 +244,7 @@ function WeeklyRoutines({
         </table>
       </div>
 
-      <div className="!hidden md:grid gap-[10px]">
+      <div className="grid gap-[10px] md:hidden mt-3">
         {routines.map((routine) => {
           const progress = getRoutineWeekProgress(routine);
           const recurrenceSummary = getRoutineRecurrenceSummary(

@@ -6,6 +6,7 @@ import Modal from "../ui/Modal";
 import ConfirmModal from "../ui/ConfirmModal";
 import IconButton from "../ui/IconButton";
 import DatePicker from "../ui/DatePicker";
+import Checkbox from "../ui/Checkbox";
 import holidays from "../../data/holidays.json";
 import {
   formatDateParts,
@@ -561,19 +562,15 @@ function CalendarTab({ language, calendarType }) {
 
           {isAdmin ? (
             <div className="grid gap-1.5 w-full">
-              <label className="inline-flex items-center gap-2 text-text-secondary text-[0.95rem]">
-                <input
-                  type="checkbox"
-                  checked={isGlobalImportantDay}
-                  onChange={(event) =>
-                    setIsGlobalImportantDay(event.target.checked)
-                  }
-                  disabled={editingImportantDayIsGlobal}
-                />
-                <span>
-                  {t("calendarTab.importantDayGlobalToggle", language)}
-                </span>
-              </label>
+              <Checkbox
+                checked={isGlobalImportantDay}
+                onChange={(event) =>
+                  setIsGlobalImportantDay(event.target.checked)
+                }
+                disabled={editingImportantDayIsGlobal}
+                label={t("calendarTab.importantDayGlobalToggle", language)}
+                className="inline-flex items-center gap-2 text-text-secondary text-[0.95rem]"
+              />
             </div>
           ) : null}
 

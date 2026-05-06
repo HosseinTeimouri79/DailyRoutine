@@ -18,6 +18,7 @@ import Modal from "../ui/Modal";
 import ThemeSwitcher from "../ui/ThemeSwitcher";
 import LanguageSwitcher from "../ui/LanguageSwitcher";
 import Dropdown from "../ui/Dropdown";
+import Checkbox from "../ui/Checkbox";
 import {
   CONFETTI_MODE_OPTIONS,
   getSavedConfettiSettings,
@@ -310,7 +311,7 @@ export default function AppShell({ title, children }) {
     ? `${formatDateParts(profileDob, language, profileCalendarType).day} ${formatMonthYear(profileDob, language, profileCalendarType)}`
     : "";
 
-  const toggleBase = "relative w-11 h-6 inline-flex items-center";
+  const toggleBase = "shrink-0";
 
   function PasswordField({ id, label, field }) {
     return (
@@ -593,25 +594,16 @@ export default function AppShell({ title, children }) {
           {/* Confetti settings */}
           <div className="flex flex-col gap-2 border border-[var(--color-border-default)] rounded-[var(--radius-md)] p-2.5">
             <div className="flex items-center justify-between gap-2 text-[var(--color-text-secondary)] text-[0.9rem]">
-              <span>{t("confetti.enable", language)}</span>
-              <label className={toggleBase}>
-                <input
-                  type="checkbox"
-                  className="opacity-0 w-0 h-0"
-                  checked={confettiSettings.enabled}
-                  onChange={(event) =>
-                    updateConfettiSettings({ enabled: event.target.checked })
-                  }
-                />
-                <span
-                  className="absolute inset-0 rounded-full transition-[background] duration-200 before:content-[''] before:absolute before:top-[3px] before:w-[18px] before:h-[18px] before:rounded-full before:bg-[var(--color-bg-surface)] before:transition-all before:duration-200"
-                  style={{
-                    background: confettiSettings.enabled
-                      ? "color-mix(in srgb, var(--color-primary) 60%, transparent)"
-                      : "color-mix(in srgb, var(--color-text-muted) 20%, transparent)",
-                  }}
-                />
-              </label>
+              <Checkbox
+                checked={confettiSettings.enabled}
+                onChange={(event) =>
+                  updateConfettiSettings({ enabled: event.target.checked })
+                }
+                className={toggleBase}
+                label={t("confetti.enable", language)}
+                labelClassName="text-[var(--color-text-secondary)] text-[0.9rem]"
+                aria-label={t("confetti.enable", language)}
+              />
             </div>
             <div className="grid gap-1.5 w-full">
               <label
@@ -639,27 +631,18 @@ export default function AppShell({ title, children }) {
           {/* Page transition settings */}
           <div className="flex flex-col gap-2 border border-[var(--color-border-default)] rounded-[var(--radius-md)] p-2.5">
             <div className="flex items-center justify-between gap-2 text-[var(--color-text-secondary)] text-[0.9rem]">
-              <span>{t("pageTransition.enable", language)}</span>
-              <label className={toggleBase}>
-                <input
-                  type="checkbox"
-                  className="opacity-0 w-0 h-0"
-                  checked={pageTransitionSettings.enabled}
-                  onChange={(event) =>
-                    updatePageTransitionSettings({
-                      enabled: event.target.checked,
-                    })
-                  }
-                />
-                <span
-                  className="absolute inset-0 rounded-full transition-[background] duration-200 before:content-[''] before:absolute before:top-[3px] before:w-[18px] before:h-[18px] before:rounded-full before:bg-[var(--color-bg-surface)] before:transition-all before:duration-200"
-                  style={{
-                    background: pageTransitionSettings.enabled
-                      ? "color-mix(in srgb, var(--color-primary) 60%, transparent)"
-                      : "color-mix(in srgb, var(--color-text-muted) 20%, transparent)",
-                  }}
-                />
-              </label>
+              <Checkbox
+                checked={pageTransitionSettings.enabled}
+                onChange={(event) =>
+                  updatePageTransitionSettings({
+                    enabled: event.target.checked,
+                  })
+                }
+                className={toggleBase}
+                label={t("pageTransition.enable", language)}
+                labelClassName="text-[var(--color-text-secondary)] text-[0.9rem]"
+                aria-label={t("pageTransition.enable", language)}
+              />
             </div>
             <div className="grid gap-1.5 w-full">
               <label
