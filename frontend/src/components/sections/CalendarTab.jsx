@@ -379,6 +379,14 @@ function CalendarTab({ language, calendarType }) {
     <Card
       title={t("calendarTab.title", language)}
       subtitle={t("calendarTab.subtitle", language)}
+      actions={
+        <Button
+          icon="fa-solid fa-calendar-plus"
+          onClick={openImportantDayModal}
+        >
+          {t("calendarTab.importantDayAdd", language)}
+        </Button>
+      }
     >
       <DatePicker
         className="mb-[14px]"
@@ -425,21 +433,6 @@ function CalendarTab({ language, calendarType }) {
       </div>
 
       <div className="border rounded-md bg-[var(--color-bg-surface-soft)] p-[14px] grid mt-2 gap-[14px]">
-        <div className="flex justify-between items-start gap-4">
-          <div>
-            <h3>{t("calendarTab.importantDaySectionTitle", language)}</h3>
-            <p className="text-muted">
-              {t("calendarTab.importantDaySectionDescription", language)}
-            </p>
-          </div>
-          <Button
-            icon="fa-solid fa-calendar-plus"
-            onClick={openImportantDayModal}
-          >
-            {t("calendarTab.importantDayAdd", language)}
-          </Button>
-        </div>
-
         {importantDays.length ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {importantDays

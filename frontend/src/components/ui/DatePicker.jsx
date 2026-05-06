@@ -126,6 +126,17 @@ export default function DatePicker({
             </span>
           </div>
         ) : null}
+
+        {showGoTodayButton ? (
+          <div className="mt-2 flex justify-end">
+            <IconButton
+              icon="fa-solid fa-rotate-left"
+              label={t("calendar.goToToday", language)}
+              onClick={onGoToday}
+              className="h-9 w-9"
+            />
+          </div>
+        ) : null}
       </div>
 
       {/* Weekdays */}
@@ -230,17 +241,6 @@ export default function DatePicker({
           );
         })}
       </div>
-
-      {showGoTodayButton ? (
-        <div className="mt-2 flex justify-end">
-          <IconButton
-            icon="fa-solid fa-rotate-left"
-            label={t("calendar.goToToday", language)}
-            onClick={onGoToday}
-            className="h-9 w-9"
-          />
-        </div>
-      ) : null}
     </div>
   );
 }

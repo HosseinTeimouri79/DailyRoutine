@@ -72,17 +72,17 @@ function Notes({
     <Card
       title={t("notes.title", language)}
       subtitle={t("notes.subtitle", language)}
-    >
-      <div className="flex gap-2 mb-3">
-        <Input
-          placeholder={t("notes.searchPlaceholder", language)}
-          value={notesSearch}
-          onChange={(event) => setNotesSearch(event.target.value)}
-        />
+      actions={
         <Button icon="fa-solid fa-plus" onClick={onOpenAdd}>
           {t("notes.add", language)}
         </Button>
-      </div>
+      }
+    >
+      <Input
+        placeholder={t("notes.searchPlaceholder", language)}
+        value={notesSearch}
+        onChange={(event) => setNotesSearch(event.target.value)}
+      />
 
       {notesLoading ? (
         <p className="text-muted">{t("notes.loading", language)}</p>
@@ -94,7 +94,7 @@ function Notes({
         </p>
       ) : null}
 
-      <ul className="list-none m-0 p-0 grid gap-[10px]">
+      <ul className="list-none mt-2 grid gap-[10px]">
         {notes.map((note) => (
           <NoteListItem
             key={note.id}

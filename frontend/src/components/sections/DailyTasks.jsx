@@ -85,6 +85,11 @@ function DailyTasks({
     <Card
       title={t("dailyTasks.title", language)}
       subtitle={t("dailyTasks.subtitle", language)}
+      actions={
+        <Button icon="fa-solid fa-plus" onClick={onOpenAddTaskModal}>
+          {t("dailyTasks.add", language)}
+        </Button>
+      }
     >
       <DatePicker
         className="mb-3"
@@ -100,16 +105,11 @@ function DailyTasks({
         language={language}
       />
 
-      <div className="flex justify-between">
-        <p className="text-[var(--color-text-secondary)] m-0 text-center text-[0.92rem]">
-          {t("dailyTasks.selectedDate", language)}:{" "}
-          {formatDateParts(tasksDate, language, calendarType).day}{" "}
-          {formatMonthYear(tasksDate, language, calendarType)}
-        </p>
-        <Button icon="fa-solid fa-plus" onClick={onOpenAddTaskModal}>
-          {t("dailyTasks.add", language)}
-        </Button>
-      </div>
+      <p className="text-[var(--color-text-secondary)] m-0 text-[0.92rem]">
+        {t("dailyTasks.selectedDate", language)}:{" "}
+        {formatDateParts(tasksDate, language, calendarType).day}{" "}
+        {formatMonthYear(tasksDate, language, calendarType)}
+      </p>
 
       {tasksLoading ? (
         <p className="text-muted">{t("dailyTasks.loading", language)}</p>

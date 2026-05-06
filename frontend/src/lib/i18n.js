@@ -205,9 +205,6 @@ const translations = {
       subtitle: "مناسبت‌ها و تعطیلات هر روز را ببین",
       selectedDate: "تاریخ انتخاب‌شده",
       noEvents: "برای این روز مناسبتی ثبت نشده است.",
-      importantDaySectionTitle: "افزودن روز مهم",
-      importantDaySectionDescription:
-        "یک مناسبت مهم با تاریخ و ساعت ثبت کن و تا رسیدن آن روز شمار یا ساعت شمار معکوس را ببین.",
       importantDayAdd: "افزودن",
       importantDayModalTitle: "افزودن روز مهم جدید",
       importantDayTitleLabel: "عنوان",
@@ -534,9 +531,6 @@ const translations = {
       subtitle: "See daily observances and holidays",
       selectedDate: "Selected date",
       noEvents: "No events recorded for this day.",
-      importantDaySectionTitle: "Add Important Day",
-      importantDaySectionDescription:
-        "Register an important event with date and time and follow the countdown until it arrives.",
       importantDayAdd: "Add",
       importantDayModalTitle: "Add New Important Day",
       importantDayTitleLabel: "Title",
