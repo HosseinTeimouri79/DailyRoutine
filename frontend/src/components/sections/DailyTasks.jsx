@@ -19,7 +19,7 @@ const TaskListItem = memo(function TaskListItem({
   language,
 }) {
   return (
-    <li className="daily-task-item">
+    <li className="border rounded-md p-2.5 bg-[var(--color-bg-surface-soft)] flex items-start gap-2">
       <IconButton
         icon="fa-solid fa-pen"
         label={t("dailyTasks.editTask", language)}
@@ -32,7 +32,7 @@ const TaskListItem = memo(function TaskListItem({
         onClick={() => onDelete(task)}
       />
       <button
-        className={`daily-task-check ${task.is_done ? "done" : ""}`.trim()}
+        className={`w-6 h-6 rounded-[7px] border border-[var(--border-strong)] bg-[var(--color-primary-soft)] text-[var(--color-secondary)] cursor-pointer inline-flex items-center justify-center p-0 leading-none ${task.is_done ? "bg-[var(--color-success-soft)] border-[var(--color-success-border)] text-[var(--color-success)]" : ""}`.trim()}
         onClick={() => onToggle(task)}
         title={
           task.is_done
@@ -47,12 +47,14 @@ const TaskListItem = memo(function TaskListItem({
           aria-hidden="true"
         />
       </button>
-      <span className={`daily-task-text ${task.is_done ? "done" : ""}`.trim()}>
+      <span
+        className={`text-[var(--color-text-primary)] flex-1 min-w-0 whitespace-normal break-words leading-6 ${task.is_done ? "line-through text-[var(--color-text-muted)]" : ""}`.trim()}
+      >
         {task.content}
       </span>
       {task.alarm_enabled && task.alarm_time ? (
         <span
-          className="daily-task-alarm-badge"
+          className="inline-flex items-center gap-[5px] ms-auto text-[var(--color-text-secondary)] text-[0.8rem] whitespace-nowrap"
           title={t("common.alarmTime", language)}
         >
           <i className="fa-regular fa-clock" aria-hidden="true" />
@@ -85,7 +87,7 @@ function DailyTasks({
       subtitle={t("dailyTasks.subtitle", language)}
     >
       <DatePicker
-        className="daily-tasks-calendar"
+        className="mb-3"
         month={tasksMonth}
         calendarType={calendarType}
         onPrevMonth={() => setTasksMonth((prev) => shiftMonthCursor(prev, -1))}
@@ -98,7 +100,7 @@ function DailyTasks({
         language={language}
       />
 
-      <div className="daily-tasks-toolbar">
+      <div className="flex justify-between">
         <p className="muted tasks-selected-date">
           {t("dailyTasks.selectedDate", language)}:{" "}
           {formatDateParts(tasksDate, language, calendarType).day}{" "}
@@ -119,7 +121,7 @@ function DailyTasks({
         </p>
       ) : null}
 
-      <ul className="daily-tasks-list">
+      <ul className="mt-2 space-y-2">
         {tasks.map((task) => (
           <TaskListItem
             key={task.id}

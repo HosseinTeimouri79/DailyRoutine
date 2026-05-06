@@ -56,7 +56,7 @@ function WeeklyRoutines({
 
     return (
       <button
-        className={`${cls} ${mobile ? "status-btn-mobile" : ""} ${isDisabled ? "disabled" : ""}`.trim()}
+        className={`${cls} ${mobile ? "w-full h-[30px]" : ""} ${isDisabled ? "opacity-45 cursor-not-allowed" : ""}`.trim()}
         disabled={isDisabled}
         title={
           isFutureDay
@@ -99,7 +99,9 @@ function WeeklyRoutines({
           </Button>
         }
       >
-        {error ? <p className="error-text">{error}</p> : null}
+        {error ? (
+          <p className="text-[var(--color-danger)] text-[0.9rem]">{error}</p>
+        ) : null}
         <p className="mt-3 border rounded-md p-3 text-center text-[var(--color-text-secondary)] bg-[var(--color-bg-surface-soft)]">
           {t("weekly.noRoutines", language)}
         </p>
@@ -122,9 +124,11 @@ function WeeklyRoutines({
         </Button>
       }
     >
-      {error ? <p className="error-text">{error}</p> : null}
-      <div className="week-nav">
-        <div className="week-nav-buttons">
+      {error ? (
+        <p className="text-[var(--color-danger)] text-[0.9rem]">{error}</p>
+      ) : null}
+      <div className="flex items-center justify-between gap-[10px] mt-2">
+        <div className="flex gap-[6px]">
           <Button variant="secondary" onClick={goToPreviousWeek}>
             {t("weekly.previousWeek", language)}
           </Button>
@@ -136,11 +140,11 @@ function WeeklyRoutines({
             {t("weekly.nextWeek", language)}
           </Button>
         </div>
-        <p className="muted week-range-label">
+        <p className="text-[var(--color-text-secondary)] m-0 text-center text-[0.92rem]">
           {formatDateParts(weekDays[0], language, calendarType).day}{" "}
           {formatMonthYear(weekDays[0], language, calendarType)}
           <i
-            className="fa-solid fa-arrows-left-right-to-line app-inline-icon week-range-icon"
+            className="fa-solid fa-arrows-left-right-to-line inline-flex items-center justify-center mx-2"
             aria-hidden="true"
           />
           {formatDateParts(weekDays[6], language, calendarType).day}{" "}
@@ -148,8 +152,8 @@ function WeeklyRoutines({
         </p>
       </div>
 
-      <div className="calendar-wrap">
-        <table className="calendar-table week-table">
+      <div className="overflow-x-auto mt-3">
+        <table className="border-collapse bg-[var(--color-bg-surface)] w-full min-w-[900px] border-collapse rounded-md overflow-hidden">
           <thead>
             <tr>
               <th>{t("weekly.routine", language)}</th>
@@ -175,10 +179,9 @@ function WeeklyRoutines({
 
               return (
                 <tr key={routine.id}>
-                  <td className="routine-title-cell routine-title-cell-justify">
-                    <div className="routine-title-wrap">
+                  <td className="whitespace-nowrap font-semibold text-[var(--color-text-primary)] text-justify">
+                    <div className="inline-flex items-center gap-[6px]">
                       <ProgressRing
-                        className="routine-week-progress"
                         percent={progress.percent}
                         size={26}
                         innerSize={19}
@@ -195,11 +198,11 @@ function WeeklyRoutines({
                       <IconButton
                         icon="fa-solid fa-trash"
                         label={t("weekly.delete", language)}
-                        className="delete"
+                        className="bg-[var(--color-danger-soft)] border border-[var(--color-danger-border)] text-[var(--color-danger)]"
                         onClick={() => onRequestRoutineDelete(routine)}
                       />
                       <span
-                        className="routine-item-icon"
+                        className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[color-mix(in_srgb,var(--color-bg-surface)_90%,transparent)] border"
                         style={{ color: routine.color || "inherit" }}
                       >
                         <i
@@ -208,13 +211,13 @@ function WeeklyRoutines({
                         />
                       </span>
                       <span>{routine.title}</span>
-                      <span className="routine-recurrence-chip">
+                      <span className="inline-flex items-center text-[0.75rem] text-[var(--color-text-secondary)] bg-[color-mix(in_srgb,var(--color-bg-surface)_70%,transparent)] border rounded-full px-2 py-[2px]">
                         {t("weekly.recurrenceSummaryPrefix", language)}{" "}
                         {recurrenceSummary.text}
                       </span>
                       {routine.alarm_enabled && routine.alarm_time ? (
                         <span
-                          className="routine-alarm-chip"
+                          className="inline-flex items-center gap-1 text-[0.78rem] text-[var(--color-text-secondary)]"
                           title={t("dailyTasks.markDone", language)}
                         >
                           <i
@@ -228,9 +231,10 @@ function WeeklyRoutines({
                   </td>
                   {weekDays.map((day) => {
                     const key = `${routine.id}-${day}`;
-
                     return (
-                      <td key={key}>{renderStatusButton(routine, day)}</td>
+                      <td className="text-center" key={key}>
+                        {renderStatusButton(routine, day)}
+                      </td>
                     );
                   })}
                 </tr>
@@ -240,7 +244,7 @@ function WeeklyRoutines({
         </table>
       </div>
 
-      <div className="weekly-mobile-list">
+      <div className="!hidden md:grid gap-[10px]">
         {routines.map((routine) => {
           const progress = getRoutineWeekProgress(routine);
           const recurrenceSummary = getRoutineRecurrenceSummary(
@@ -249,11 +253,13 @@ function WeeklyRoutines({
           );
 
           return (
-            <div key={`mobile-${routine.id}`} className="weekly-mobile-row">
-              <div className="week-mobile-header">
-                <div className="routine-title-wrap">
+            <div
+              key={`mobile-${routine.id}`}
+              className="border rounded-md p-2.5 bg-[var(--color-bg-surface-soft)] grid gap-[10px]"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="inline-flex items-center gap-[6px]">
                   <ProgressRing
-                    className="routine-week-progress"
                     percent={progress.percent}
                     size={24}
                     innerSize={18}
@@ -263,7 +269,7 @@ function WeeklyRoutines({
                     })}
                   />
                   <span
-                    className="routine-item-icon"
+                    className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[color-mix(in_srgb,var(--color-bg-surface)_90%,transparent)] border"
                     style={{ color: routine.color || "inherit" }}
                   >
                     <i
@@ -271,10 +277,12 @@ function WeeklyRoutines({
                       aria-hidden="true"
                     />
                   </span>
-                  <span className="routine-title-cell">{routine.title}</span>
+                  <span className="whitespace-nowrap font-semibold text-[var(--color-text-primary)]">
+                    {routine.title}
+                  </span>
                   {routine.alarm_enabled && routine.alarm_time ? (
                     <span
-                      className="routine-alarm-chip"
+                      className="inline-flex items-center gap-1 text-[0.78rem] text-[var(--color-text-secondary)]"
                       title={t("common.alarmTime", language)}
                     >
                       <i className="fa-regular fa-clock" aria-hidden="true" />
@@ -282,7 +290,7 @@ function WeeklyRoutines({
                     </span>
                   ) : null}
                 </div>
-                <div className="row-actions">
+                <div className="flex gap-1">
                   <IconButton
                     icon="fa-solid fa-pen"
                     label={t("weekly.edit", language)}
@@ -291,18 +299,18 @@ function WeeklyRoutines({
                   <IconButton
                     icon="fa-solid fa-trash"
                     label={t("weekly.delete", language)}
-                    className="delete"
+                    className="bg-[var(--color-danger-soft)] border border-[var(--color-danger-border)] text-[var(--color-danger)]"
                     onClick={() => onRequestRoutineDelete(routine)}
                   />
                 </div>
               </div>
 
-              <span className="routine-recurrence-chip week-mobile-recurrence">
+              <span className="inline-flex items-center text-[0.75rem] text-[var(--color-text-secondary)] bg-[color-mix(in_srgb,var(--color-bg-surface)_70%,transparent)] border rounded-full px-2 py-[2px] justify-self-start">
                 {t("weekly.recurrenceSummaryPrefix", language)}{" "}
                 {recurrenceSummary.text}
               </span>
 
-              <div className="weekly-mobile-weekdays">
+              <div className="grid grid-cols-7 gap-[6px]">
                 {weekDays.map((date) => {
                   const p = formatDateParts(date, language, calendarType);
                   return (
@@ -313,11 +321,11 @@ function WeeklyRoutines({
                 })}
               </div>
 
-              <div className="week-mobile-status-row">
+              <div className="grid grid-cols-7 gap-[6px]">
                 {weekDays.map((day) => (
                   <div
                     key={`mobile-status-${routine.id}-${day}`}
-                    className="week-mobile-status-cell"
+                    className="min-w-0"
                   >
                     {renderStatusButton(routine, day, true)}
                   </div>

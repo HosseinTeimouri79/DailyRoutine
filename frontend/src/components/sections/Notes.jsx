@@ -31,13 +31,15 @@ const NoteListItem = memo(function NoteListItem({
   const displayDate = getNoteDisplayDate(note, language, calendarType);
 
   return (
-    <li className="note-item">
-      <p className="note-content">{note.content}</p>
-      <div className="note-meta-row">
-        <span className="note-date muted">
+    <li className="border rounded-md p-3 bg-[var(--color-bg-surface-soft)] grid gap-[10px]">
+      <p className="m-0 text-[var(--color-text-primary)] whitespace-pre-wrap break-words leading-[1.7]">
+        {note.content}
+      </p>
+      <div className="flex items-center justify-between gap-[10px] max-[720px]:flex-col max-[720px]:items-start">
+        <span className="text-[0.84rem] text-[var(--color-text-secondary)]">
           {displayDate.label}: {displayDate.value}
         </span>
-        <div className="note-actions">
+        <div className="inline-flex gap-[6px]">
           <IconButton
             icon="fa-solid fa-pen"
             label={t("notes.edit", language)}
@@ -46,7 +48,7 @@ const NoteListItem = memo(function NoteListItem({
           <IconButton
             icon="fa-solid fa-trash"
             label={t("notes.delete", language)}
-            className="delete"
+            className="bg-[var(--color-danger-soft)] border border-[var(--color-danger-border)] text-[var(--color-danger)]"
             onClick={() => onDelete(note)}
           />
         </div>
@@ -71,7 +73,7 @@ function Notes({
       title={t("notes.title", language)}
       subtitle={t("notes.subtitle", language)}
     >
-      <div className="notes-toolbar">
+      <div className="flex gap-2 mb-3">
         <Input
           placeholder={t("notes.searchPlaceholder", language)}
           value={notesSearch}
@@ -92,7 +94,7 @@ function Notes({
         </p>
       ) : null}
 
-      <ul className="notes-list">
+      <ul className="list-none m-0 p-0 grid gap-[10px]">
         {notes.map((note) => (
           <NoteListItem
             key={note.id}

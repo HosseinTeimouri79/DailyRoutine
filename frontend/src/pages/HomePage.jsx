@@ -29,7 +29,7 @@ import {
   normalizeRoutineRecurrence,
 } from "../lib/recurrence";
 const transitionBaseClasses =
-  "transition-[opacity,transform,filter] duration-[240ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]";
+  "inline-grid gap-2` transition-[opacity,transform,filter] duration-[240ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]";
 
 const transitionHiddenByMode = {
   fade: "translate-y-[10px]",

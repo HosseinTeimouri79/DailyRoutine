@@ -51,12 +51,15 @@ function SelectedRoutinePieReport({ data, language, selectedRoutineStreaks }) {
   const donePercent = total ? Math.round((done / total) * 100) : 0;
 
   return (
-    <div className="monthly-pie-report">
-      <div className="monthly-pie-legend">
+    <div className="border rounded-md bg-[var(--color-bg-surface-soft)] p-[14px] flex gap-2 justify-between">
+      <div className="flex flex-col gap-1">
         {segments.map((segment) => (
-          <div key={segment.key} className="monthly-pie-legend-item">
+          <div
+            key={segment.key}
+            className="border rounded-sm bg-[var(--color-bg-surface)] px-[10px] py-2 flex items-center gap-2 text-[var(--color-text-secondary)]"
+          >
             <i
-              className="monthly-pie-legend-dot"
+              className="w-[10px] h-[10px] rounded-full inline-block flex-[0_0_10px]"
               style={{ backgroundColor: segment.fill }}
             />
             <span>{segment.label}</span>
@@ -66,7 +69,7 @@ function SelectedRoutinePieReport({ data, language, selectedRoutineStreaks }) {
 
         {selectedRoutineStreaks ? (
           <>
-            <div className="monthly-pie-legend-item">
+            <div className="border rounded-sm bg-[var(--color-bg-surface)] px-[10px] py-2 flex items-center gap-2 text-[var(--color-text-secondary)]">
               <i
                 className="fa-solid fa-trophy-star fa-beat-fade"
                 style={{ color: "var(--color-warn)" }}
@@ -74,7 +77,7 @@ function SelectedRoutinePieReport({ data, language, selectedRoutineStreaks }) {
               <span>{t("monthly.maxStreak", language)}</span>
               <strong>{selectedRoutineStreaks.maxStreak}</strong>
             </div>
-            <div className="monthly-pie-legend-item">
+            <div className="border rounded-sm bg-[var(--color-bg-surface)] px-[10px] py-2 flex items-center gap-2 text-[var(--color-text-secondary)]">
               <i
                 className="fa-sharp fa-solid fa-fire fa-fade"
                 style={{ color: "var(--color-accent)" }}
@@ -82,7 +85,7 @@ function SelectedRoutinePieReport({ data, language, selectedRoutineStreaks }) {
               <span>{t("monthly.currentStreak", language)}</span>
               <strong>{selectedRoutineStreaks.currentStreak}</strong>
             </div>
-            <p className="monthly-break-record">
+            <p className="m-0 text-[0.78rem] text-[var(--color-text-secondary)]">
               {t("monthly.breakRecord", language, {
                 count: selectedRoutineStreaks.remainingToBreakRecord,
               })}
@@ -92,7 +95,7 @@ function SelectedRoutinePieReport({ data, language, selectedRoutineStreaks }) {
       </div>
 
       <div
-        className="monthly-pie-wrap"
+        className="w-36 relative"
         role="img"
         aria-label={t("monthly.reportAriaLabel", language)}
       >
@@ -125,7 +128,7 @@ function SelectedRoutinePieReport({ data, language, selectedRoutineStreaks }) {
           </PieChart>
         </ResponsiveContainer>
 
-        <div className="monthly-pie-center">
+        <div className="absolute inset-0 grid place-content-center text-center gap-[2px]">
           <strong>
             {donePercent}
             {t("monthly.percentSymbol", language)}
@@ -236,8 +239,8 @@ function MonthlyCalendar({
 
   return (
     <Card title={t("monthly.title", language)} subtitle={subtitle}>
-      <div className="monthly-calendar-overview">
-        <div className="routine-badges">
+      <div className="flex gap-2 max-[720px]:flex-col">
+        <div className="flex-1 border rounded-md bg-[var(--color-bg-surface-soft)] p-[14px] gap-2">
           {routines.map((routine) => {
             const stats = routineStatsMap.get(routine.id);
             const totalDays =
@@ -251,7 +254,7 @@ function MonthlyCalendar({
             return (
               <button
                 key={routine.id}
-                className={`routine-badge ${selectedRoutineId === routine.id ? "active" : ""}`.trim()}
+                className={`border rounded-full bg-[var(--color-bg-surface-soft)] text-[var(--color-text-muted)] px-3 py-1.5 text-[0.85rem] cursor-pointer inline-flex items-center gap-[6px] max-w-full h-fit whitespace-normal break-words m-[0_4px_4px_4px] ${selectedRoutineId === routine.id ? "bg-[color-mix(in_srgb,var(--routine-accent,var(--color-primary))_18%,var(--color-bg-surface))] border-[var(--routine-accent,var(--color-primary))] text-[var(--routine-accent,var(--color-primary))] font-semibold" : ""}`.trim()}
                 onClick={() => setSelectedRoutineId(routine.id)}
                 style={
                   selectedRoutineId === routine.id
@@ -263,7 +266,7 @@ function MonthlyCalendar({
                 }
               >
                 <ProgressRing
-                  className="routine-month-progress"
+                  className="shrink-0"
                   percent={percent}
                   size={24}
                   innerSize={17}
@@ -271,7 +274,7 @@ function MonthlyCalendar({
                     percent,
                   })}
                 />
-                <span className="routine-icon-badge">
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[color-mix(in_srgb,var(--color-bg-surface)_90%,transparent)] border flex-[0_0_24px]">
                   <i
                     className={routine.icon || "fa-solid fa-star"}
                     aria-hidden="true"
@@ -283,7 +286,7 @@ function MonthlyCalendar({
             );
           })}
         </div>
-        <div className="monthly-pie-report-wrap">
+        <div className="flex flex-col gap-3 w-auto">
           <SelectedRoutinePieReport
             data={selectedRoutineStats || monthlyReport}
             language={language}
