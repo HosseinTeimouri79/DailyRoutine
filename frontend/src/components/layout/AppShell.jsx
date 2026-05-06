@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { api, clearSession, getUser, setSession } from "../../lib/api";
 import { useSettings } from "../../lib/settings";
 import DatePicker from "../ui/DatePicker";
+import Input from "../ui/Input";
 import {
   formatDateParts,
   formatMonthYear,
@@ -22,6 +23,13 @@ import {
   setConfettiSettings,
 } from "../../lib/confetti";
 import { PAGE_TRANSITION_MODE_OPTIONS } from "../../lib/pageTransition";
+
+const SELECT_BASE_CLASSES = [
+  "w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)]",
+  "bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)]",
+  "focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)]",
+  "focus:border-[var(--color-primary)]",
+].join(" ");
 
 export default function AppShell({ title, children }) {
   const initialUser = getUser();
@@ -308,9 +316,6 @@ export default function AppShell({ title, children }) {
     ? `${formatDateParts(profileDob, language, profileCalendarType).day} ${formatMonthYear(profileDob, language, profileCalendarType)}`
     : "";
 
-  const inputBase =
-    "w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)] focus:border-[var(--color-primary)]";
-
   const toggleBase = "relative w-11 h-6 inline-flex items-center";
 
   function PasswordField({ id, label, field }) {
@@ -326,7 +331,12 @@ export default function AppShell({ title, children }) {
           <input
             id={id}
             type={passwordVisibility[field] ? "text" : "password"}
-            className={`${inputBase} pl-[42px]`}
+            className={[
+              "w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)]",
+              "bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] pl-[42px]",
+              "focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)]",
+              "focus:border-[var(--color-primary)]",
+            ].join(" ")}
             value={passwordForm[field]}
             onChange={(event) =>
               setPasswordForm((prev) => ({
@@ -397,10 +407,7 @@ export default function AppShell({ title, children }) {
                 />
               ) : (
                 <div className="w-[120px] h-[120px] rounded-full border border-[var(--color-border-default)] grid place-items-center font-bold text-[var(--color-secondary)] bg-[var(--color-primary-soft)] text-[1.2rem]">
-                  {(user?.name || t("common.userFallback", language)).slice(
-                    0,
-                    1,
-                  )}
+                  {(user?.name || t("common.userFallback", language)).slice(0, 1)}
                 </div>
               )}
             </button>
@@ -418,38 +425,23 @@ export default function AppShell({ title, children }) {
             className="flex flex-col w-[85%] gap-2"
             onSubmit={submitProfile}
           >
-            <div className="grid gap-1.5 w-full">
-              <label
-                htmlFor="profileName"
-                className="text-[var(--color-text-secondary)] text-[0.9rem]"
-              >
-                {t("appShell.username", language)}
-              </label>
-              <input
-                id="profileName"
-                className={inputBase}
-                value={profileName}
-                onChange={(event) => setProfileName(event.target.value)}
-              />
-            </div>
+            <Input
+              id="profileName"
+              label={t("appShell.username", language)}
+              value={profileName}
+              onChange={(event) => setProfileName(event.target.value)}
+            />
 
-            <div className="grid gap-1.5 w-full">
-              <label
-                htmlFor="profileDob"
-                className="text-[var(--color-text-secondary)] text-[0.9rem]"
-              >
-                {t("appShell.dateOfBirth", language)}
-              </label>
-              <input
-                id="profileDob"
-                type="text"
-                className={`${inputBase} cursor-pointer`}
-                value={profileDobPreview}
-                placeholder={t("appShell.dateOfBirthPlaceholder", language)}
-                readOnly
-                onMouseDown={toggleDobPicker}
-              />
-            </div>
+            <Input
+              id="profileDob"
+              label={t("appShell.dateOfBirth", language)}
+              type="text"
+              value={profileDobPreview}
+              placeholder={t("appShell.dateOfBirthPlaceholder", language)}
+              readOnly
+              style={{ cursor: "pointer" }}
+              onMouseDown={toggleDobPicker}
+            />
 
             <div className="flex gap-[10px]">
               <div className="grid gap-1.5 w-full">
@@ -461,20 +453,14 @@ export default function AppShell({ title, children }) {
                 </label>
                 <select
                   id="profileGender"
-                  className={inputBase}
+                  className={SELECT_BASE_CLASSES}
                   value={profileGender}
                   onChange={(event) => setProfileGender(event.target.value)}
                 >
                   <option value="">{t("appShell.gender", language)}</option>
-                  <option value="male">
-                    {t("appShell.genderMale", language)}
-                  </option>
-                  <option value="female">
-                    {t("appShell.genderFemale", language)}
-                  </option>
-                  <option value="other">
-                    {t("appShell.genderOther", language)}
-                  </option>
+                  <option value="male">{t("appShell.genderMale", language)}</option>
+                  <option value="female">{t("appShell.genderFemale", language)}</option>
+                  <option value="other">{t("appShell.genderOther", language)}</option>
                 </select>
               </div>
               <div className="grid gap-1.5 w-full">
@@ -486,37 +472,23 @@ export default function AppShell({ title, children }) {
                 </label>
                 <select
                   id="profileCalendarType"
-                  className={inputBase}
+                  className={SELECT_BASE_CLASSES}
                   value={profileCalendarType}
-                  onChange={(event) =>
-                    setProfileCalendarType(event.target.value)
-                  }
+                  onChange={(event) => setProfileCalendarType(event.target.value)}
                 >
-                  <option value="jalali">
-                    {t("appShell.calendarJalali", language)}
-                  </option>
-                  <option value="gregorian">
-                    {t("appShell.calendarGregorian", language)}
-                  </option>
+                  <option value="jalali">{t("appShell.calendarJalali", language)}</option>
+                  <option value="gregorian">{t("appShell.calendarGregorian", language)}</option>
                 </select>
               </div>
             </div>
 
-            <div className="grid gap-1.5 w-full">
-              <label
-                htmlFor="profilePhone"
-                className="text-[var(--color-text-secondary)] text-[0.9rem]"
-              >
-                {t("appShell.phone", language)}
-              </label>
-              <input
-                id="profilePhone"
-                className={`${inputBase} opacity-70 cursor-not-allowed`}
-                value={user?.phone || ""}
-                disabled
-                readOnly
-              />
-            </div>
+            <Input
+              id="profilePhone"
+              label={t("appShell.phone", language)}
+              value={user?.phone || ""}
+              disabled
+              readOnly
+            />
 
             <div className="flex justify-end gap-2 max-[720px]:flex-wrap max-[720px]:justify-stretch">
               <Button type="submit" disabled={profileLoading}>
@@ -637,7 +609,7 @@ export default function AppShell({ title, children }) {
               <div className="relative">
                 <select
                   id="confettiMode"
-                  className={`${inputBase} appearance-none [padding-inline-end:36px]`}
+                  className={`${SELECT_BASE_CLASSES} appearance-none [padding-inline-end:36px]`}
                   value={confettiSettings.mode}
                   onChange={(event) =>
                     updateConfettiSettings({ mode: event.target.value })
@@ -693,7 +665,7 @@ export default function AppShell({ title, children }) {
               <div className="relative">
                 <select
                   id="pageTransitionMode"
-                  className={`${inputBase} appearance-none [padding-inline-end:36px]`}
+                  className={`${SELECT_BASE_CLASSES} appearance-none [padding-inline-end:36px]`}
                   value={pageTransitionSettings.mode}
                   onChange={(event) =>
                     updatePageTransitionSettings({ mode: event.target.value })

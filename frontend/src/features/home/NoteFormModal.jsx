@@ -1,5 +1,6 @@
 import Modal from "../../components/ui/Modal";
 import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
 import { t } from "../../lib/i18n";
 
 export default function NoteFormModal({
@@ -18,8 +19,9 @@ export default function NoteFormModal({
       title={isEditing ? t("notes.edit", language) : t("notes.add", language)}
     >
       <form className="grid gap-2.5" onSubmit={onSubmit}>
-        <textarea
-          className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] min-h-[140px] resize-y"
+        <Input
+          multiline
+          rows={5}
           placeholder={t("notes.notePlaceholder", language)}
           value={textValue}
           onChange={(event) => onTextChange(event.target.value)}

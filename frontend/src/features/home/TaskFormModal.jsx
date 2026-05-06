@@ -1,16 +1,8 @@
 import Modal from "../../components/ui/Modal";
 import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
 import TimePicker from "../../components/ui/TimePicker";
 import { t } from "../../lib/i18n";
-
-const INPUT_BASE_CLASSES = [
-  "w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)]",
-  "bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)]",
-  "focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)]",
-  "focus:border-[var(--color-primary)]",
-  "disabled:bg-[color-mix(in_srgb,var(--color-bg-surface-soft)_82%,var(--color-bg-page))]",
-  "disabled:text-[var(--color-text-muted)] disabled:cursor-not-allowed",
-].join(" ");
 
 export default function TaskFormModal({
   isOpen,
@@ -36,8 +28,7 @@ export default function TaskFormModal({
       }
     >
       <form className="grid gap-2.5" onSubmit={onSubmit}>
-        <input
-          className={INPUT_BASE_CLASSES}
+        <Input
           placeholder={t("dailyTasks.taskPlaceholder", language)}
           value={textValue}
           onChange={(event) => onTextChange(event.target.value)}

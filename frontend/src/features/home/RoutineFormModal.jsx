@@ -1,12 +1,13 @@
 import { useState } from "react";
 import Modal from "../../components/ui/Modal";
 import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
 import TimePicker from "../../components/ui/TimePicker";
 import IconPickerModal from "../../components/ui/IconPickerModal";
 import { t } from "../../lib/i18n";
 import { RECURRENCE_MODES } from "../../lib/recurrence";
 
-const INPUT_BASE_CLASSES = [
+const SELECT_BASE_CLASSES = [
   "w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)]",
   "bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)]",
   "focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)]",
@@ -55,14 +56,14 @@ export default function RoutineFormModal({
         }
       >
         <form className="grid gap-2.5" onSubmit={onSubmit}>
-          <input
+          <Input
             id="newRoutineTitle"
-            className={INPUT_BASE_CLASSES}
             placeholder={t("weekly.routineNamePlaceholder", language)}
             value={titleValue}
             onChange={(event) => onTitleChange(event.target.value)}
             required
           />
+
           <Button
             type="button"
             variant="secondary"
@@ -78,28 +79,30 @@ export default function RoutineFormModal({
             {t("calendarTab.importantDayIconSelect", language)}
           </Button>
 
-          <label
-            className="text-[0.86rem] text-text-secondary font-semibold"
-            htmlFor="routineRecurrenceMode"
-          >
-            {t("weekly.recurrenceMode", language)}
-          </label>
-          <select
-            id="routineRecurrenceMode"
-            className={INPUT_BASE_CLASSES}
-            value={recurrenceMode}
-            onChange={(event) => onChangeRecurrenceMode(event.target.value)}
-          >
-            <option value={RECURRENCE_MODES.SPECIFIC_WEEKDAYS}>
-              {t("weekly.recurrenceSpecificWeekdays", language)}
-            </option>
-            <option value={RECURRENCE_MODES.WEEKLY_DAY}>
-              {t("weekly.recurrenceWeeklyDay", language)}
-            </option>
-            <option value={RECURRENCE_MODES.MONTHLY_DAY}>
-              {t("weekly.recurrenceMonthlyDay", language)}
-            </option>
-          </select>
+          <div className="grid gap-1.5 w-full">
+            <label
+              className="text-[0.86rem] text-text-secondary font-semibold"
+              htmlFor="routineRecurrenceMode"
+            >
+              {t("weekly.recurrenceMode", language)}
+            </label>
+            <select
+              id="routineRecurrenceMode"
+              className={SELECT_BASE_CLASSES}
+              value={recurrenceMode}
+              onChange={(event) => onChangeRecurrenceMode(event.target.value)}
+            >
+              <option value={RECURRENCE_MODES.SPECIFIC_WEEKDAYS}>
+                {t("weekly.recurrenceSpecificWeekdays", language)}
+              </option>
+              <option value={RECURRENCE_MODES.WEEKLY_DAY}>
+                {t("weekly.recurrenceWeeklyDay", language)}
+              </option>
+              <option value={RECURRENCE_MODES.MONTHLY_DAY}>
+                {t("weekly.recurrenceMonthlyDay", language)}
+              </option>
+            </select>
+          </div>
 
           {recurrenceMode === RECURRENCE_MODES.SPECIFIC_WEEKDAYS ? (
             <div className="grid gap-2">
@@ -135,7 +138,7 @@ export default function RoutineFormModal({
           ) : null}
 
           {recurrenceMode === RECURRENCE_MODES.WEEKLY_DAY ? (
-            <div className="grid gap-2">
+            <div className="grid gap-1.5 w-full">
               <label
                 className="text-[0.86rem] text-text-secondary font-semibold"
                 htmlFor="routineDayOfWeek"
@@ -144,7 +147,7 @@ export default function RoutineFormModal({
               </label>
               <select
                 id="routineDayOfWeek"
-                className={INPUT_BASE_CLASSES}
+                className={SELECT_BASE_CLASSES}
                 value={dayOfWeek}
                 onChange={(event) =>
                   onChangeDayOfWeek(Number(event.target.value))
@@ -163,27 +166,19 @@ export default function RoutineFormModal({
           ) : null}
 
           {recurrenceMode === RECURRENCE_MODES.MONTHLY_DAY ? (
-            <div className="grid gap-2">
-              <label
-                className="text-[0.86rem] text-text-secondary font-semibold"
-                htmlFor="routineDayOfMonth"
-              >
-                {t("weekly.recurrenceDayOfMonth", language)}
-              </label>
-              <input
-                id="routineDayOfMonth"
-                type="number"
-                min={1}
-                max={31}
-                className={INPUT_BASE_CLASSES}
-                value={dayOfMonth}
-                onChange={(event) => {
-                  const next = Number(event.target.value);
-                  if (Number.isNaN(next)) return;
-                  onChangeDayOfMonth(Math.min(31, Math.max(1, next)));
-                }}
-              />
-            </div>
+            <Input
+              id="routineDayOfMonth"
+              label={t("weekly.recurrenceDayOfMonth", language)}
+              type="number"
+              min={1}
+              max={31}
+              value={dayOfMonth}
+              onChange={(event) => {
+                const next = Number(event.target.value);
+                if (Number.isNaN(next)) return;
+                onChangeDayOfMonth(Math.min(31, Math.max(1, next)));
+              }}
+            />
           ) : null}
 
           <label className="inline-flex items-center gap-1.5 text-text-secondary text-[0.9rem]">
@@ -194,6 +189,7 @@ export default function RoutineFormModal({
             />
             {t("weekly.enableAlarm", language)}
           </label>
+
           <TimePicker
             value={alarmTime}
             onChange={onChangeAlarmTime}
@@ -202,6 +198,7 @@ export default function RoutineFormModal({
             language={language}
             defaultFormat="24"
           />
+
           <div className="flex justify-end gap-2 max-[720px]:flex-wrap max-[720px]:justify-stretch">
             <Button
               type="button"

@@ -2,9 +2,9 @@ import { memo } from "react";
 import Card from "../ui/Card";
 import Button from "../ui/Button";
 import IconButton from "../ui/IconButton";
+import Input from "../ui/Input";
 import { formatDateTimeFromSql } from "../../lib/date";
 import { t } from "../../lib/i18n";
-// Notes styles moved to Tailwind utilities in component
 
 function getNoteDisplayDate(note, language, calendarType) {
   const hasEdit =
@@ -72,8 +72,7 @@ function Notes({
       subtitle={t("notes.subtitle", language)}
     >
       <div className="notes-toolbar">
-        <input
-          className="input"
+        <Input
           placeholder={t("notes.searchPlaceholder", language)}
           value={notesSearch}
           onChange={(event) => setNotesSearch(event.target.value)}

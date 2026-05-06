@@ -1,6 +1,7 @@
 import { memo, useEffect, useMemo, useState } from "react";
 import Card from "../ui/Card";
 import Button from "../ui/Button";
+import Input from "../ui/Input";
 import Modal from "../ui/Modal";
 import ConfirmModal from "../ui/ConfirmModal";
 import IconButton from "../ui/IconButton";
@@ -18,7 +19,6 @@ import { api, getUser } from "../../lib/api";
 import { t } from "../../lib/i18n";
 import IconPickerModal from "../ui/IconPickerModal";
 import TimePicker from "../ui/TimePicker";
-// CalendarTab styles moved to Tailwind utilities in component
 
 const IMPORTANT_DAY_ICON_OPTIONS = [
   { label: "Star", value: "fa-solid fa-star" },
@@ -515,6 +515,7 @@ function CalendarTab({ language, calendarType }) {
         )}
       </div>
 
+      {/* Add/Edit Important Day Modal */}
       <Modal
         isOpen={isImportantDayModalOpen}
         onClose={closeImportantDayModal}
@@ -525,38 +526,28 @@ function CalendarTab({ language, calendarType }) {
         }
       >
         <form onSubmit={handleSaveImportantDay} className="modal-form">
-          <div className="grid gap-1.5 w-full">
-            <label htmlFor="modal-important-title">
-              {t("calendarTab.importantDayTitleLabel", language)}
-            </label>
-            <input
-              id="modal-important-title"
-              className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)] focus:border-[var(--color-primary)]"
-              value={importantTitle}
-              onChange={(event) => setImportantTitle(event.target.value)}
-              placeholder={t(
-                "calendarTab.importantDayTitlePlaceholder",
-                language,
-              )}
-              autoFocus
-            />
-          </div>
+          <Input
+            id="modal-important-title"
+            label={t("calendarTab.importantDayTitleLabel", language)}
+            placeholder={t(
+              "calendarTab.importantDayTitlePlaceholder",
+              language,
+            )}
+            value={importantTitle}
+            onChange={(event) => setImportantTitle(event.target.value)}
+            autoFocus
+          />
 
           <div style={{ display: "flex", gap: "8px" }}>
-            <div className="grid gap-1.5 w-full">
-              <label htmlFor="modal-important-date">
-                {t("calendarTab.importantDayDateLabel", language)}
-              </label>
-              <input
-                id="modal-important-date"
-                className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)] focus:border-[var(--color-primary)]"
-                type="text"
-                value={importantDateDisplay}
-                placeholder={t("calendarTab.importantDayDateLabel", language)}
-                readOnly
-                onMouseDown={() => setIsImportantDatePickerOpen(true)}
-              />
-            </div>
+            <Input
+              id="modal-important-date"
+              label={t("calendarTab.importantDayDateLabel", language)}
+              type="text"
+              value={importantDateDisplay}
+              placeholder={t("calendarTab.importantDayDateLabel", language)}
+              readOnly
+              onMouseDown={() => setIsImportantDatePickerOpen(true)}
+            />
 
             <TimePicker
               label={t("calendarTab.importantDayTimeLabel", language)}
@@ -587,9 +578,10 @@ function CalendarTab({ language, calendarType }) {
 
           <div className="grid gap-2">
             <label>{t("calendarTab.importantDayIconLabel", language)}</label>
-            <button
+            <Button
               type="button"
-              className="inline-flex items-center gap-2.5 border border-border-default rounded-sm px-3.5 py-2.5 bg-surface text-text-primary cursor-pointer"
+              variant="secondary"
+              className="inline-flex items-center gap-2.5"
               onClick={() => setIsIconPickerOpen(true)}
             >
               <i
@@ -598,7 +590,7 @@ function CalendarTab({ language, calendarType }) {
                 aria-hidden="true"
               />
               <span>{t("calendarTab.importantDayIconSelect", language)}</span>
-            </button>
+            </Button>
           </div>
 
           <IconPickerModal
@@ -613,22 +605,18 @@ function CalendarTab({ language, calendarType }) {
             language={language}
           />
 
-          <div className="grid gap-1.5 w-full">
-            <label htmlFor="modal-important-description">
-              {t("calendarTab.importantDayDescriptionLabel", language)}
-            </label>
-            <textarea
-              id="modal-important-description"
-              className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] min-h-[80px] resize-y"
-              value={importantDescription}
-              onChange={(event) => setImportantDescription(event.target.value)}
-              placeholder={t(
-                "calendarTab.importantDayDescriptionPlaceholder",
-                language,
-              )}
-              rows="3"
-            />
-          </div>
+          <Input
+            id="modal-important-description"
+            label={t("calendarTab.importantDayDescriptionLabel", language)}
+            multiline
+            rows={3}
+            placeholder={t(
+              "calendarTab.importantDayDescriptionPlaceholder",
+              language,
+            )}
+            value={importantDescription}
+            onChange={(event) => setImportantDescription(event.target.value)}
+          />
 
           {formMessage.text ? (
             <p className={`important-day-message ${formMessage.type}`.trim()}>
@@ -651,6 +639,7 @@ function CalendarTab({ language, calendarType }) {
         </form>
       </Modal>
 
+      {/* Date Picker Modal */}
       <Modal
         isOpen={isImportantDatePickerOpen}
         onClose={() => setIsImportantDatePickerOpen(false)}

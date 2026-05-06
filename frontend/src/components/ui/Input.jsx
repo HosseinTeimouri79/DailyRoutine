@@ -1,4 +1,16 @@
-export default function Input({ label, id, error, ...props }) {
+export default function Input({ label, id, error, multiline = false, rows = 3, ...props }) {
+  const baseClasses = [
+    "w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)]",
+    "bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)]",
+    "focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)]",
+    "focus:border-[var(--color-primary)]",
+    "disabled:bg-[color-mix(in_srgb,var(--color-bg-surface-soft)_82%,var(--color-bg-page))]",
+    "disabled:text-[var(--color-text-muted)] disabled:cursor-not-allowed",
+    error ? "border-[var(--color-danger-border)]" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <div className="grid gap-1.5 w-full">
       {label ? (
@@ -6,21 +18,20 @@ export default function Input({ label, id, error, ...props }) {
           {label}
         </label>
       ) : null}
-      <input
-        id={id}
-        className={[
-          "w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)]",
-          "bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)]",
-          "focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)]",
-          "focus:border-[var(--color-primary)]",
-          "disabled:bg-[color-mix(in_srgb,var(--color-bg-surface-soft)_82%,var(--color-bg-page))]",
-          "disabled:text-[var(--color-text-muted)] disabled:cursor-not-allowed",
-          error ? "border-[var(--color-danger-border)]" : "",
-        ]
-          .filter(Boolean)
-          .join(" ")}
-        {...props}
-      />
+      {multiline ? (
+        <textarea
+          id={id}
+          className={`${baseClasses} resize-y`}
+          rows={rows}
+          {...props}
+        />
+      ) : (
+        <input
+          id={id}
+          className={baseClasses}
+          {...props}
+        />
+      )}
       {error ? (
         <small className="text-[var(--color-danger)] text-[0.8rem]">{error}</small>
       ) : null}
