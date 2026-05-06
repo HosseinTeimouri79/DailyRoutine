@@ -146,17 +146,7 @@
     font-family: var(--font-family-base);
   }
 
-  :root,
   body {
-    @apply text-text-primary bg-page;
-  }
-
-  body {
-    @apply m-0 min-h-screen text-[var(--font-size-body)];
     background: var(--color-bg-page-gradient);
-  }
-
-  a {
-    @apply text-inherit;
   }
 }
