@@ -5,6 +5,7 @@ import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import ThemeSwitcher from "../components/ui/ThemeSwitcher";
 import LanguageSwitcher from "../components/ui/LanguageSwitcher";
+import Dropdown from "../components/ui/Dropdown";
 import Modal from "../components/ui/Modal";
 import DatePicker from "../components/ui/DatePicker";
 import { api, setSession, getToken } from "../lib/api";
@@ -181,48 +182,52 @@ export default function LoginPage() {
                   <label className={FIELD_LABEL_CLASSES} htmlFor="calendarType">
                     {t("login.calendarType", language)}
                   </label>
-                  <select
+                  <Dropdown
                     id="calendarType"
-                    className={INPUT_BASE_CLASSES}
+                    className="w-full"
                     value={form.calendar_type}
-                    onChange={(e) =>
+                    onChange={(nextValue) =>
                       setForm((prev) => ({
                         ...prev,
-                        calendar_type: e.target.value,
+                        calendar_type: nextValue,
                       }))
                     }
-                  >
-                    <option value="jalali">
-                      {t("login.calendarJalali", language)}
-                    </option>
-                    <option value="gregorian">
-                      {t("login.calendarGregorian", language)}
-                    </option>
-                  </select>
+                    options={[
+                      {
+                        value: "jalali",
+                        label: t("login.calendarJalali", language),
+                      },
+                      {
+                        value: "gregorian",
+                        label: t("login.calendarGregorian", language),
+                      },
+                    ]}
+                  />
                 </div>
                 <div className={FIELD_CLASSES}>
                   <label className={FIELD_LABEL_CLASSES} htmlFor="gender">
                     {t("login.gender", language)}
                   </label>
-                  <select
+                  <Dropdown
                     id="gender"
-                    className={INPUT_BASE_CLASSES}
+                    className="w-full"
                     value={form.gender}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, gender: e.target.value }))
+                    onChange={(nextValue) =>
+                      setForm((prev) => ({ ...prev, gender: nextValue }))
                     }
-                  >
-                    <option value="">{t("login.gender", language)}</option>
-                    <option value="male">
-                      {t("login.genderMale", language)}
-                    </option>
-                    <option value="female">
-                      {t("login.genderFemale", language)}
-                    </option>
-                    <option value="other">
-                      {t("login.genderOther", language)}
-                    </option>
-                  </select>
+                    options={[
+                      { value: "", label: t("login.gender", language) },
+                      { value: "male", label: t("login.genderMale", language) },
+                      {
+                        value: "female",
+                        label: t("login.genderFemale", language),
+                      },
+                      {
+                        value: "other",
+                        label: t("login.genderOther", language),
+                      },
+                    ]}
+                  />
                 </div>
               </div>
             </>

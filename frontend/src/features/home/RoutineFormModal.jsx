@@ -4,17 +4,9 @@ import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import TimePicker from "../../components/ui/TimePicker";
 import IconPickerModal from "../../components/ui/IconPickerModal";
+import Dropdown from "../../components/ui/Dropdown";
 import { t } from "../../lib/i18n";
 import { RECURRENCE_MODES } from "../../lib/recurrence";
-
-const SELECT_BASE_CLASSES = [
-  "w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)]",
-  "bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)]",
-  "focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)]",
-  "focus:border-[var(--color-primary)]",
-  "disabled:bg-[color-mix(in_srgb,var(--color-bg-surface-soft)_82%,var(--color-bg-page))]",
-  "disabled:text-[var(--color-text-muted)] disabled:cursor-not-allowed",
-].join(" ");
 
 export default function RoutineFormModal({
   isOpen,
@@ -86,22 +78,26 @@ export default function RoutineFormModal({
             >
               {t("weekly.recurrenceMode", language)}
             </label>
-            <select
+            <Dropdown
               id="routineRecurrenceMode"
-              className={SELECT_BASE_CLASSES}
+              className="w-full"
               value={recurrenceMode}
-              onChange={(event) => onChangeRecurrenceMode(event.target.value)}
-            >
-              <option value={RECURRENCE_MODES.SPECIFIC_WEEKDAYS}>
-                {t("weekly.recurrenceSpecificWeekdays", language)}
-              </option>
-              <option value={RECURRENCE_MODES.WEEKLY_DAY}>
-                {t("weekly.recurrenceWeeklyDay", language)}
-              </option>
-              <option value={RECURRENCE_MODES.MONTHLY_DAY}>
-                {t("weekly.recurrenceMonthlyDay", language)}
-              </option>
-            </select>
+              onChange={(nextValue) => onChangeRecurrenceMode(nextValue)}
+              options={[
+                {
+                  value: RECURRENCE_MODES.SPECIFIC_WEEKDAYS,
+                  label: t("weekly.recurrenceSpecificWeekdays", language),
+                },
+                {
+                  value: RECURRENCE_MODES.WEEKLY_DAY,
+                  label: t("weekly.recurrenceWeeklyDay", language),
+                },
+                {
+                  value: RECURRENCE_MODES.MONTHLY_DAY,
+                  label: t("weekly.recurrenceMonthlyDay", language),
+                },
+              ]}
+            />
           </div>
 
           {recurrenceMode === RECURRENCE_MODES.SPECIFIC_WEEKDAYS ? (
@@ -145,23 +141,13 @@ export default function RoutineFormModal({
               >
                 {t("weekly.recurrenceDayOfWeek", language)}
               </label>
-              <select
+              <Dropdown
                 id="routineDayOfWeek"
-                className={SELECT_BASE_CLASSES}
+                className="w-full"
                 value={dayOfWeek}
-                onChange={(event) =>
-                  onChangeDayOfWeek(Number(event.target.value))
-                }
-              >
-                {recurrenceWeekdayOptions.map((option) => (
-                  <option
-                    key={`routine-weekly-day-${option.value}`}
-                    value={option.value}
-                  >
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+                onChange={(nextValue) => onChangeDayOfWeek(Number(nextValue))}
+                options={recurrenceWeekdayOptions}
+              />
             </div>
           ) : null}
 

@@ -17,19 +17,13 @@ import Button from "../ui/Button";
 import Modal from "../ui/Modal";
 import ThemeSwitcher from "../ui/ThemeSwitcher";
 import LanguageSwitcher from "../ui/LanguageSwitcher";
+import Dropdown from "../ui/Dropdown";
 import {
   CONFETTI_MODE_OPTIONS,
   getSavedConfettiSettings,
   setConfettiSettings,
 } from "../../lib/confetti";
 import { PAGE_TRANSITION_MODE_OPTIONS } from "../../lib/pageTransition";
-
-const SELECT_BASE_CLASSES = [
-  "w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)]",
-  "bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)]",
-  "focus:outline-[2px] focus:outline-[color-mix(in_srgb,var(--color-primary)_34%,transparent)]",
-  "focus:border-[var(--color-primary)]",
-].join(" ");
 
 export default function AppShell({ title, children }) {
   const initialUser = getUser();
@@ -407,7 +401,10 @@ export default function AppShell({ title, children }) {
                 />
               ) : (
                 <div className="w-[120px] h-[120px] rounded-full border border-[var(--color-border-default)] grid place-items-center font-bold text-[var(--color-secondary)] bg-[var(--color-primary-soft)] text-[1.2rem]">
-                  {(user?.name || t("common.userFallback", language)).slice(0, 1)}
+                  {(user?.name || t("common.userFallback", language)).slice(
+                    0,
+                    1,
+                  )}
                 </div>
               )}
             </button>
@@ -451,17 +448,27 @@ export default function AppShell({ title, children }) {
                 >
                   {t("appShell.gender", language)}
                 </label>
-                <select
+                <Dropdown
                   id="profileGender"
-                  className={SELECT_BASE_CLASSES}
+                  className="w-full"
                   value={profileGender}
-                  onChange={(event) => setProfileGender(event.target.value)}
-                >
-                  <option value="">{t("appShell.gender", language)}</option>
-                  <option value="male">{t("appShell.genderMale", language)}</option>
-                  <option value="female">{t("appShell.genderFemale", language)}</option>
-                  <option value="other">{t("appShell.genderOther", language)}</option>
-                </select>
+                  onChange={(nextValue) => setProfileGender(nextValue)}
+                  options={[
+                    { value: "", label: t("appShell.gender", language) },
+                    {
+                      value: "male",
+                      label: t("appShell.genderMale", language),
+                    },
+                    {
+                      value: "female",
+                      label: t("appShell.genderFemale", language),
+                    },
+                    {
+                      value: "other",
+                      label: t("appShell.genderOther", language),
+                    },
+                  ]}
+                />
               </div>
               <div className="grid gap-1.5 w-full">
                 <label
@@ -470,15 +477,22 @@ export default function AppShell({ title, children }) {
                 >
                   {t("appShell.calendarType", language)}
                 </label>
-                <select
+                <Dropdown
                   id="profileCalendarType"
-                  className={SELECT_BASE_CLASSES}
+                  className="w-full"
                   value={profileCalendarType}
-                  onChange={(event) => setProfileCalendarType(event.target.value)}
-                >
-                  <option value="jalali">{t("appShell.calendarJalali", language)}</option>
-                  <option value="gregorian">{t("appShell.calendarGregorian", language)}</option>
-                </select>
+                  onChange={(nextValue) => setProfileCalendarType(nextValue)}
+                  options={[
+                    {
+                      value: "jalali",
+                      label: t("appShell.calendarJalali", language),
+                    },
+                    {
+                      value: "gregorian",
+                      label: t("appShell.calendarGregorian", language),
+                    },
+                  ]}
+                />
               </div>
             </div>
 
@@ -606,27 +620,19 @@ export default function AppShell({ title, children }) {
               >
                 {t("confetti.mode", language)}
               </label>
-              <div className="relative">
-                <select
-                  id="confettiMode"
-                  className={`${SELECT_BASE_CLASSES} appearance-none [padding-inline-end:36px]`}
-                  value={confettiSettings.mode}
-                  onChange={(event) =>
-                    updateConfettiSettings({ mode: event.target.value })
-                  }
-                  disabled={!confettiSettings.enabled}
-                >
-                  {CONFETTI_MODE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {t(`confetti.modes.${option.value}`, language)}
-                    </option>
-                  ))}
-                </select>
-                <i
-                  className="fa-solid fa-chevron-down absolute text-[var(--color-text-secondary)] pointer-events-none text-[0.82rem] [inset-inline-end:12px] top-1/2 -translate-y-1/2"
-                  aria-hidden="true"
-                />
-              </div>
+              <Dropdown
+                id="confettiMode"
+                className="w-full"
+                value={confettiSettings.mode}
+                onChange={(nextValue) =>
+                  updateConfettiSettings({ mode: nextValue })
+                }
+                disabled={!confettiSettings.enabled}
+                options={CONFETTI_MODE_OPTIONS.map((option) => ({
+                  value: option.value,
+                  label: t(`confetti.modes.${option.value}`, language),
+                }))}
+              />
             </div>
           </div>
 
@@ -662,27 +668,19 @@ export default function AppShell({ title, children }) {
               >
                 {t("pageTransition.mode", language)}
               </label>
-              <div className="relative">
-                <select
-                  id="pageTransitionMode"
-                  className={`${SELECT_BASE_CLASSES} appearance-none [padding-inline-end:36px]`}
-                  value={pageTransitionSettings.mode}
-                  onChange={(event) =>
-                    updatePageTransitionSettings({ mode: event.target.value })
-                  }
-                  disabled={!pageTransitionSettings.enabled}
-                >
-                  {PAGE_TRANSITION_MODE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {t(`pageTransition.modes.${option.value}`, language)}
-                    </option>
-                  ))}
-                </select>
-                <i
-                  className="fa-solid fa-chevron-down absolute text-[var(--color-text-secondary)] pointer-events-none text-[0.82rem] [inset-inline-end:12px] top-1/2 -translate-y-1/2"
-                  aria-hidden="true"
-                />
-              </div>
+              <Dropdown
+                id="pageTransitionMode"
+                className="w-full"
+                value={pageTransitionSettings.mode}
+                onChange={(nextValue) =>
+                  updatePageTransitionSettings({ mode: nextValue })
+                }
+                disabled={!pageTransitionSettings.enabled}
+                options={PAGE_TRANSITION_MODE_OPTIONS.map((option) => ({
+                  value: option.value,
+                  label: t(`pageTransition.modes.${option.value}`, language),
+                }))}
+              />
             </div>
           </div>
 

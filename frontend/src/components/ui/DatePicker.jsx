@@ -7,6 +7,7 @@ import {
   getTodayISO,
 } from "../../lib/date";
 import { t } from "../../lib/i18n";
+import Dropdown from "./Dropdown";
 
 export default function DatePicker({
   month,
@@ -115,32 +116,25 @@ export default function DatePicker({
               className="mt-2 grid grid-cols-2 gap-2 w-full max-w-[340px] max-[720px]:w-full"
               role="group"
             >
-              <select
-                className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] min-w-0"
+              <Dropdown
+                className="w-full"
                 value={month?.month || 1}
-                onChange={(event) =>
-                  setMonthFromPicker(month?.year, event.target.value)
+                options={monthOptions}
+                onChange={(nextMonth) =>
+                  setMonthFromPicker(month?.year, nextMonth)
                 }
-              >
-                {monthOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <select
-                className="w-full rounded-[var(--radius-sm)] border border-[var(--color-border-soft)] bg-[var(--color-bg-surface)] px-3 py-2.5 text-[var(--color-text-primary)] min-w-0"
+              />
+              <Dropdown
+                className="w-full"
                 value={month?.year || yearOptions[0]}
-                onChange={(event) =>
-                  setMonthFromPicker(event.target.value, month?.month || 1)
+                options={yearOptions.map((yearValue) => ({
+                  value: yearValue,
+                  label: String(yearValue),
+                }))}
+                onChange={(nextYear) =>
+                  setMonthFromPicker(nextYear, month?.month || 1)
                 }
-              >
-                {yearOptions.map((yearValue) => (
-                  <option key={yearValue} value={yearValue}>
-                    {yearValue}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
           ) : null}
         </div>
