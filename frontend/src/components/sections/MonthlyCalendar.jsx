@@ -8,9 +8,7 @@ import { t } from "../../lib/i18n";
 
 function SelectedRoutinePieReport({ data, language, selectedRoutineStreaks }) {
   if (!data)
-    return (
-      <p className="text-text-muted">{t("dailyTasks.loading", language)}</p>
-    );
+    return <p className="text-muted">{t("dailyTasks.loading", language)}</p>;
 
   const done = data.done || 0;
   const missed = data.missed || 0;

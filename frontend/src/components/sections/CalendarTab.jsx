@@ -399,7 +399,7 @@ function CalendarTab({ language, calendarType }) {
       />
 
       <div className="grid gap-[10px]">
-        <p className="text-text-muted">
+        <p className="text-muted">
           {t("calendarTab.selectedDate", language)}:{" "}
           {formatDateParts(selectedDate, language, calendarType).day}{" "}
           {formatMonthYear(selectedDate, language, calendarType)}
@@ -427,7 +427,7 @@ function CalendarTab({ language, calendarType }) {
         <div className="flex justify-between items-start gap-4">
           <div>
             <h3>{t("calendarTab.importantDaySectionTitle", language)}</h3>
-            <p className="text-text-muted">
+            <p className="text-muted">
               {t("calendarTab.importantDaySectionDescription", language)}
             </p>
           </div>
@@ -474,7 +474,7 @@ function CalendarTab({ language, calendarType }) {
                               "calendarTab.importantDayDelete",
                               language,
                             )}
-                            className="delete"
+                            className="bg-[var(--color-danger-soft)] border border-[var(--color-danger-border)] text-[var(--color-danger)]"
                             onClick={() => handleDeleteImportantDay(item)}
                           />
                         </>

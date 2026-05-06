@@ -28,7 +28,7 @@ const TaskListItem = memo(function TaskListItem({
       <IconButton
         icon="fa-solid fa-trash"
         label={t("dailyTasks.deleteTask", language)}
-        className="delete"
+        className="bg-[var(--color-danger-soft)] border border-[var(--color-danger-border)] text-[var(--color-danger)]"
         onClick={() => onDelete(task)}
       />
       <button
@@ -101,7 +101,7 @@ function DailyTasks({
       />
 
       <div className="flex justify-between">
-        <p className="muted tasks-selected-date">
+        <p className="text-[var(--color-text-secondary)] m-0 text-center text-[0.92rem]">
           {t("dailyTasks.selectedDate", language)}:{" "}
           {formatDateParts(tasksDate, language, calendarType).day}{" "}
           {formatMonthYear(tasksDate, language, calendarType)}
@@ -112,7 +112,7 @@ function DailyTasks({
       </div>
 
       {tasksLoading ? (
-        <p className="text-text-muted">{t("dailyTasks.loading", language)}</p>
+        <p className="text-muted">{t("dailyTasks.loading", language)}</p>
       ) : null}
 
       {!tasksLoading && !tasks.length ? (

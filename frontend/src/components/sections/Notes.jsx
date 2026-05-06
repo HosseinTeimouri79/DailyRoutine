@@ -85,7 +85,7 @@ function Notes({
       </div>
 
       {notesLoading ? (
-        <p className="text-text-muted">{t("notes.loading", language)}</p>
+        <p className="text-muted">{t("notes.loading", language)}</p>
       ) : null}
 
       {!notesLoading && !notes.length ? (
