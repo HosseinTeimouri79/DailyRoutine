@@ -1,0 +1,44 @@
+{
+  "name": "hadafino-desktop-linux",
+  "version": "1.0.0",
+  "private": true,
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "concurrently \"npm run web:dev\" \"wait-on http://localhost:8081 && electron .\"",
+    "web:dev": "cd ../mobile && expo start --web --port 8081",
+    "build": "npm run web:build && electron-builder --linux",
+    "web:build": "cd ../mobile && expo export --platform web --output-dir ../../desktop-linux/web-build",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8",
+    "concurrently": "^9.1.0",
+    "wait-on": "^8.0.1",
+    "typescript": "*"
+  },
+  "build": {
+    "appId": "com.hadafino.desktop",
+    "productName": "Hadafino",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "web-build/**/*"
+    ],
+    "linux": {
+      "target": ["AppImage", "deb", "rpm"],
+      "category": "Utility",
+      "icon": "assets/icon.png"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "hadafino",
+      "repo": "hadafino-app"
+    }
+  }
+}

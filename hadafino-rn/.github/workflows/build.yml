@@ -1,0 +1,219 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to build'
+        required: true
+        default: 'all'
+        type: choice
+        options: [all, android, ios, web, linux, windows, macos]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+jobs:
+  # ─── Android ────────────────────────────────────────────────────────────────
+  build-android:
+    name: Android (EAS)
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == 'android' || startsWith(github.ref, 'refs/tags/') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '${{ env.NODE_VERSION }}', cache: npm }
+      - run: npm ci
+      - uses: expo/expo-github-action@v8
+        with: { expo-version: latest, eas-version: latest, token: '${{ env.EXPO_TOKEN }}' }
+      - name: Build Android APK + AAB
+        working-directory: apps/mobile
+        run: eas build --platform android --profile production --non-interactive
+
+  # ─── iOS ────────────────────────────────────────────────────────────────────
+  build-ios:
+    name: iOS (EAS)
+    runs-on: macos-latest
+    if: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ios' || startsWith(github.ref, 'refs/tags/') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '${{ env.NODE_VERSION }}', cache: npm }
+      - run: npm ci
+      - uses: expo/expo-github-action@v8
+        with: { expo-version: latest, eas-version: latest, token: '${{ env.EXPO_TOKEN }}' }
+      - name: Build iOS IPA
+        working-directory: apps/mobile
+        run: eas build --platform ios --profile production --non-interactive
+
+  # ─── Web ────────────────────────────────────────────────────────────────────
+  build-web:
+    name: Web (Expo)
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == 'web' || startsWith(github.ref, 'refs/tags/') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '${{ env.NODE_VERSION }}', cache: npm }
+      - run: npm ci
+      - name: Build web
+        working-directory: apps/mobile
+        run: npx expo export --platform web --output-dir ../../web-dist
+        env:
+          EXPO_PUBLIC_API_URL: ${{ secrets.API_URL }}
+      - uses: actions/upload-artifact@v4
+        with: { name: web-build, path: web-dist/, retention-days: 7 }
+      - name: Deploy to GitHub Pages
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: web-dist
+
+  # ─── Linux Desktop ──────────────────────────────────────────────────────────
+  build-linux:
+    name: Linux Desktop (Electron)
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == 'linux' || startsWith(github.ref, 'refs/tags/') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '${{ env.NODE_VERSION }}', cache: npm }
+      - run: sudo apt-get update -y && sudo apt-get install -y rpm fakeroot dpkg
+      - run: npm ci
+      - name: Build web bundle for Electron
+        working-directory: apps/mobile
+        run: npx expo export --platform web --output-dir ../desktop-linux/web-build
+        env:
+          EXPO_PUBLIC_API_URL: ${{ secrets.API_URL }}
+      - name: Build Electron packages
+        working-directory: apps/desktop-linux
+        run: npm run build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-desktop
+          path: |
+            apps/desktop-linux/dist/*.AppImage
+            apps/desktop-linux/dist/*.deb
+            apps/desktop-linux/dist/*.rpm
+          retention-days: 14
+
+  # ─── Windows Desktop ────────────────────────────────────────────────────────
+  build-windows:
+    name: Windows Desktop (React Native Windows)
+    runs-on: windows-latest
+    if: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == 'windows' || startsWith(github.ref, 'refs/tags/') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with: { node-version: '${{ env.NODE_VERSION }}', cache: npm }
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Windows app dependencies
+        working-directory: apps/desktop-windows
+        run: npm ci
+
+      - name: Install React Native Windows
+        working-directory: apps/desktop-windows
+        run: npx react-native-windows-init --overwrite --version 0.76.x
+
+      - name: Build Windows release
+        working-directory: apps/desktop-windows
+        run: npx react-native run-windows --release --no-launch
+        env:
+          HADAFINO_API_URL: ${{ secrets.API_URL }}
+
+      - name: Collect MSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-desktop
+          path: apps/desktop-windows/windows/AppPackages/**/*.msix
+          retention-days: 14
+
+  # ─── macOS Desktop ──────────────────────────────────────────────────────────
+  build-macos:
+    name: macOS Desktop (React Native macOS)
+    runs-on: macos-latest
+    if: ${{ github.event.inputs.platform == 'all' || github.event.inputs.platform == 'macos' || startsWith(github.ref, 'refs/tags/') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with: { node-version: '${{ env.NODE_VERSION }}', cache: npm }
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install macOS app dependencies
+        working-directory: apps/desktop-macos
+        run: npm ci
+
+      - name: Install React Native macOS
+        working-directory: apps/desktop-macos
+        run: npx react-native-macos-init --overwrite --version 0.76.x
+
+      - name: Install CocoaPods
+        working-directory: apps/desktop-macos/macos
+        run: pod install
+
+      - name: Build macOS release
+        working-directory: apps/desktop-macos
+        run: npx react-native run-macos --configuration Release --no-launch
+        env:
+          HADAFINO_API_URL: ${{ secrets.API_URL }}
+
+      - name: Archive .app bundle
+        run: |
+          cd apps/desktop-macos
+          zip -r hadafino-macos.zip macos/build/Build/Products/Release/hadafino.app
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-desktop
+          path: apps/desktop-macos/hadafino-macos.zip
+          retention-days: 14
+
+  # ─── Release ────────────────────────────────────────────────────────────────
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-web, build-linux, build-windows, build-macos]
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with: { name: linux-desktop, path: artifacts/linux }
+
+      - uses: actions/download-artifact@v4
+        with: { name: windows-desktop, path: artifacts/windows }
+
+      - uses: actions/download-artifact@v4
+        with: { name: macos-desktop, path: artifacts/macos }
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/linux/*.AppImage
+            artifacts/linux/*.deb
+            artifacts/linux/*.rpm
+            artifacts/windows/*.msix
+            artifacts/macos/*.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref, '-beta') || contains(github.ref, '-rc') }}

@@ -1,0 +1,68 @@
+{
+  "expo": {
+    "name": "Hadafino",
+    "slug": "hadafino",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "hadafino",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#f4f7ff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hadafino.app",
+      "infoPlist": {
+        "NSUserNotificationsUsageDescription": "Hadafino uses notifications for routine and task alarms."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#f4f7ff"
+      },
+      "package": "com.hadafino.app",
+      "permissions": [
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.POST_NOTIFICATIONS"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#375dfb",
+          "sounds": ["./assets/sounds/alarm.wav"]
+        }
+      ],
+      "expo-background-fetch",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Hadafino to access your photos."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "YOUR_EAS_PROJECT_ID"
+      }
+    }
+  }
+}
